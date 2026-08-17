@@ -189,3 +189,11 @@ INFO:     Finished server process [6574]
 INFO:     Started server process [6744]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/app/config.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [6744]
+INFO:     Started server process [6806]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
