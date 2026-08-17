@@ -1,6 +1,6 @@
 import { Task, Project, Tag, Subtask, ActivityLog, DailyLogGroup, AIParseResult, AIStatus } from '../types';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
 const getHeaders = (customHeaders: Record<string, string> = {}) => {
   const token = localStorage.getItem('nexus_auth_token');
