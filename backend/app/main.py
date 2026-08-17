@@ -2,7 +2,10 @@ from fastapi import FastAPI, Request, status, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from fastapi.exceptions import RequestValidationError
 import os
+import traceback
 
 from backend.app.config import settings
 from backend.app.services.auth_service import get_current_user
@@ -30,13 +33,29 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Exception handlers
+# Explicit HTTP exception handlers to preserve status codes (401, 404, 422)
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail},
+        headers=getattr(exc, "headers", None)
+    )
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content={"detail": exc.errors()}
+    )
+
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     print(f"[GLOBAL_EXCEPTION] {request.method} {request.url}: {exc}")
+    traceback.print_exc()
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content={"detail": "An unexpected server error occurred. Please try again."}
+        content={"detail": f"Server error: {str(exc)}"}
     )
 
 # Include Routers

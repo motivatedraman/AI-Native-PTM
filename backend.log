@@ -181,3 +181,11 @@ INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     127.0.0.1:51358 - "OPTIONS /api/daily-log?target_date=2026-08-17 HTTP/1.1" 200 OK
 INFO:     127.0.0.1:51374 - "GET /api/daily-log?target_date=2026-08-17 HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'backend/app/main.py', 'backend/app/routers/auth.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [6574]
+INFO:     Started server process [6744]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
