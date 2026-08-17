@@ -29,3 +29,7 @@ This document tracks completed features and milestones for the **AI-Native Perso
 ### Auth Credential Configuration Fix
 - [x] **Removed Hardcoded Form Defaults**: Cleared default state values from [`LoginScreen.tsx`](file:///home/raman/Projects/test1/frontend/src/components/LoginScreen.tsx) so fields are empty by default.
 - [x] **Dynamic Environment Reading**: Upgraded `SettingsConfigDict` in [`config.py`](file:///home/raman/Projects/test1/backend/app/config.py) and string normalization in [`auth.py`](file:///home/raman/Projects/test1/backend/app/routers/auth.py) so Render environment variables (`AUTH_USERNAME`, `AUTH_PASSWORD`) override defaults cleanly.
+
+### Render Blueprint & Dynamic Env Resolution Fix
+- [x] **Render.yaml Blueprint Key Fix**: Changed `AUTH_USERNAME` in [`render.yaml`](file:///home/raman/Projects/test1/render.yaml) to `sync: false` so Render does not force-overwrite custom dashboard usernames back to default.
+- [x] **Dynamic Getter Methods**: Added `get_auth_username()`, `get_auth_password()`, and `get_jwt_secret()` in [`config.py`](file:///home/raman/Projects/test1/backend/app/config.py) to read live `os.environ` per request with case-insensitive username normalization and quote stripping.

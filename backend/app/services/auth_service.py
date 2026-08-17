@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from typing import Optional
+import os
 import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -18,14 +19,15 @@ def create_access_token(username: str, expires_delta: Optional[timedelta] = None
         "exp": expire,
         "iat": datetime.utcnow(),
     }
-    encoded_jwt = jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
+    encoded_jwt = jwt.encode(payload, settings.get_jwt_secret(), algorithm=settings.JWT_ALGORITHM)
     return encoded_jwt
 
 def verify_token(token: str) -> Optional[str]:
     try:
-        payload = jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
+        payload = jwt.decode(token, settings.get_jwt_secret(), algorithms=[settings.JWT_ALGORITHM])
         username: str = payload.get("sub")
-        if username == settings.AUTH_USERNAME:
+        expected_user = settings.get_auth_username()
+        if username and username.lower() == expected_user.lower():
             return username
         return None
     except jwt.PyJWTError:

@@ -150,3 +150,34 @@ INFO:     Finished server process [6422]
 INFO:     Started server process [6497]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
+INFO:     127.0.0.1:44762 - "POST /api/auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44762 - "OPTIONS /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44766 - "OPTIONS /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44776 - "OPTIONS /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44790 - "OPTIONS /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44776 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44766 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44762 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44802 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57822 - "POST /api/auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57858 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57836 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57846 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57822 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34522 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:44380 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:47776 - "POST /api/auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47794 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47776 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47792 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47780 - "GET /api/projects HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'backend/app/services/auth_service.py', 'backend/app/routers/auth.py', 'backend/app/config.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [6497]
+INFO:     Started server process [6574]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:51358 - "OPTIONS /api/daily-log?target_date=2026-08-17 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51374 - "GET /api/daily-log?target_date=2026-08-17 HTTP/1.1" 200 OK
