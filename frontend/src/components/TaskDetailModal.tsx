@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { Task, Project, Tag, Subtask } from '../types';
 import { api } from '../services/api';
+import { formatTimeNPT, formatDateNPT } from '../utils/time';
 
 interface TaskDetailModalProps {
   task: Task | null;
@@ -471,7 +472,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                   <div key={act.id} className="flex items-center justify-between text-slate-400 py-1 border-b border-[#262a3c]/40">
                     <span>{act.description}</span>
                     <span className="font-mono text-[10px] text-slate-400">
-                      {new Date(act.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {formatTimeNPT(act.created_at, { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
                 ))}
@@ -483,7 +484,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
 
         {/* Footer */}
         <div className="px-6 py-3 border-t border-[#262a3c] bg-[#181a24]/50 flex items-center justify-between text-xs text-slate-400">
-          <span>Created: {new Date(task.created_at).toLocaleDateString()}</span>
+          <span>Created: {formatDateNPT(task.created_at)}</span>
           <button
             onClick={onClose}
             className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-medium"

@@ -11,6 +11,7 @@ import {
   Plus
 } from 'lucide-react';
 import { Task, Project } from '../types';
+import { currentHourNPT, formatDateNPT } from '../utils/time';
 
 interface TodayViewProps {
   tasks: Task[];
@@ -28,7 +29,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
   onOpenQuickAdd,
 }) => {
   const getGreeting = () => {
-    const hour = new Date().getHours();
+    const hour = currentHourNPT();
     if (hour < 12) return 'Good morning';
     if (hour < 18) return 'Good afternoon';
     return 'Good evening';
@@ -165,7 +166,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
                   {task.due_date && (
                     <span className="flex items-center space-x-1 text-[11px] text-amber-300/90">
                       <Calendar size={11} />
-                      <span>{new Date(task.due_date).toLocaleDateString([], { month: 'short', day: 'numeric' })}</span>
+                      <span>{formatDateNPT(task.due_date, { month: 'short', day: 'numeric' })}</span>
                     </span>
                   )}
                   {task.estimated_minutes && (

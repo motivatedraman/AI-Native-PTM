@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { DailyLogGroup, Task } from '../types';
 import { api } from '../services/api';
+import { todayNPT, formatDateNPT, formatTimeNPT } from '../utils/time';
 
 interface DailyLogViewProps {
   onSelectTask: (task: Task) => void;
@@ -18,7 +19,7 @@ interface DailyLogViewProps {
 
 export const DailyLogView: React.FC<DailyLogViewProps> = ({ onSelectTask }) => {
   const [logData, setLogData] = useState<DailyLogGroup | null>(null);
-  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().slice(0, 10));
+  const [selectedDate, setSelectedDate] = useState<string>(todayNPT());
   const [loading, setLoading] = useState(false);
 
   const fetchLog = async (dateStr: string) => {
@@ -38,15 +39,15 @@ export const DailyLogView: React.FC<DailyLogViewProps> = ({ onSelectTask }) => {
   }, [selectedDate]);
 
   const handlePrevDay = () => {
-    const d = new Date(selectedDate);
+    const d = new Date(selectedDate + 'T00:00:00');
     d.setDate(d.getDate() - 1);
-    setSelectedDate(d.toISOString().slice(0, 10));
+    setSelectedDate(d.toLocaleDateString('sv-SE'));
   };
 
   const handleNextDay = () => {
-    const d = new Date(selectedDate);
+    const d = new Date(selectedDate + 'T00:00:00');
     d.setDate(d.getDate() + 1);
-    setSelectedDate(d.toISOString().slice(0, 10));
+    setSelectedDate(d.toLocaleDateString('sv-SE'));
   };
 
   return (
@@ -77,7 +78,7 @@ export const DailyLogView: React.FC<DailyLogViewProps> = ({ onSelectTask }) => {
           </button>
           <div className="flex items-center space-x-2 px-2 text-xs font-semibold text-slate-200">
             <Calendar size={14} className="text-indigo-400" />
-            <span>{new Date(selectedDate).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+            <span>{formatDateNPT(selectedDate + 'T00:00:00', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
           </div>
           <button
             onClick={handleNextDay}
@@ -156,7 +157,7 @@ export const DailyLogView: React.FC<DailyLogViewProps> = ({ onSelectTask }) => {
                     <div className="flex-1 flex items-center justify-between">
                       <span className="text-slate-300 font-medium">{act.description}</span>
                       <span className="text-[10px] text-slate-400 font-mono">
-                        {new Date(act.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        {formatTimeNPT(act.created_at, { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>
                   </div>
