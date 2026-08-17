@@ -10,6 +10,13 @@ class Settings(BaseSettings):
     AI_MODEL: str = os.getenv("AI_MODEL", "gemini-1.5-flash")
     SECRET_KEY: str = os.getenv("SECRET_KEY", "dev-secret-key-replace-in-production")
     CORS_ORIGINS: str = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173")
+
+    # Single-user Authentication
+    AUTH_USERNAME: str = os.getenv("AUTH_USERNAME", "raman")
+    AUTH_PASSWORD: str = os.getenv("AUTH_PASSWORD", "admin123")
+    JWT_SECRET: str = os.getenv("JWT_SECRET", "super-secret-jwt-key-nexus-os-secure-production-32-chars-long")
+    JWT_ALGORITHM: str = "HS256"
+    JWT_EXPIRE_DAYS: int = 30
     
     @property
     def cors_origin_list(self) -> List[str]:

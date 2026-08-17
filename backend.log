@@ -65,3 +65,67 @@ INFO:     127.0.0.1:54192 - "GET /api/ai/status HTTP/1.1" 200 OK
 INFO:     127.0.0.1:54180 - "GET /api/tags HTTP/1.1" 200 OK
 INFO:     127.0.0.1:54172 - "GET /api/tasks HTTP/1.1" 200 OK
 INFO:     127.0.0.1:54166 - "GET /api/projects HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/__main__.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/ext/django/models.py', 'backend/.venv/lib64/python3.13/site-packages/jwt/algorithms.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_handlers_scrypt.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/bcrypt.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_totp.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/hosts.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/utils/decor.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_utils.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/phpass.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/sha1_crypt.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/ext/django/utils.py', 'backend/.venv/lib64/python3.13/site-packages/jwt/jwk_set_cache.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/scrypt.py', 'backend/.venv/lib64/python3.13/site-packages/jwt/jwks_client.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/totp.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/utils/pbkdf2.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/hash.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/crypto/digest.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/crypto/scrypt/_salsa.py', 'backend/.venv/lib64/python3.13/site-packages/jwt/api_jwt.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_handlers_pbkdf2.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/roundup.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/ldap_digests.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_apache.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_utils_md4.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_apps.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/registry.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/crypto/_blowfish/_gen_files.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/digests.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/utils/__init__.py', 'backend/.venv/lib64/python3.13/site-packages/jwt/exceptions.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/apps.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/utils/md4.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/sun_md5_crypt.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/mysql.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_handlers_argon2.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/misc.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/exc.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_context.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_crypto_scrypt.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/ifc.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_registry.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/md5_crypt.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_hosts.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_crypto_builtin_md4.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/__init__.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/crypto/scrypt/_builtin.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_win32.py', 'backend/.venv/lib64/python3.13/site-packages/jwt/types.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/ext/django/__init__.py', 'backend/.venv/lib64/python3.13/site-packages/jwt/warnings.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/apache.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/utils/binary.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/mssql.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_crypto_digest.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/tox_support.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/windows.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_handlers.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_ext_django_source.py', 'backend/.venv/lib64/python3.13/site-packages/jwt/api_jws.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/pbkdf2.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/crypto/des.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/__init__.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_pwd.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/win32.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/crypto/_blowfish/__init__.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/_test_bad_register.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/oracle.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/ext/__init__.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/postgres.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/utils.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/sha2_crypt.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_ext_django.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/utils/compat/__init__.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/scram.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/fshp.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_utils_pbkdf2.py', 'backend/.venv/lib64/python3.13/site-packages/jwt/utils.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/backports.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/cisco.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/crypto/__init__.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_context_deprecated.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/crypto/scrypt/_gen_files.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_handlers_django.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_utils_handlers.py', 'backend/.venv/lib64/python3.13/site-packages/bcrypt/__init__.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/crypto/_md4.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_handlers_bcrypt.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/argon2.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/utils/des.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/pwd.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/context.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/crypto/scrypt/__init__.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/crypto/_blowfish/base.py', 'backend/.venv/lib64/python3.13/site-packages/jwt/__init__.py', 'backend/.venv/lib64/python3.13/site-packages/jwt/api_jwk.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/__init__.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/des_crypt.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_crypto_des.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_handlers_cisco.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/django.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/crypto/_blowfish/unrolled.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/utils/handlers.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/utils/compat/_ordered_dict.py', 'backend/.venv/lib64/python3.13/site-packages/jwt/help.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [6207]
+INFO:     Started server process [6337]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/app/config.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [6337]
+INFO:     Started server process [6343]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/app/services/auth_service.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [6343]
+INFO:     Started server process [6347]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/app/routers/auth.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [6347]
+INFO:     Started server process [6351]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/app/main.py', 'backend/app/routers/__init__.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [6351]
+INFO:     Started server process [6356]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:49656 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49656 - "GET /assets/index-BV9W8s49.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49670 - "GET /assets/index-msrphF-y.css HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'backend/app/config.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [6356]
+INFO:     Started server process [6422]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:45854 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:45854 - "GET /assets/index-BV9W8s49.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:45858 - "GET /assets/index-msrphF-y.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:45858 - "POST /api/auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45882 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45868 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45854 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45858 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41684 - "POST /api/auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41718 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41700 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41716 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41684 - "GET /api/tasks HTTP/1.1" 200 OK

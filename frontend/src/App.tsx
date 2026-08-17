@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from './components/Sidebar';
+import { LoginScreen } from './components/LoginScreen';
 import { QuickCaptureModal } from './components/QuickCaptureModal';
 import { TaskDetailModal } from './components/TaskDetailModal';
 import { CommandPalette } from './components/CommandPalette';
@@ -13,6 +14,9 @@ import { Task, Project, Tag, ActiveView, AIStatus } from './types';
 import { api } from './services/api';
 
 export const App: React.FC = () => {
+  const [currentUser, setCurrentUser] = useState<string | null>(null);
+  const [isAuthChecking, setIsAuthChecking] = useState(true);
+
   const [activeView, setActiveView] = useState<ActiveView>('today');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -24,10 +28,34 @@ export const App: React.FC = () => {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Load initial data
+  // Check auth session
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = api.getToken();
+      if (!token) {
+        setIsAuthChecking(false);
+        return;
+      }
+      try {
+        const user = await api.getMe();
+        setCurrentUser(user.username);
+        loadData();
+      } catch (err) {
+        api.clearToken();
+        setCurrentUser(null);
+      } finally {
+        setIsAuthChecking(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
+
+  // Load workspace data
   const loadData = async () => {
+    setIsLoading(true);
     try {
       const [tasksRes, projectsRes, tagsRes, aiStatusRes] = await Promise.all([
         api.getTasks(),
@@ -40,20 +68,30 @@ export const App: React.FC = () => {
       setTags(tagsRes);
       if (aiStatusRes) setAiStatus(aiStatusRes);
     } catch (err) {
-      console.error("Failed to load initial data:", err);
+      console.error("Failed to load workspace data:", err);
     } finally {
       setIsLoading(false);
     }
   };
 
-  useEffect(() => {
+  const handleLoginSuccess = (username: string) => {
+    setCurrentUser(username);
     loadData();
-  }, []);
+  };
+
+  const handleLogout = () => {
+    api.clearToken();
+    setCurrentUser(null);
+    setTasks([]);
+    setProjects([]);
+    setTags([]);
+  };
 
   // Global Keyboard Shortcuts
   useEffect(() => {
+    if (!currentUser) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't trigger if user is typing in an input or textarea
       const target = e.target as HTMLElement;
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
         return;
@@ -70,7 +108,7 @@ export const App: React.FC = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [currentUser]);
 
   // Task Handlers
   const handleTaskCreated = (newTask: Task) => {
@@ -109,6 +147,18 @@ export const App: React.FC = () => {
     setIsDetailOpen(true);
   };
 
+  if (isAuthChecking) {
+    return (
+      <div className="h-screen w-screen bg-[#090a0f] flex items-center justify-center text-slate-500 text-xs font-mono">
+        Verifying security session...
+      </div>
+    );
+  }
+
+  if (!currentUser) {
+    return <LoginScreen onLoginSuccess={handleLoginSuccess} />;
+  }
+
   const taskCounts = {
     today: tasks.filter(t => t.status !== 'done').length,
     inbox: tasks.filter(t => t.status === 'inbox').length,
@@ -127,14 +177,16 @@ export const App: React.FC = () => {
         onOpenQuickAdd={() => setIsQuickAddOpen(true)}
         onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
         aiStatus={aiStatus}
+        currentUser={currentUser}
+        onLogout={handleLogout}
         taskCounts={taskCounts}
       />
 
       {/* Main View Area */}
       <main className="flex-1 flex flex-col h-screen overflow-y-auto bg-[#090a0f] p-6">
-        {isLoading ? (
+        {isLoading && tasks.length === 0 ? (
           <div className="flex-1 flex items-center justify-center text-slate-500 text-xs">
-            Loading your execution center...
+            Syncing workspace data...
           </div>
         ) : (
           <>

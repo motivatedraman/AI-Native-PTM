@@ -10,7 +10,9 @@ import {
   Sparkles, 
   ChevronLeft, 
   ChevronRight,
-  Plus
+  Plus,
+  LogOut,
+  User
 } from 'lucide-react';
 import { ActiveView, AIStatus } from '../types';
 
@@ -22,6 +24,8 @@ interface SidebarProps {
   onOpenQuickAdd: () => void;
   onOpenCommandPalette: () => void;
   aiStatus: AIStatus | null;
+  currentUser: string | null;
+  onLogout: () => void;
   taskCounts: {
     today: number;
     inbox: number;
@@ -37,6 +41,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onOpenQuickAdd,
   onOpenCommandPalette,
   aiStatus,
+  currentUser,
+  onLogout,
   taskCounts
 }) => {
   const navItems = [
@@ -139,8 +145,32 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </nav>
       </div>
 
-      {/* Bottom Status */}
-      <div className="p-3 border-t border-[#262a3c]/60">
+      {/* Bottom User & AI Status */}
+      <div className="p-3 border-t border-[#262a3c]/60 space-y-2">
+        {/* User Card */}
+        <div className={`flex items-center justify-between p-2 rounded-lg bg-[#181a24] border border-[#262a3c] text-xs ${isCollapsed ? 'justify-center' : ''}`}>
+          <div className="flex items-center space-x-2 truncate">
+            <div className="w-6 h-6 rounded-full bg-indigo-600/30 border border-indigo-500/40 flex items-center justify-center text-indigo-300 font-bold text-[10px] flex-shrink-0">
+              {currentUser ? currentUser[0].toUpperCase() : 'U'}
+            </div>
+            {!isCollapsed && (
+              <span className="text-slate-200 font-medium truncate text-xs">
+                {currentUser || 'Raman'}
+              </span>
+            )}
+          </div>
+          {!isCollapsed && (
+            <button
+              onClick={onLogout}
+              className="p-1 rounded text-slate-500 hover:text-rose-400 hover:bg-rose-950/30 transition-colors"
+              title="Logout"
+            >
+              <LogOut size={14} />
+            </button>
+          )}
+        </div>
+
+        {/* AI Engine Status */}
         <div
           className={`flex items-center space-x-2.5 p-2 rounded-lg bg-[#181a24] border border-[#262a3c] text-xs ${
             isCollapsed ? 'justify-center' : ''
