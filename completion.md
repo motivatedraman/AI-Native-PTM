@@ -25,3 +25,7 @@ This document tracks completed features and milestones for the **AI-Native Perso
 ### Render Deployment Configuration
 - [x] **PostgreSQL & SQLite Interoperability**: Added `psycopg2-binary` to backend dependencies for instant Render Managed Postgres support without rebuilding.
 - [x] **Blueprint & Single-Service Deploy**: Updated `render.yaml` with auth environment variables and single-command `./build.sh` pipeline.
+
+### Auth Credential Configuration Fix
+- [x] **Removed Hardcoded Form Defaults**: Cleared default state values from [`LoginScreen.tsx`](file:///home/raman/Projects/test1/frontend/src/components/LoginScreen.tsx) so fields are empty by default.
+- [x] **Dynamic Environment Reading**: Upgraded `SettingsConfigDict` in [`config.py`](file:///home/raman/Projects/test1/backend/app/config.py) and string normalization in [`auth.py`](file:///home/raman/Projects/test1/backend/app/routers/auth.py) so Render environment variables (`AUTH_USERNAME`, `AUTH_PASSWORD`) override defaults cleanly.

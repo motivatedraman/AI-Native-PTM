@@ -20,17 +20,23 @@ class UserProfile(BaseModel):
 
 @router.post("/login", response_model=LoginResponse)
 def login(payload: LoginRequest):
-    if payload.username != settings.AUTH_USERNAME or payload.password != settings.AUTH_PASSWORD:
+    # Normalize comparison by stripping any inadvertent trailing whitespaces or surrounding quotes
+    expected_user = settings.AUTH_USERNAME.strip().strip('"').strip("'")
+    expected_pass = settings.AUTH_PASSWORD.strip().strip('"').strip("'")
+    provided_user = payload.username.strip()
+    provided_pass = payload.password.strip()
+
+    if provided_user != expected_user or provided_pass != expected_pass:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password"
         )
 
-    token = create_access_token(username=settings.AUTH_USERNAME)
+    token = create_access_token(username=expected_user)
     return LoginResponse(
         access_token=token,
         token_type="bearer",
-        username=settings.AUTH_USERNAME
+        username=expected_user
     )
 
 @router.get("/me", response_model=UserProfile)

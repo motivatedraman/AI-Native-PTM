@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Lock, ArrowRight, Loader2, Sparkles, ShieldCheck } from 'lucide-react';
+import { Lock, ArrowRight, Loader2, ShieldCheck } from 'lucide-react';
 import { api } from '../services/api';
 
 interface LoginScreenProps {
@@ -7,20 +7,20 @@ interface LoginScreenProps {
 }
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
-  const [username, setUsername] = useState('raman');
-  const [password, setPassword] = useState('admin123');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!username.trim() || !password.trim()) return;
+    if (!username.trim() || !password) return;
 
     setIsLoading(true);
     setError(null);
 
     try {
-      const res = await api.login(username.trim(), password.trim());
+      const res = await api.login(username.trim(), password);
       onLoginSuccess(res.username);
     } catch (err: any) {
       setError(err.message || 'Invalid username or password');
@@ -62,7 +62,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="Username"
+              placeholder="Enter your username"
+              autoComplete="username"
               className="w-full bg-[#181a24] border border-[#262a3c] rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors"
               required
             />
@@ -76,7 +77,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
+              placeholder="Enter your password"
+              autoComplete="current-password"
               className="w-full bg-[#181a24] border border-[#262a3c] rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors"
               required
             />

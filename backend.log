@@ -129,3 +129,24 @@ INFO:     127.0.0.1:41718 - "GET /api/ai/status HTTP/1.1" 200 OK
 INFO:     127.0.0.1:41700 - "GET /api/projects HTTP/1.1" 200 OK
 INFO:     127.0.0.1:41716 - "GET /api/tags HTTP/1.1" 200 OK
 INFO:     127.0.0.1:41684 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50588 - "OPTIONS /api/auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58886 - "POST /api/auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58886 - "OPTIONS /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50588 - "OPTIONS /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58896 - "OPTIONS /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58912 - "OPTIONS /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58896 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58886 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50588 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58916 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52190 - "OPTIONS /api/auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52198 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:52198 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
+WARNING:  WatchFiles detected changes in 'backend/app/routers/auth.py', 'backend/app/config.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [6422]
+INFO:     Started server process [6497]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
