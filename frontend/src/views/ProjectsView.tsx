@@ -6,7 +6,8 @@ import {
   CheckCircle2, 
   ListFilter,
   Circle,
-  Clock
+  Clock,
+  Trash2
 } from 'lucide-react';
 import { Project, Task } from '../types';
 import { api } from '../services/api';
@@ -15,6 +16,7 @@ interface ProjectsViewProps {
   projects: Project[];
   tasks: Task[];
   onProjectCreated: (project: Project) => void;
+  onProjectDeleted: (projectId: number) => void;
   onSelectTask: (task: Task) => void;
 }
 
@@ -22,6 +24,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
   projects,
   tasks,
   onProjectCreated,
+  onProjectDeleted,
   onSelectTask,
 }) => {
   const [isCreating, setIsCreating] = useState(false);
@@ -29,6 +32,17 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('University');
   const [color, setColor] = useState('#6366f1');
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+
+  const handleDelete = async (projectId: number) => {
+    if (!window.confirm('Delete this project? Tasks will be unlinked but not deleted.')) return;
+    try {
+      await api.deleteProject(projectId);
+      onProjectDeleted(projectId);
+    } catch (err) {
+      console.error('Failed to delete project:', err);
+    }
+  };
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -148,9 +162,18 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     <p className="text-xs text-slate-400 mt-1">{project.description}</p>
                   )}
                 </div>
-                <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-[#181a24] border border-[#262a3c] text-slate-300">
-                  {project.category}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-[#181a24] border border-[#262a3c] text-slate-300">
+                    {project.category}
+                  </span>
+                  <button
+                    onClick={() => handleDelete(project.id)}
+                    title="Delete project"
+                    className="p-1 rounded text-slate-500 hover:text-red-400 hover:bg-red-400/10 transition-colors"
+                  >
+                    <Trash2 size={13} />
+                  </button>
+                </div>
               </div>
 
               {/* Progress */}

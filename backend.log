@@ -197,3 +197,33 @@ INFO:     Finished server process [6744]
 INFO:     Started server process [6806]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
+INFO:     192.168.122.1:59832 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.122.1:59832 - "GET /assets/index-BgAVhjmH.js HTTP/1.1" 200 OK
+INFO:     192.168.122.1:59848 - "GET /assets/index-msrphF-y.css HTTP/1.1" 200 OK
+INFO:     192.168.122.1:59832 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     192.168.122.1:49558 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
+INFO:     192.168.122.1:37702 - "POST /api/auth/login HTTP/1.1" 200 OK
+INFO:     192.168.122.1:37720 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     192.168.122.1:37718 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     192.168.122.1:37712 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     192.168.122.1:37702 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     192.168.122.1:36442 - "DELETE /api/tasks/2 HTTP/1.1" 204 No Content
+INFO:     192.168.122.1:36442 - "DELETE /api/tasks/7 HTTP/1.1" 204 No Content
+INFO:     192.168.122.1:36442 - "DELETE /api/tasks/1 HTTP/1.1" 204 No Content
+INFO:     192.168.122.1:40368 - "GET / HTTP/1.1" 200 OK
+INFO:     192.168.122.1:40368 - "GET /assets/index-BlwmEiT7.js HTTP/1.1" 200 OK
+INFO:     192.168.122.1:40380 - "GET /assets/index-D7QkPHXW.css HTTP/1.1" 200 OK
+INFO:     192.168.122.1:40368 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     192.168.122.1:40394 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     192.168.122.1:40380 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     192.168.122.1:40392 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     192.168.122.1:40368 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     192.168.122.1:40368 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     192.168.122.1:40368 - "GET /assets/index-BlwmEiT7.js HTTP/1.1" 304 Not Modified
+INFO:     192.168.122.1:40392 - "GET /assets/index-D7QkPHXW.css HTTP/1.1" 304 Not Modified
+INFO:     192.168.122.1:40368 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     192.168.122.1:40394 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     192.168.122.1:40380 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     192.168.122.1:40392 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     192.168.122.1:40368 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     192.168.122.1:40368 - "DELETE /api/projects/1 HTTP/1.1" 204 No Content

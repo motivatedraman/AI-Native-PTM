@@ -236,6 +236,7 @@ export const App: React.FC = () => {
                 projects={projects}
                 tasks={tasks}
                 onProjectCreated={(p) => setProjects(prev => [...prev, p])}
+                onProjectDeleted={(id) => setProjects(prev => prev.filter(p => p.id !== id))}
                 onSelectTask={handleSelectTask}
               />
             )}

@@ -37,3 +37,6 @@ This document tracks completed features and milestones for the **AI-Native Perso
 ### Production API Endpoint Resolution
 - [x] **Relative API Path Routing**: Updated `API_BASE` in [`api.ts`](file:///home/raman/Projects/test1/frontend/src/services/api.ts) to default to relative `/api` instead of `http://localhost:8000/api`, fixing browser "Failed to fetch" Mixed Content / unreachable host errors in production.
 - [x] **Vite Dev Server Proxy**: Added local `/api` proxy in [`vite.config.ts`](file:///home/raman/Projects/test1/frontend/vite.config.ts) for local development workflows.
+
+### JWT HMAC Secret Fallback Resolution
+- [x] **Guaranteed Non-Empty Secret**: Updated `get_jwt_secret()` in [`config.py`](file:///home/raman/Projects/test1/backend/app/config.py) to check `JWT_SECRET`, `SECRET_KEY`, and a reliable 32-character fallback string so PyJWT never receives an empty key even if Render's environment variable was left empty.

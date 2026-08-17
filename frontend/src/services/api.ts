@@ -169,6 +169,14 @@ export const api = {
     return res.json();
   },
 
+  async deleteProject(id: number): Promise<void> {
+    const res = await fetch(`${API_BASE}/projects/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to delete project');
+  },
+
   // Tags
   async getTags(): Promise<Tag[]> {
     const res = await fetch(`${API_BASE}/tags`, {
