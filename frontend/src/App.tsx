@@ -12,6 +12,7 @@ import { ProjectsView } from './views/ProjectsView';
 import { DailyLogView } from './views/DailyLogView';
 import { Task, Project, Tag, ActiveView, AIStatus } from './types';
 import { api } from './services/api';
+import { Menu } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<string | null>(null);
@@ -29,6 +30,7 @@ export const App: React.FC = () => {
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Check auth session
   useEffect(() => {
@@ -180,10 +182,28 @@ export const App: React.FC = () => {
         currentUser={currentUser}
         onLogout={handleLogout}
         taskCounts={taskCounts}
+        isMobileOpen={isMobileMenuOpen}
+        onMobileClose={() => setIsMobileMenuOpen(false)}
       />
 
       {/* Main View Area */}
-      <main className="flex-1 flex flex-col h-screen overflow-y-auto bg-[#090a0f] p-6">
+      <main className="flex-1 flex flex-col h-screen overflow-y-auto bg-[#090a0f] p-4 lg:p-6">
+        {/* Mobile header with hamburger */}
+        <div className="flex items-center justify-between pb-3 mb-2 border-b border-[#262a3c]/60 lg:hidden">
+          <button
+            onClick={() => setIsMobileMenuOpen(true)}
+            className="p-2 rounded-lg hover:bg-[#212433] text-slate-400 hover:text-slate-200 transition-colors"
+          >
+            <Menu size={22} />
+          </button>
+          <div className="flex items-center space-x-2">
+            <div className="w-6 h-6 rounded-lg bg-indigo-600/30 border border-indigo-500/40 flex items-center justify-center text-indigo-400 font-bold text-xs">
+              ✦
+            </div>
+            <span className="font-semibold text-sm text-slate-100">Nexus OS</span>
+          </div>
+          <div className="w-9" /> {/* Spacer for centering */}
+        </div>
         {isLoading && tasks.length === 0 ? (
           <div className="flex-1 flex items-center justify-center text-slate-500 text-xs">
             Syncing workspace data...

@@ -1,529 +1,643 @@
-nohup: ignoring input
 INFO:     Will watch for changes in these directories: ['/home/raman/Projects/test1']
 INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-INFO:     Started reloader process [6205] using WatchFiles
-INFO:     Started server process [6207]
+INFO:     Started reloader process [1349] using WatchFiles
+INFO:     Started server process [1351]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
-INFO:     127.0.0.1:46096 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:46096 - "GET /assets/index-D4EFGmHU.js HTTP/1.1" 200 OK
-INFO:     127.0.0.1:46096 - "GET /assets/index-oAK72H56.css HTTP/1.1" 200 OK
-INFO:     127.0.0.1:46130 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     127.0.0.1:46138 - "GET /favicon.ico HTTP/1.1" 404 Not Found
-INFO:     127.0.0.1:46118 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     127.0.0.1:46108 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     127.0.0.1:46096 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     127.0.0.1:34066 - "POST /api/tasks/5/complete HTTP/1.1" 200 OK
-INFO:     127.0.0.1:38174 - "POST /api/ai/parse-task HTTP/1.1" 200 OK
-INFO:     127.0.0.1:38174 - "POST /api/ai/parse-task HTTP/1.1" 200 OK
-INFO:     127.0.0.1:38174 - "POST /api/ai/parse-task HTTP/1.1" 200 OK
-INFO:     127.0.0.1:38174 - "POST /api/ai/parse-task HTTP/1.1" 200 OK
-INFO:     127.0.0.1:38174 - "POST /api/ai/parse-task HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55084 - "POST /api/ai/parse-task HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55084 - "POST /api/ai/parse-task HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55084 - "POST /api/tasks/quick-add HTTP/1.1" 201 Created
-INFO:     127.0.0.1:55110 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55106 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55096 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55084 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     127.0.0.1:42306 - "GET /api/daily-log?target_date=2026-08-17 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50004 - "GET /api/daily-log?target_date=2026-08-17 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36720 - "GET /api/daily-log?target_date=2026-08-16 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36720 - "GET /api/daily-log?target_date=2026-08-17 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36720 - "GET /api/daily-log?target_date=2026-08-16 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36720 - "GET /api/daily-log?target_date=2026-08-15 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36720 - "GET /api/daily-log?target_date=2026-08-14 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36720 - "GET /api/daily-log?target_date=2026-08-13 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36720 - "GET /api/daily-log?target_date=2026-08-12 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36720 - "GET /api/daily-log?target_date=2026-08-11 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36720 - "GET /api/daily-log?target_date=2026-08-10 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36720 - "GET /api/daily-log?target_date=2026-08-09 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36720 - "GET /api/daily-log?target_date=2026-08-08 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36720 - "GET /api/daily-log?target_date=2026-08-09 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36720 - "GET /api/daily-log?target_date=2026-08-10 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36720 - "GET /api/daily-log?target_date=2026-08-11 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36720 - "GET /api/daily-log?target_date=2026-08-12 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36720 - "GET /api/daily-log?target_date=2026-08-13 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36720 - "GET /api/daily-log?target_date=2026-08-14 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36720 - "GET /api/daily-log?target_date=2026-08-15 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36720 - "GET /api/daily-log?target_date=2026-08-16 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36720 - "GET /api/daily-log?target_date=2026-08-17 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:35382 - "PATCH /api/tasks/2 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:35382 - "PATCH /api/tasks/2 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:35382 - "POST /api/ai/enrich-task/2 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:39750 - "PATCH /api/tasks/9 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:37820 - "GET /api/daily-log?target_date=2026-08-17 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54166 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:54166 - "GET /assets/index-D4EFGmHU.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:54172 - "GET /assets/index-oAK72H56.css HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:54192 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54180 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54166 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54172 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54172 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:54192 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54180 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54172 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54166 - "GET /api/projects HTTP/1.1" 200 OK
-WARNING:  WatchFiles detected changes in 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/__main__.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/ext/django/models.py', 'backend/.venv/lib64/python3.13/site-packages/jwt/algorithms.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_handlers_scrypt.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/bcrypt.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_totp.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/hosts.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/utils/decor.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_utils.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/phpass.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/sha1_crypt.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/ext/django/utils.py', 'backend/.venv/lib64/python3.13/site-packages/jwt/jwk_set_cache.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/scrypt.py', 'backend/.venv/lib64/python3.13/site-packages/jwt/jwks_client.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/totp.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/utils/pbkdf2.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/hash.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/crypto/digest.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/crypto/scrypt/_salsa.py', 'backend/.venv/lib64/python3.13/site-packages/jwt/api_jwt.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_handlers_pbkdf2.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/roundup.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/ldap_digests.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_apache.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_utils_md4.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_apps.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/registry.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/crypto/_blowfish/_gen_files.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/digests.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/utils/__init__.py', 'backend/.venv/lib64/python3.13/site-packages/jwt/exceptions.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/apps.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/utils/md4.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/sun_md5_crypt.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/mysql.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_handlers_argon2.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/misc.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/exc.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_context.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_crypto_scrypt.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/ifc.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_registry.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/md5_crypt.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_hosts.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_crypto_builtin_md4.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/__init__.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/crypto/scrypt/_builtin.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_win32.py', 'backend/.venv/lib64/python3.13/site-packages/jwt/types.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/ext/django/__init__.py', 'backend/.venv/lib64/python3.13/site-packages/jwt/warnings.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/apache.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/utils/binary.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/mssql.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_crypto_digest.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/tox_support.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/windows.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_handlers.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_ext_django_source.py', 'backend/.venv/lib64/python3.13/site-packages/jwt/api_jws.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/pbkdf2.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/crypto/des.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/__init__.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_pwd.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/win32.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/crypto/_blowfish/__init__.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/_test_bad_register.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/oracle.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/ext/__init__.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/postgres.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/utils.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/sha2_crypt.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_ext_django.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/utils/compat/__init__.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/scram.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/fshp.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_utils_pbkdf2.py', 'backend/.venv/lib64/python3.13/site-packages/jwt/utils.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/backports.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/cisco.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/crypto/__init__.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_context_deprecated.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/crypto/scrypt/_gen_files.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_handlers_django.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_utils_handlers.py', 'backend/.venv/lib64/python3.13/site-packages/bcrypt/__init__.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/crypto/_md4.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_handlers_bcrypt.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/argon2.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/utils/des.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/pwd.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/context.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/crypto/scrypt/__init__.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/crypto/_blowfish/base.py', 'backend/.venv/lib64/python3.13/site-packages/jwt/__init__.py', 'backend/.venv/lib64/python3.13/site-packages/jwt/api_jwk.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/__init__.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/des_crypt.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_crypto_des.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/tests/test_handlers_cisco.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/handlers/django.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/crypto/_blowfish/unrolled.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/utils/handlers.py', 'backend/.venv/lib64/python3.13/site-packages/passlib/utils/compat/_ordered_dict.py', 'backend/.venv/lib64/python3.13/site-packages/jwt/help.py'. Reloading...
+INFO:     127.0.0.1:50966 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47438 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53984 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53984 - "GET /assets/index-BvTQe416.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53996 - "GET /assets/index-D7QkPHXW.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53984 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:46340 - "POST /api/auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46376 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46360 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46352 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46340 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55866 - "GET /api/daily-log?target_date=2026-08-18 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55866 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:55866 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55886 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55884 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55870 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55866 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55884 - "GET /api/daily-log?target_date=2026-08-18 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46014 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:46014 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46024 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46020 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46016 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46014 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46014 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:46014 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46024 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46020 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46016 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46014 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46014 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:46014 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46024 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46016 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46020 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46014 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46014 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:46014 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46024 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46016 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46020 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46014 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46014 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:46014 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46024 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46016 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46020 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46014 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46014 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:46014 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46016 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46024 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46014 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46020 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46020 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:46020 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46016 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46024 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46014 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46020 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46020 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:46020 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46016 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46024 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46014 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46020 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40968 - "PATCH /api/tasks/4 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57360 - "POST /api/ai/parse-task HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57360 - "POST /api/ai/parse-task HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57360 - "POST /api/ai/parse-task HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57360 - "POST /api/ai/parse-task HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57360 - "POST /api/ai/parse-task HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57360 - "POST /api/ai/parse-task HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57360 - "POST /api/ai/parse-task HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57360 - "POST /api/ai/parse-task HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57360 - "POST /api/tasks/quick-add HTTP/1.1" 201 Created
+INFO:     127.0.0.1:54866 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54852 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57360 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54836 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58102 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38040 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38040 - "GET /assets/index-DWA1dJhT.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38050 - "GET /assets/index-C9d-LQKI.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38040 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38064 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38060 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38050 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38040 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38040 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:38040 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38060 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38064 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38050 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38040 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42480 - "DELETE /api/tasks/4 HTTP/1.1" 204 No Content
+INFO:     127.0.0.1:42480 - "GET /api/daily-log?target_date=2026-08-18 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35546 - "GET /api/daily-log?target_date=2026-08-18 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34844 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:34844 - "GET /assets/index-DWA1dJhT.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:34844 - "GET /assets/index-C9d-LQKI.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:34844 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34864 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34860 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34858 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34844 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34844 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:34844 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34864 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34860 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34858 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34844 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34844 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:34844 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34864 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34858 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34860 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34844 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34844 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:34844 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34864 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34860 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34844 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34858 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34858 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:34858 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34860 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34864 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34858 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34844 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34844 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:34844 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34858 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34860 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34844 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34864 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34864 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:34864 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34858 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34844 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34860 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34864 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34864 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:34864 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34858 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34844 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34860 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34864 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34864 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:34864 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34858 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34844 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34860 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34864 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57778 - "POST /api/ai/parse-task HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57778 - "POST /api/ai/parse-task HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57778 - "POST /api/ai/parse-task HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57778 - "POST /api/ai/parse-task HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57778 - "POST /api/ai/parse-task HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57778 - "POST /api/ai/parse-task HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57778 - "POST /api/ai/parse-task HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57778 - "POST /api/ai/parse-task HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57778 - "POST /api/tasks/quick-add HTTP/1.1" 201 Created
+INFO:     127.0.0.1:51418 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57778 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51400 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51406 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59608 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59608 - "GET /assets/index-C8lgkw1k.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59612 - "GET /assets/index-C9d-LQKI.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59608 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59624 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59618 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59612 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59608 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59608 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59608 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59624 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59612 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59618 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59608 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59608 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59608 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59624 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59612 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59618 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59608 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59608 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59608 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59624 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59612 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59618 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59608 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59608 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59608 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59624 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59612 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59618 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59608 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59618 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59618 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59624 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59612 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59618 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59608 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59608 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59608 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59624 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59618 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59612 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59608 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59608 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59608 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59624 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59618 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59612 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59608 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33090 - "DELETE /api/tasks/11 HTTP/1.1" 204 No Content
+INFO:     127.0.0.1:33090 - "GET /api/daily-log?target_date=2026-08-18 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59132 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59132 - "GET /assets/index-C8lgkw1k.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59140 - "GET /assets/index-C9d-LQKI.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59140 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59162 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59140 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59148 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59132 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59132 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59132 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59162 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59140 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59132 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59148 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59148 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59148 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59162 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59140 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59132 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59148 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59148 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59148 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59162 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59140 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59148 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59132 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59132 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59132 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59140 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59162 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59148 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59132 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59132 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59132 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59140 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59162 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59132 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59148 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53422 - "POST /api/ai/parse-task HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53422 - "POST /api/ai/parse-task HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53422 - "POST /api/ai/parse-task HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53422 - "POST /api/ai/parse-task HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53422 - "POST /api/ai/parse-task HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53422 - "POST /api/ai/parse-task HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53422 - "POST /api/ai/parse-task HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53422 - "POST /api/ai/parse-task HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53422 - "POST /api/tasks/quick-add HTTP/1.1" 201 Created
+INFO:     127.0.0.1:53460 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53444 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53422 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53434 - "GET /api/projects HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'backend/app/services/ai_service.py'. Reloading...
 INFO:     Shutting down
 INFO:     Waiting for application shutdown.
 INFO:     Application shutdown complete.
-INFO:     Finished server process [6207]
-INFO:     Started server process [6337]
+INFO:     Finished server process [1351]
+INFO:     Started server process [1693]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
-WARNING:  WatchFiles detected changes in 'backend/app/config.py'. Reloading...
+WARNING:  WatchFiles detected changes in 'backend/app/services/ai_service.py'. Reloading...
 INFO:     Shutting down
 INFO:     Waiting for application shutdown.
 INFO:     Application shutdown complete.
-INFO:     Finished server process [6337]
-INFO:     Started server process [6343]
+INFO:     Finished server process [1693]
+INFO:     Started server process [1696]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
-WARNING:  WatchFiles detected changes in 'backend/app/services/auth_service.py'. Reloading...
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-INFO:     Application shutdown complete.
-INFO:     Finished server process [6343]
-INFO:     Started server process [6347]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-WARNING:  WatchFiles detected changes in 'backend/app/routers/auth.py'. Reloading...
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-INFO:     Application shutdown complete.
-INFO:     Finished server process [6347]
-INFO:     Started server process [6351]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-WARNING:  WatchFiles detected changes in 'backend/app/main.py', 'backend/app/routers/__init__.py'. Reloading...
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-INFO:     Application shutdown complete.
-INFO:     Finished server process [6351]
-INFO:     Started server process [6356]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-INFO:     127.0.0.1:49656 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:49656 - "GET /assets/index-BV9W8s49.js HTTP/1.1" 200 OK
-INFO:     127.0.0.1:49670 - "GET /assets/index-msrphF-y.css HTTP/1.1" 200 OK
-WARNING:  WatchFiles detected changes in 'backend/app/config.py'. Reloading...
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-INFO:     Application shutdown complete.
-INFO:     Finished server process [6356]
-INFO:     Started server process [6422]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-INFO:     127.0.0.1:45854 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:45854 - "GET /assets/index-BV9W8s49.js HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:45858 - "GET /assets/index-msrphF-y.css HTTP/1.1" 304 Not Modified
-INFO:     127.0.0.1:45858 - "POST /api/auth/login HTTP/1.1" 200 OK
-INFO:     127.0.0.1:45882 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     127.0.0.1:45868 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     127.0.0.1:45854 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     127.0.0.1:45858 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     127.0.0.1:41684 - "POST /api/auth/login HTTP/1.1" 200 OK
-INFO:     127.0.0.1:41718 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     127.0.0.1:41700 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     127.0.0.1:41716 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     127.0.0.1:41684 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50588 - "OPTIONS /api/auth/login HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58886 - "POST /api/auth/login HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58886 - "OPTIONS /api/tasks HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50588 - "OPTIONS /api/projects HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58896 - "OPTIONS /api/tags HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58912 - "OPTIONS /api/ai/status HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58896 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58886 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50588 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58916 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52190 - "OPTIONS /api/auth/login HTTP/1.1" 200 OK
-INFO:     127.0.0.1:52198 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
-INFO:     127.0.0.1:52198 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
-WARNING:  WatchFiles detected changes in 'backend/app/routers/auth.py', 'backend/app/config.py'. Reloading...
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-INFO:     Application shutdown complete.
-INFO:     Finished server process [6422]
-INFO:     Started server process [6497]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-INFO:     127.0.0.1:44762 - "POST /api/auth/login HTTP/1.1" 200 OK
-INFO:     127.0.0.1:44762 - "OPTIONS /api/tasks HTTP/1.1" 200 OK
-INFO:     127.0.0.1:44766 - "OPTIONS /api/projects HTTP/1.1" 200 OK
-INFO:     127.0.0.1:44776 - "OPTIONS /api/tags HTTP/1.1" 200 OK
-INFO:     127.0.0.1:44790 - "OPTIONS /api/ai/status HTTP/1.1" 200 OK
-INFO:     127.0.0.1:44776 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     127.0.0.1:44766 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     127.0.0.1:44762 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     127.0.0.1:44802 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57822 - "POST /api/auth/login HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57858 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57836 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57846 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57822 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     127.0.0.1:34522 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
-INFO:     127.0.0.1:44380 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
-INFO:     127.0.0.1:47776 - "POST /api/auth/login HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47794 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47776 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47792 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47780 - "GET /api/projects HTTP/1.1" 200 OK
-WARNING:  WatchFiles detected changes in 'backend/app/services/auth_service.py', 'backend/app/routers/auth.py', 'backend/app/config.py'. Reloading...
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-INFO:     Application shutdown complete.
-INFO:     Finished server process [6497]
-INFO:     Started server process [6574]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-INFO:     127.0.0.1:51358 - "OPTIONS /api/daily-log?target_date=2026-08-17 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:51374 - "GET /api/daily-log?target_date=2026-08-17 HTTP/1.1" 200 OK
-WARNING:  WatchFiles detected changes in 'backend/app/main.py', 'backend/app/routers/auth.py'. Reloading...
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-INFO:     Application shutdown complete.
-INFO:     Finished server process [6574]
-INFO:     Started server process [6744]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-WARNING:  WatchFiles detected changes in 'backend/app/config.py'. Reloading...
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-INFO:     Application shutdown complete.
-INFO:     Finished server process [6744]
-INFO:     Started server process [6806]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-INFO:     192.168.122.1:59832 - "GET / HTTP/1.1" 200 OK
-INFO:     192.168.122.1:59832 - "GET /assets/index-BgAVhjmH.js HTTP/1.1" 200 OK
-INFO:     192.168.122.1:59848 - "GET /assets/index-msrphF-y.css HTTP/1.1" 200 OK
-INFO:     192.168.122.1:59832 - "GET /favicon.ico HTTP/1.1" 404 Not Found
-INFO:     192.168.122.1:49558 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
-INFO:     192.168.122.1:37702 - "POST /api/auth/login HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37720 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37718 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37712 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37702 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:36442 - "DELETE /api/tasks/2 HTTP/1.1" 204 No Content
-INFO:     192.168.122.1:36442 - "DELETE /api/tasks/7 HTTP/1.1" 204 No Content
-INFO:     192.168.122.1:36442 - "DELETE /api/tasks/1 HTTP/1.1" 204 No Content
-INFO:     192.168.122.1:40368 - "GET / HTTP/1.1" 200 OK
-INFO:     192.168.122.1:40368 - "GET /assets/index-BlwmEiT7.js HTTP/1.1" 200 OK
-INFO:     192.168.122.1:40380 - "GET /assets/index-D7QkPHXW.css HTTP/1.1" 200 OK
-INFO:     192.168.122.1:40368 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:40394 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:40380 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:40392 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:40368 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:40368 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:40368 - "GET /assets/index-BlwmEiT7.js HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:40392 - "GET /assets/index-D7QkPHXW.css HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:40368 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:40394 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:40380 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:40392 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:40368 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:40368 - "DELETE /api/projects/1 HTTP/1.1" 204 No Content
-INFO:     192.168.122.1:45478 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:45478 - "GET /assets/index-BlwmEiT7.js HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:45494 - "GET /assets/index-D7QkPHXW.css HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:45494 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:45504 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:45498 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:45478 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:45494 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:45516 - "GET /api/daily-log?target_date=2026-08-17 HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60834 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:60834 - "GET /assets/index-BlwmEiT7.js HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:60838 - "GET /assets/index-D7QkPHXW.css HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:60838 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60864 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60852 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60834 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:60838 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60864 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60852 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60834 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:60838 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60864 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60852 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60834 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:60838 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60864 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60852 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60834 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:60838 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60864 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60834 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60852 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:60838 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60864 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60834 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60852 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:60838 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60864 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60834 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60852 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:60838 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60864 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60834 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60852 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:60838 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60864 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60834 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60852 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:60838 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60864 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60834 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60852 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:60838 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60864 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60834 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60852 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:60838 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60864 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60852 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60834 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:60838 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60864 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60852 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60834 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:60838 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60864 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60834 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60852 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:60838 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60864 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60834 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60852 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:60838 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60864 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60834 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60852 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET /api/daily-log?target_date=2026-08-17 HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:60838 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60864 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60834 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60852 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:60838 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60864 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60834 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60852 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:60838 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60864 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60834 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60852 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:60838 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60864 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60852 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60834 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:60838 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60864 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60834 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60852 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:60838 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:56804 - "DELETE /api/tasks/3 HTTP/1.1" 204 No Content
-INFO:     192.168.122.1:56804 - "GET /api/daily-log?target_date=2026-08-17 HTTP/1.1" 200 OK
-INFO:     192.168.122.1:56804 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:56804 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:34710 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:34696 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:34680 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:56804 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:56804 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:56804 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:34710 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:34696 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:56804 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:34680 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:56804 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:56804 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:34710 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:34680 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:34696 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:56804 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:56804 - "GET /api/daily-log?target_date=2026-08-17 HTTP/1.1" 200 OK
-INFO:     192.168.122.1:56804 - "GET /api/daily-log?target_date=2026-08-17 HTTP/1.1" 200 OK
-INFO:     192.168.122.1:44438 - "GET / HTTP/1.1" 200 OK
-INFO:     192.168.122.1:44438 - "GET /assets/index-BvTQe416.js HTTP/1.1" 200 OK
-INFO:     192.168.122.1:44448 - "GET /assets/index-D7QkPHXW.css HTTP/1.1" 200 OK
-INFO:     192.168.122.1:44438 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:44456 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:44460 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:44438 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:44448 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:44448 - "GET /api/daily-log?target_date=2026-08-17 HTTP/1.1" 200 OK
-INFO:     192.168.122.1:44462 - "DELETE /api/tasks/8 HTTP/1.1" 204 No Content
-INFO:     192.168.122.1:44462 - "GET /api/daily-log?target_date=2026-08-17 HTTP/1.1" 200 OK
-INFO:     192.168.122.1:44462 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:44462 - "GET /assets/index-BvTQe416.js HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:47708 - "GET /assets/index-D7QkPHXW.css HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:47708 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:47722 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:47728 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:47708 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:44462 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:44462 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:44462 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:47722 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:47728 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:47708 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:44462 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:44462 - "GET /api/daily-log?target_date=2026-08-17 HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37522 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:37522 - "GET /assets/index-BvTQe416.js HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:37530 - "GET /assets/index-D7QkPHXW.css HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:37530 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37544 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37530 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37522 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37534 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37534 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:37534 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37530 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37534 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37544 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37522 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37522 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:37522 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37544 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37530 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37534 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37522 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37522 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:37522 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37544 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37534 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37522 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37530 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37530 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:37530 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37544 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37534 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37522 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37530 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37530 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:37530 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37544 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37534 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37530 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37522 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37522 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:37522 - "GET /assets/index-BvTQe416.js HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:37530 - "GET /assets/index-D7QkPHXW.css HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:37530 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37544 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37534 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37530 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37522 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37522 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:37522 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37544 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37534 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37530 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37522 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37530 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:37530 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37522 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37544 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37534 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37530 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37530 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:37530 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37522 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37544 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37530 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37534 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37534 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:37534 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37522 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37530 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37544 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37534 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37534 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:37534 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37522 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37544 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37534 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37530 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37534 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:37534 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37522 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37544 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37530 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37534 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37534 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:37534 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37522 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37544 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37530 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37534 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37534 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:37534 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37522 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37544 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37534 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37530 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37530 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:37530 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37522 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37544 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37534 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37530 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37530 - "GET /api/daily-log?target_date=2026-08-17 HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37530 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:37530 - "GET /assets/index-BvTQe416.js HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:37534 - "GET /assets/index-D7QkPHXW.css HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:37534 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37522 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37530 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37544 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:37534 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:59826 - "POST /api/ai/enrich-task/4 HTTP/1.1" 200 OK
-INFO:     192.168.122.1:59834 - "POST /api/tasks/4/complete HTTP/1.1" 200 OK
-INFO:     192.168.122.1:59834 - "POST /api/tasks/6/complete HTTP/1.1" 200 OK
-INFO:     192.168.122.1:59834 - "POST /api/tasks/9/complete HTTP/1.1" 200 OK
-INFO:     192.168.122.1:59834 - "GET /api/daily-log?target_date=2026-08-17 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54548 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:54556 - "GET /assets/index-C9d-LQKI.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:54548 - "GET /assets/index-C8lgkw1k.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:54548 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54566 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54560 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54556 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54548 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54548 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:54548 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54566 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54560 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54556 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54548 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54548 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:54548 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54566 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54560 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54548 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54556 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54556 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:54556 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54566 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54560 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54548 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54556 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54556 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:54556 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54566 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54560 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54548 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54556 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54556 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:54556 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54566 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54560 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54556 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54548 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:32916 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:32916 - "GET /assets/index-C8lgkw1k.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:32932 - "GET /assets/index-C9d-LQKI.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:32932 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:32954 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:32940 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:32916 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:32932 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34972 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34168 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34168 - "GET /assets/index-C8lgkw1k.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33590 - "GET /assets/index-C9d-LQKI.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34168 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33604 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33594 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34168 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33590 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33590 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:33590 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33604 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34168 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33594 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33590 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33590 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:33590 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33604 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34168 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33590 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33594 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33594 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:33594 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33604 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34168 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33590 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33594 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33594 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:33594 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33604 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33594 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33590 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34168 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34168 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:34168 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33604 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33594 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34168 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33590 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33590 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:33590 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33604 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33594 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34168 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33590 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49108 - "PATCH /api/tasks/11 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49116 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:49116 - "GET /assets/index-C8lgkw1k.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:49124 - "GET /assets/index-C9d-LQKI.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:49124 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49150 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49138 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49124 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49116 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34322 - "PATCH /api/tasks/10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40488 - "GET /api/daily-log?target_date=2026-08-18 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41356 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:41356 - "GET /assets/index-C8lgkw1k.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:41364 - "GET /assets/index-C9d-LQKI.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:41364 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41376 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41392 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41356 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41364 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41364 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:41364 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41376 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41392 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41356 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41364 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41364 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:41364 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41376 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41392 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41364 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41356 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41356 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:41356 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41376 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41392 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41364 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41356 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41356 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:41356 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41392 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41376 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41364 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41356 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41356 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:41356 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41392 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41376 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41356 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41364 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41364 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:41364 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41392 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41364 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41376 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41356 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41356 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:41356 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41364 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41392 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41356 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41376 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41376 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:41376 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41364 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41356 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41376 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41392 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59922 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59922 - "GET /assets/index-C8lgkw1k.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59930 - "GET /assets/index-C9d-LQKI.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59930 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59952 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59946 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59922 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59930 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59930 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59930 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59952 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59946 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59930 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59922 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59922 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59922 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59952 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59930 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59946 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59922 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59922 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59922 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59952 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59930 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59946 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59922 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59922 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59922 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59952 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59930 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59946 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59922 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59922 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59922 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59952 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59930 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59946 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59922 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59922 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59922 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59922 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59946 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59952 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59930 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59930 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59930 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59922 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59946 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59952 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59930 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59930 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59930 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59922 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59946 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59952 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59930 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59930 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59930 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59922 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59946 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59952 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59930 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59930 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59930 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59922 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59946 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59952 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59930 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52872 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:52872 - "GET /assets/index-C8lgkw1k.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:52886 - "GET /assets/index-C9d-LQKI.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:52872 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52888 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52890 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52886 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52872 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52872 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:52872 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52888 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52886 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52890 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52872 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39692 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:39692 - "GET /assets/index-C8lgkw1k.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:39704 - "GET /assets/index-C9d-LQKI.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:39704 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39716 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39712 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39692 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39704 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39704 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:39704 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39716 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39712 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39704 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39692 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39692 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:39692 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39716 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39704 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39712 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39692 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39692 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:39692 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39716 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39704 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39712 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39692 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39692 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:39692 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39716 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39704 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39692 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39712 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39712 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:39712 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39716 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39704 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39712 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39692 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39692 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:39692 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39716 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39704 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39712 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39692 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39692 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:39692 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39716 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39704 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39712 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39692 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39692 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:39692 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39716 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39712 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39704 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39692 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39692 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:39692 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39712 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39716 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39704 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39692 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39692 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:39692 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39712 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39716 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39704 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39692 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39692 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:39692 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39712 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39716 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39704 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39692 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44960 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44960 - "GET /assets/index-Bz99AKbU.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44966 - "GET /assets/index-D1hfoK4X.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44960 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44990 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44976 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44966 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44960 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57696 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:57696 - "GET /assets/index-Bz99AKbU.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:57708 - "GET /assets/index-D1hfoK4X.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:57708 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57722 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57710 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57696 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57708 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57708 - "GET /api/daily-log?target_date=2026-08-18 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55094 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:55094 - "GET /assets/index-Bz99AKbU.js HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:55108 - "GET /assets/index-D1hfoK4X.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:55108 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55094 - "GET /api/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55108 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55128 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55112 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55136 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42908 - "GET /assets/index-D1hfoK4X.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:42908 - "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:36872 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36872 - "GET /assets/index-6llZs7jo.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36878 - "GET /assets/index-DtanDYLX.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36872 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36896 - "GET /api/ai/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36892 - "GET /api/tags HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36872 - "GET /api/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36878 - "GET /api/projects HTTP/1.1" 200 OK

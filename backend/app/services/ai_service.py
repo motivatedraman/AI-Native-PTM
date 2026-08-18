@@ -2,7 +2,7 @@ import os
 import re
 import json
 import httpx
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta, date, timezone
 from typing import Optional, List, Dict, Any
 from backend.app.config import settings
 from backend.app.schemas.ai import AITaskParseResult, AITaskEnrichResponse, AISubtaskSuggestResponse, AIStatusResponse
@@ -45,27 +45,35 @@ class AIService:
             else:
                 estimated_minutes = int(val)
 
-        # 2. Parse due dates
-        now = datetime.utcnow()
+        # 2. Parse due dates (all in NPT — UTC+5:45)
+        NPT = timezone(timedelta(hours=5, minutes=45))
+        now_npt = datetime.now(NPT)
+        now_utc = datetime.utcnow()
         if "today" in lower or "tonight" in lower:
-            due_date = now.replace(hour=20, minute=0, second=0, microsecond=0)
+            due_date_npt = now_npt.replace(hour=20, minute=0, second=0, microsecond=0)
+            due_date = due_date_npt.astimezone(timezone.utc).replace(tzinfo=None)
         elif "tomorrow" in lower:
-            due_date = (now + timedelta(days=1)).replace(hour=18, minute=0, second=0, microsecond=0)
+            due_date_npt = (now_npt + timedelta(days=1)).replace(hour=18, minute=0, second=0, microsecond=0)
+            due_date = due_date_npt.astimezone(timezone.utc).replace(tzinfo=None)
         elif "in 2 days" in lower or "in two days" in lower:
-            due_date = (now + timedelta(days=2)).replace(hour=18, minute=0, second=0, microsecond=0)
+            due_date_npt = (now_npt + timedelta(days=2)).replace(hour=18, minute=0, second=0, microsecond=0)
+            due_date = due_date_npt.astimezone(timezone.utc).replace(tzinfo=None)
         elif "in 3 days" in lower or "in three days" in lower:
-            due_date = (now + timedelta(days=3)).replace(hour=18, minute=0, second=0, microsecond=0)
+            due_date_npt = (now_npt + timedelta(days=3)).replace(hour=18, minute=0, second=0, microsecond=0)
+            due_date = due_date_npt.astimezone(timezone.utc).replace(tzinfo=None)
         elif "next week" in lower:
-            due_date = (now + timedelta(days=7)).replace(hour=12, minute=0, second=0, microsecond=0)
+            due_date_npt = (now_npt + timedelta(days=7)).replace(hour=12, minute=0, second=0, microsecond=0)
+            due_date = due_date_npt.astimezone(timezone.utc).replace(tzinfo=None)
         else:
             weekdays = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
             for idx, wday in enumerate(weekdays):
                 if f"before {wday}" in lower or f"by {wday}" in lower or f"on {wday}" in lower:
-                    curr_wday = now.weekday()
+                    curr_wday = now_npt.weekday()
                     days_ahead = (idx - curr_wday) % 7
                     if days_ahead == 0:
                         days_ahead = 7
-                    due_date = (now + timedelta(days=days_ahead)).replace(hour=18, minute=0, second=0, microsecond=0)
+                    due_date_npt = (now_npt + timedelta(days=days_ahead)).replace(hour=18, minute=0, second=0, microsecond=0)
+                    due_date = due_date_npt.astimezone(timezone.utc).replace(tzinfo=None)
                     break
 
         # 3. Parse category & project hints
@@ -142,9 +150,11 @@ class AIService:
         if not self.api_key or len(self.api_key) < 5:
             return self._heuristic_parse(text)
 
+        NPT = timezone(timedelta(hours=5, minutes=45))
+        now_npt = datetime.now(NPT)
         prompt = f"""
         You are an intelligent task parsing assistant. Convert the user's natural language task input into structured JSON.
-        Current datetime (UTC): {datetime.utcnow().strftime("%Y-%m-%d %H:%M")}
+        Current datetime (Nepal Time / UTC+5:45): {now_npt.strftime("%Y-%m-%d %H:%M")}
         
         User input: "{text}"
         
@@ -153,7 +163,7 @@ class AIService:
             "title": "Clean, action-oriented task title without date/duration filler words",
             "category": "Personal | University | Work | Project | Other",
             "priority": "low | medium | high | urgent",
-            "due_date_iso": "YYYY-MM-DDTHH:MM:SS or null",
+            "due_date_iso": "YYYY-MM-DDTHH:MM:SS (in UTC) or null",
             "estimated_minutes": integer or null,
             "suggested_project": "Name of project if mentioned (e.g. DBMS, Computer Networks, Operating Systems, Artificial Intelligence) or null",
             "suggested_tags": ["Tag1", "Tag2"],

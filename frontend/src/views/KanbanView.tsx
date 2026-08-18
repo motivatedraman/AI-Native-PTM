@@ -5,12 +5,13 @@ import {
   Clock, 
   CheckSquare, 
   Tag as TagIcon,
-  Sparkles,
-  Circle,
+  Sparkles, 
+  Circle, 
   CheckCircle2
 } from 'lucide-react';
 import { Task, TaskStatus, Project } from '../types';
 import { api } from '../services/api';
+import { formatDateNPT } from '../utils/time';
 
 interface KanbanViewProps {
   tasks: Task[];
@@ -76,23 +77,23 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between pb-2 border-b border-[#262a3c]/80 flex-shrink-0">
         <div>
-          <h1 className="text-xl font-bold text-slate-100 tracking-tight">
+          <h1 className="text-2xl lg:text-3xl font-bold text-slate-100 tracking-tight">
             Execution Kanban
           </h1>
-          <p className="text-xs text-slate-400">
-            Drag cards between columns to seamlessly shift task state and log timeline progress.
+          <p className="text-sm text-slate-400 mt-0.5">
+            Drag cards between columns to shift task state and log timeline progress.
           </p>
         </div>
         <button
           onClick={onOpenQuickAdd}
-          className="flex items-center space-x-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-medium transition-colors"
+          className="flex items-center space-x-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-medium transition-colors"
         >
-          <Plus size={14} />
+          <Plus size={16} />
           <span>New Card</span>
         </button>
       </div>
 
-      {/* Kanban Board Grid */}
+      {/* Kanban Board Grid - scrollable on mobile */}
       <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4 min-h-[550px] overflow-x-auto pb-4">
         {columns.map(col => {
           const colTasks = tasks.filter(t => t.status === col.id);
@@ -101,43 +102,43 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
               key={col.id}
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, col.id)}
-              className="flex flex-col bg-[#12141c] rounded-xl border border-[#262a3c] overflow-hidden"
+              className="flex flex-col bg-[#12141c] rounded-xl border border-[#262a3c] overflow-hidden min-w-[280px] md:min-w-0"
             >
               {/* Column Header */}
-              <div className="flex items-center justify-between p-3 border-b border-[#262a3c] bg-[#181a24]/60">
-                <div className="flex items-center space-x-2">
-                  <div className={`w-2 h-2 rounded-full border-2 ${col.color}`} />
-                  <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">
+              <div className="flex items-center justify-between p-4 border-b border-[#262a3c] bg-[#181a24]/60">
+                <div className="flex items-center space-x-2.5">
+                  <div className={`w-2.5 h-2.5 rounded-full border-2 ${col.color}`} />
+                  <span className="text-sm font-bold text-slate-200 uppercase tracking-wider">
                     {col.label}
                   </span>
                 </div>
-                <span className="px-2 py-0.5 text-[11px] font-mono rounded bg-[#1e2230] text-slate-400">
+                <span className="px-2.5 py-1 text-xs font-mono rounded bg-[#1e2230] text-slate-400">
                   {colTasks.length}
                 </span>
               </div>
 
               {/* Tasks List / Drop Zone */}
-              <div className="flex-1 p-2 space-y-2.5 overflow-y-auto min-h-[200px]">
+              <div className="flex-1 p-3 space-y-3 overflow-y-auto min-h-[200px]">
                 {colTasks.map(task => (
                   <div
                     key={task.id}
                     draggable
                     onDragStart={(e) => handleDragStart(e, task.id)}
                     onClick={() => onSelectTask(task)}
-                    className="p-3 bg-[#181a24] hover:bg-[#212433] border border-[#262a3c] rounded-lg shadow-sm cursor-grab active:cursor-grabbing transition-all group space-y-2"
+                    className="p-4 bg-[#181a24] hover:bg-[#212433] border border-[#262a3c] rounded-lg shadow-sm cursor-grab active:cursor-grabbing transition-all group space-y-2.5"
                   >
                     {/* Card Title */}
-                    <div className="text-xs font-medium text-slate-200 group-hover:text-white line-clamp-2">
+                    <div className="text-sm font-medium text-slate-200 group-hover:text-white line-clamp-2">
                       {task.title}
                     </div>
 
                     {/* Category & Project */}
                     <div className="flex items-center flex-wrap gap-1.5 pt-0.5">
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#1e2230] text-slate-400 font-mono">
+                      <span className="text-xs px-2 py-0.5 rounded bg-[#1e2230] text-slate-400 font-mono">
                         {task.category}
                       </span>
                       {task.project && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-950/50 text-blue-300 border border-blue-800/40">
+                        <span className="text-xs px-2 py-0.5 rounded bg-blue-950/50 text-blue-300 border border-blue-800/40">
                           {task.project.name}
                         </span>
                       )}
@@ -145,15 +146,15 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
 
                     {/* Subtasks Progress if any */}
                     {task.subtasks && task.subtasks.length > 0 && (
-                      <div className="space-y-1 pt-1">
-                        <div className="flex items-center justify-between text-[10px] text-slate-400">
+                      <div className="space-y-1.5 pt-1">
+                        <div className="flex items-center justify-between text-xs text-slate-400">
                           <span className="flex items-center space-x-1">
-                            <CheckSquare size={10} />
+                            <CheckSquare size={12} />
                             <span>Subtasks</span>
                           </span>
                           <span>{task.subtasks.filter(s => s.is_completed).length}/{task.subtasks.length}</span>
                         </div>
-                        <div className="w-full bg-[#1e2230] rounded-full h-1 overflow-hidden">
+                        <div className="w-full bg-[#1e2230] rounded-full h-1.5 overflow-hidden">
                           <div
                             className="bg-indigo-500 h-full rounded-full"
                             style={{
@@ -165,17 +166,17 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
                     )}
 
                     {/* Bottom Metadata */}
-                    <div className="flex items-center justify-between pt-1 border-t border-[#262a3c]/40 text-[10px] text-slate-400">
+                    <div className="flex items-center justify-between pt-1.5 border-t border-[#262a3c]/40 text-xs text-slate-400">
                       {task.due_date ? (
                         <span className="flex items-center space-x-1 text-slate-400">
-                          <Calendar size={10} />
-                          <span>{new Date(task.due_date).toLocaleDateString([], { month: 'short', day: 'numeric' })}</span>
+                          <Calendar size={12} />
+                          <span>{formatDateNPT(task.due_date, { month: 'short', day: 'numeric' })}</span>
                         </span>
                       ) : <span />}
 
                       {task.estimated_minutes && (
                         <span className="flex items-center space-x-1 font-mono">
-                          <Clock size={10} />
+                          <Clock size={12} />
                           <span>~{task.estimated_minutes}m</span>
                         </span>
                       )}

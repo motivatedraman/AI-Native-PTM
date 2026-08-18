@@ -62,18 +62,18 @@ export const InboxView: React.FC<InboxViewProps> = ({
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in duration-200">
+    <div className="max-w-full space-y-5 animate-in fade-in duration-200">
       
       {/* Header */}
       <div className="pb-4 border-b border-[#262a3c]/80">
-        <div className="flex items-center space-x-2 text-xs font-mono font-semibold text-indigo-400 uppercase tracking-wider">
-          <Inbox size={15} />
+        <div className="flex items-center space-x-2 text-sm font-mono font-semibold text-indigo-400 uppercase tracking-wider">
+          <Inbox size={17} />
           <span>Frictionless Inbox</span>
         </div>
-        <h1 className="text-2xl font-bold text-slate-100 tracking-tight mt-0.5">
+        <h1 className="text-3xl lg:text-4xl font-bold text-slate-100 tracking-tight mt-1">
           Inbox & Raw Capture
         </h1>
-        <p className="text-xs text-slate-400 mt-1">
+        <p className="text-sm text-slate-400 mt-2">
           Quickly dump ideas, homework, and tasks without filling out forms. Triage or let AI enrich them when ready.
         </p>
       </div>
@@ -85,40 +85,40 @@ export const InboxView: React.FC<InboxViewProps> = ({
           value={quickInput}
           onChange={(e) => setQuickInput(e.target.value)}
           placeholder="Dump any task here (e.g. Study networks before Friday, Buy HDMI cable)..."
-          className="w-full bg-[#12141c] border border-[#262a3c] rounded-xl px-4 py-3.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 shadow-md"
+          className="w-full bg-[#12141c] border border-[#262a3c] rounded-xl px-5 py-4 text-base text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 shadow-md"
         />
         <button
           type="submit"
           disabled={!quickInput.trim() || isSubmitting}
-          className="absolute right-2 top-2 bottom-2 px-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white rounded-lg text-xs font-medium flex items-center space-x-1.5 transition-colors"
+          className="absolute right-2 top-2 bottom-2 px-4 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white rounded-lg text-sm font-medium flex items-center space-x-1.5 transition-colors"
         >
           <span>Dump</span>
-          <ArrowRight size={14} />
+          <ArrowRight size={16} />
         </button>
       </form>
 
       {/* Inbox Task List */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between text-xs text-slate-400">
+        <div className="flex items-center justify-between text-sm text-slate-400">
           <span className="font-semibold uppercase tracking-wider text-slate-300">
             Unprocessed Items ({inboxTasks.length})
           </span>
-          <span>Click item for details & AI enrichment</span>
+          <span className="hidden sm:inline">Click item for details & AI enrichment</span>
         </div>
 
         {inboxTasks.length === 0 ? (
-          <div className="p-12 text-center rounded-xl bg-[#12141c] border border-[#262a3c]/60 text-slate-500 space-y-2">
-            <Inbox size={32} className="mx-auto text-slate-600" />
-            <p className="text-sm text-slate-400 font-medium">Inbox Zero</p>
-            <p className="text-xs text-slate-500">All captured thoughts and tasks have been organized!</p>
+          <div className="p-14 text-center rounded-xl bg-[#12141c] border border-[#262a3c]/60 text-slate-500 space-y-2">
+            <Inbox size={36} className="mx-auto text-slate-600" />
+            <p className="text-base text-slate-400 font-medium">Inbox Zero</p>
+            <p className="text-sm text-slate-500">All captured thoughts and tasks have been organized!</p>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             {inboxTasks.map((task) => (
               <div
                 key={task.id}
                 onClick={() => onSelectTask(task)}
-                className="flex items-center justify-between p-3.5 rounded-xl bg-[#12141c] hover:bg-[#181a24] border border-[#262a3c] transition-all cursor-pointer group"
+                className="flex items-center justify-between p-4 rounded-xl bg-[#12141c] hover:bg-[#181a24] border border-[#262a3c] transition-all cursor-pointer group"
               >
                 <div className="flex items-center space-x-3 truncate">
                   <button
@@ -126,16 +126,16 @@ export const InboxView: React.FC<InboxViewProps> = ({
                       e.stopPropagation();
                       onToggleComplete(task);
                     }}
-                    className="text-slate-500 hover:text-emerald-400 transition-colors"
+                    className="text-slate-500 hover:text-emerald-400 transition-colors flex-shrink-0"
                   >
-                    <Circle size={16} />
+                    <Circle size={20} />
                   </button>
                   <div>
-                    <div className="text-xs font-medium text-slate-200 group-hover:text-white">
+                    <div className="text-sm font-medium text-slate-200 group-hover:text-white">
                       {task.title}
                     </div>
                     {task.description && (
-                      <p className="text-[11px] text-slate-400 truncate max-w-md mt-0.5">
+                      <p className="text-xs text-slate-400 truncate max-w-md mt-0.5">
                         {task.description}
                       </p>
                     )}
@@ -144,17 +144,17 @@ export const InboxView: React.FC<InboxViewProps> = ({
 
                 {/* Quick actions */}
                 <div className="flex items-center space-x-2 flex-shrink-0">
-                  <span className="text-[10px] px-2 py-0.5 rounded bg-[#1e2230] text-slate-400 font-mono">
+                  <span className="text-xs px-2 py-0.5 rounded bg-[#1e2230] text-slate-400 font-mono">
                     {task.category}
                   </span>
                   {task.estimated_minutes && (
-                    <span className="text-[11px] text-slate-400 font-mono">
+                    <span className="text-xs text-slate-400 font-mono hidden sm:inline">
                       ~{task.estimated_minutes}m
                     </span>
                   )}
                   <button
                     onClick={(e) => handleMoveToPlanned(task, e)}
-                    className="px-2.5 py-1 text-[11px] font-medium bg-[#1e2230] hover:bg-indigo-600 hover:text-white text-slate-300 rounded-md transition-colors border border-[#262a3c]"
+                    className="px-3 py-1.5 text-xs font-medium bg-[#1e2230] hover:bg-indigo-600 hover:text-white text-slate-300 rounded-md transition-colors border border-[#262a3c]"
                   >
                     Plan →
                   </button>
