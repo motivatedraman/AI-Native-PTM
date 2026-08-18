@@ -17,6 +17,7 @@ import {
 import { Task, Project, Tag, Subtask } from '../types';
 import { api } from '../services/api';
 import { formatTimeNPT, formatDateNPT } from '../utils/time';
+import { DecomposeBanner } from './DecomposeBanner';
 
 interface TaskDetailModalProps {
   task: Task | null;
@@ -402,6 +403,22 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
               className="w-full bg-[#181a24] border border-[#262a3c] rounded-lg p-3 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
             />
           </div>
+
+          {/* V2: AI Decompose Banner */}
+          <DecomposeBanner
+            taskId={task.id}
+            taskTitle={task.title}
+            existingSubtaskCount={task.subtasks.length}
+            onSubtasksAdded={() => {
+              // Refresh the task to get updated subtasks
+              api.getTasks().then(() => {
+                api.getTasks({ search: task.title }).then(tasks => {
+                  const updated = tasks.find(t => t.id === task.id);
+                  if (updated) onTaskUpdated(updated);
+                });
+              });
+            }}
+          />
 
           {/* Subtasks Checklist */}
           <div>

@@ -1,4 +1,4 @@
-import { Task, Project, Tag, Subtask, ActivityLog, DailyLogGroup, AIParseResult, AIStatus } from '../types';
+import { Task, Project, Tag, Subtask, ActivityLog, DailyLogGroup, AIParseResult, AIStatus, DecomposeResult, PlannerResult, WhatNowResult, NLSearchResult, WeeklyReviewResult, ProjectSummaryResult, ChatResult, AISuggestion, DailyReflection, UserSettings, TaskDependency } from '../types';
 
 const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
@@ -12,7 +12,7 @@ const getHeaders = (customHeaders: Record<string, string> = {}) => {
 };
 
 export const api = {
-  // Auth
+  // ─── Auth ────────────────────────────────
   getToken(): string | null {
     return localStorage.getItem('nexus_auth_token');
   },
@@ -41,14 +41,12 @@ export const api = {
   },
 
   async getMe(): Promise<{ username: string; is_authenticated: boolean }> {
-    const res = await fetch(`${API_BASE}/auth/me`, {
-      headers: getHeaders(),
-    });
+    const res = await fetch(`${API_BASE}/auth/me`, { headers: getHeaders() });
     if (!res.ok) throw new Error('Unauthenticated');
     return res.json();
   },
 
-  // Tasks
+  // ─── Tasks ───────────────────────────────
   async getTasks(params?: { status?: string; category?: string; project_id?: number; search?: string; tag?: string }): Promise<Task[]> {
     const query = new URLSearchParams();
     if (params?.status) query.append('status', params.status);
@@ -56,188 +54,245 @@ export const api = {
     if (params?.project_id !== undefined) query.append('project_id', String(params.project_id));
     if (params?.search) query.append('search', params.search);
     if (params?.tag) query.append('tag', params.tag);
-
-    const res = await fetch(`${API_BASE}/tasks?${query.toString()}`, {
-      headers: getHeaders(),
-    });
+    const res = await fetch(`${API_BASE}/tasks?${query.toString()}`, { headers: getHeaders() });
     if (!res.ok) throw new Error('Failed to fetch tasks');
     return res.json();
   },
 
   async createTask(data: Partial<Task> & { tag_ids?: number[]; initial_subtasks?: string[] }): Promise<Task> {
-    const res = await fetch(`${API_BASE}/tasks`, {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify(data),
-    });
+    const res = await fetch(`${API_BASE}/tasks`, { method: 'POST', headers: getHeaders(), body: JSON.stringify(data) });
     if (!res.ok) throw new Error('Failed to create task');
     return res.json();
   },
 
   async quickAddTask(raw_text: string): Promise<Task> {
-    const res = await fetch(`${API_BASE}/tasks/quick-add`, {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify({ raw_text }),
-    });
+    const res = await fetch(`${API_BASE}/tasks/quick-add`, { method: 'POST', headers: getHeaders(), body: JSON.stringify({ raw_text }) });
     if (!res.ok) throw new Error('Failed to quick add task');
     return res.json();
   },
 
   async updateTask(id: number, data: Partial<Task> & { tag_ids?: number[] }): Promise<Task> {
-    const res = await fetch(`${API_BASE}/tasks/${id}`, {
-      method: 'PATCH',
-      headers: getHeaders(),
-      body: JSON.stringify(data),
-    });
+    const res = await fetch(`${API_BASE}/tasks/${id}`, { method: 'PATCH', headers: getHeaders(), body: JSON.stringify(data) });
     if (!res.ok) throw new Error('Failed to update task');
     return res.json();
   },
 
   async completeTask(id: number): Promise<Task> {
-    const res = await fetch(`${API_BASE}/tasks/${id}/complete`, {
-      method: 'POST',
-      headers: getHeaders(),
-    });
+    const res = await fetch(`${API_BASE}/tasks/${id}/complete`, { method: 'POST', headers: getHeaders() });
     if (!res.ok) throw new Error('Failed to complete task');
     return res.json();
   },
 
   async reopenTask(id: number): Promise<Task> {
-    const res = await fetch(`${API_BASE}/tasks/${id}/reopen`, {
-      method: 'POST',
-      headers: getHeaders(),
-    });
+    const res = await fetch(`${API_BASE}/tasks/${id}/reopen`, { method: 'POST', headers: getHeaders() });
     if (!res.ok) throw new Error('Failed to reopen task');
     return res.json();
   },
 
   async deleteTask(id: number): Promise<void> {
-    const res = await fetch(`${API_BASE}/tasks/${id}`, {
-      method: 'DELETE',
-      headers: getHeaders(),
-    });
+    const res = await fetch(`${API_BASE}/tasks/${id}`, { method: 'DELETE', headers: getHeaders() });
     if (!res.ok) throw new Error('Failed to delete task');
   },
 
-  // Subtasks
+  // ─── Subtasks ────────────────────────────
   async addSubtask(taskId: number, title: string): Promise<Subtask> {
-    const res = await fetch(`${API_BASE}/tasks/${taskId}/subtasks`, {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify({ title }),
-    });
+    const res = await fetch(`${API_BASE}/tasks/${taskId}/subtasks`, { method: 'POST', headers: getHeaders(), body: JSON.stringify({ title }) });
     if (!res.ok) throw new Error('Failed to add subtask');
     return res.json();
   },
 
   async updateSubtask(taskId: number, subtaskId: number, data: Partial<Subtask>): Promise<Subtask> {
-    const res = await fetch(`${API_BASE}/tasks/${taskId}/subtasks/${subtaskId}`, {
-      method: 'PATCH',
-      headers: getHeaders(),
-      body: JSON.stringify(data),
-    });
+    const res = await fetch(`${API_BASE}/tasks/${taskId}/subtasks/${subtaskId}`, { method: 'PATCH', headers: getHeaders(), body: JSON.stringify(data) });
     if (!res.ok) throw new Error('Failed to update subtask');
     return res.json();
   },
 
   async deleteSubtask(taskId: number, subtaskId: number): Promise<void> {
-    const res = await fetch(`${API_BASE}/tasks/${taskId}/subtasks/${subtaskId}`, {
-      method: 'DELETE',
-      headers: getHeaders(),
-    });
+    const res = await fetch(`${API_BASE}/tasks/${taskId}/subtasks/${subtaskId}`, { method: 'DELETE', headers: getHeaders() });
     if (!res.ok) throw new Error('Failed to delete subtask');
   },
 
-  // Projects
+  // ─── Projects ────────────────────────────
   async getProjects(category?: string): Promise<Project[]> {
     const query = category ? `?category=${encodeURIComponent(category)}` : '';
-    const res = await fetch(`${API_BASE}/projects${query}`, {
-      headers: getHeaders(),
-    });
+    const res = await fetch(`${API_BASE}/projects${query}`, { headers: getHeaders() });
     if (!res.ok) throw new Error('Failed to fetch projects');
     return res.json();
   },
 
   async createProject(data: Partial<Project>): Promise<Project> {
-    const res = await fetch(`${API_BASE}/projects`, {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify(data),
-    });
+    const res = await fetch(`${API_BASE}/projects`, { method: 'POST', headers: getHeaders(), body: JSON.stringify(data) });
     if (!res.ok) throw new Error('Failed to create project');
     return res.json();
   },
 
   async deleteProject(id: number): Promise<void> {
-    const res = await fetch(`${API_BASE}/projects/${id}`, {
-      method: 'DELETE',
-      headers: getHeaders(),
-    });
+    const res = await fetch(`${API_BASE}/projects/${id}`, { method: 'DELETE', headers: getHeaders() });
     if (!res.ok) throw new Error('Failed to delete project');
   },
 
-  // Tags
+  // ─── Tags ────────────────────────────────
   async getTags(): Promise<Tag[]> {
-    const res = await fetch(`${API_BASE}/tags`, {
-      headers: getHeaders(),
-    });
+    const res = await fetch(`${API_BASE}/tags`, { headers: getHeaders() });
     if (!res.ok) throw new Error('Failed to fetch tags');
     return res.json();
   },
 
-  // Activity & Daily Log
+  // ─── Activity & Daily Log ────────────────
   async getActivity(limit: number = 50): Promise<ActivityLog[]> {
-    const res = await fetch(`${API_BASE}/activity?limit=${limit}`, {
-      headers: getHeaders(),
-    });
+    const res = await fetch(`${API_BASE}/activity?limit=${limit}`, { headers: getHeaders() });
     if (!res.ok) throw new Error('Failed to fetch activity');
     return res.json();
   },
 
   async getDailyLog(date?: string): Promise<DailyLogGroup> {
     const query = date ? `?target_date=${date}` : '';
-    const res = await fetch(`${API_BASE}/daily-log${query}`, {
-      headers: getHeaders(),
-    });
+    const res = await fetch(`${API_BASE}/daily-log${query}`, { headers: getHeaders() });
     if (!res.ok) throw new Error('Failed to fetch daily log');
     return res.json();
   },
 
-  // AI Service
+  // ─── AI V1 ───────────────────────────────
   async getAIStatus(): Promise<AIStatus> {
-    const res = await fetch(`${API_BASE}/ai/status`, {
-      headers: getHeaders(),
-    });
+    const res = await fetch(`${API_BASE}/ai/status`, { headers: getHeaders() });
     if (!res.ok) throw new Error('Failed to fetch AI status');
     return res.json();
   },
 
+  async testAIConnection(): Promise<any> {
+    const res = await fetch(`${API_BASE}/ai/test`, { headers: getHeaders() });
+    if (!res.ok) throw new Error('Failed to test AI connection');
+    return res.json();
+  },
+
   async parseTaskWithAI(text: string): Promise<AIParseResult> {
-    const res = await fetch(`${API_BASE}/ai/parse-task`, {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify({ text }),
-    });
+    const res = await fetch(`${API_BASE}/ai/parse-task`, { method: 'POST', headers: getHeaders(), body: JSON.stringify({ text }) });
     if (!res.ok) throw new Error('Failed to parse task with AI');
     return res.json();
   },
 
   async enrichTaskWithAI(taskId: number) {
-    const res = await fetch(`${API_BASE}/ai/enrich-task/${taskId}`, {
-      method: 'POST',
-      headers: getHeaders(),
-    });
+    const res = await fetch(`${API_BASE}/ai/enrich-task/${taskId}`, { method: 'POST', headers: getHeaders() });
     if (!res.ok) throw new Error('Failed to enrich task');
     return res.json();
   },
 
   async suggestSubtasksWithAI(taskId: number): Promise<{ task_id: number; suggested_subtasks: string[] }> {
-    const res = await fetch(`${API_BASE}/ai/suggest-subtasks/${taskId}`, {
-      method: 'POST',
-      headers: getHeaders(),
-    });
+    const res = await fetch(`${API_BASE}/ai/suggest-subtasks/${taskId}`, { method: 'POST', headers: getHeaders() });
     if (!res.ok) throw new Error('Failed to suggest subtasks');
     return res.json();
-  }
+  },
+
+  // ─── AI V2: Decomposition ────────────────
+  async decomposeTask(taskId: number): Promise<DecomposeResult> {
+    const res = await fetch(`${API_BASE}/ai/decompose/${taskId}`, { method: 'POST', headers: getHeaders() });
+    if (!res.ok) throw new Error('Failed to decompose task');
+    return res.json();
+  },
+
+  // ─── AI V2: Planner ─────────────────────
+  async planMyDay(): Promise<PlannerResult> {
+    const res = await fetch(`${API_BASE}/ai/plan-my-day`, { method: 'POST', headers: getHeaders() });
+    if (!res.ok) throw new Error('Failed to plan day');
+    return res.json();
+  },
+
+  // ─── AI V2: What Should I Do Now ────────
+  async whatShouldIDo(): Promise<WhatNowResult> {
+    const res = await fetch(`${API_BASE}/ai/what-should-i-do`, { method: 'POST', headers: getHeaders() });
+    if (!res.ok) throw new Error('Failed to get recommendation');
+    return res.json();
+  },
+
+  // ─── AI V2: Natural Language Search ─────
+  async nlSearch(query: string): Promise<NLSearchResult> {
+    const res = await fetch(`${API_BASE}/ai/execute-search`, { method: 'POST', headers: getHeaders(), body: JSON.stringify({ query }) });
+    if (!res.ok) throw new Error('Failed to search');
+    return res.json();
+  },
+
+  // ─── AI V2: Weekly Review ────────────────
+  async getWeeklyReview(): Promise<WeeklyReviewResult> {
+    const res = await fetch(`${API_BASE}/ai/weekly-review`, { headers: getHeaders() });
+    if (!res.ok) throw new Error('Failed to get weekly review');
+    return res.json();
+  },
+
+  // ─── AI V2: Project Summary ─────────────
+  async getProjectSummary(projectId: number): Promise<ProjectSummaryResult> {
+    const res = await fetch(`${API_BASE}/ai/project-summary/${projectId}`, { headers: getHeaders() });
+    if (!res.ok) throw new Error('Failed to get project summary');
+    return res.json();
+  },
+
+  // ─── AI V2: Daily Summary ────────────────
+  async getEnhancedDailySummary(dateStr: string): Promise<{ date: string; summary: string; completed_count: number; activity_count: number }> {
+    const res = await fetch(`${API_BASE}/ai/daily-summary/${dateStr}`, { headers: getHeaders() });
+    if (!res.ok) throw new Error('Failed to get daily summary');
+    return res.json();
+  },
+
+  // ─── AI V2: Chat Assistant ───────────────
+  async chatWithAI(message: string): Promise<ChatResult> {
+    const res = await fetch(`${API_BASE}/ai/chat`, { method: 'POST', headers: getHeaders(), body: JSON.stringify({ message }) });
+    if (!res.ok) throw new Error('Failed to chat with AI');
+    return res.json();
+  },
+
+  // ─── AI V2: Suggestions ──────────────────
+  async getAISuggestions(): Promise<AISuggestion[]> {
+    const res = await fetch(`${API_BASE}/ai/suggestions`, { headers: getHeaders() });
+    if (!res.ok) throw new Error('Failed to get suggestions');
+    return res.json();
+  },
+
+  // ─── V2: Reflections ─────────────────────
+  async getReflections(limit: number = 30): Promise<DailyReflection[]> {
+    const res = await fetch(`${API_BASE}/reflections?limit=${limit}`, { headers: getHeaders() });
+    if (!res.ok) throw new Error('Failed to fetch reflections');
+    return res.json();
+  },
+
+  async getTodayReflection(): Promise<DailyReflection | null> {
+    const res = await fetch(`${API_BASE}/reflections/today`, { headers: getHeaders() });
+    if (!res.ok) return null;
+    return res.json();
+  },
+
+  async saveReflection(content: string, mood?: string): Promise<DailyReflection> {
+    const res = await fetch(`${API_BASE}/reflections`, { method: 'POST', headers: getHeaders(), body: JSON.stringify({ content, mood }) });
+    if (!res.ok) throw new Error('Failed to save reflection');
+    return res.json();
+  },
+
+  // ─── V2: Settings ────────────────────────
+  async getSettings(): Promise<UserSettings> {
+    const res = await fetch(`${API_BASE}/settings`, { headers: getHeaders() });
+    if (!res.ok) throw new Error('Failed to fetch settings');
+    return res.json();
+  },
+
+  async updateSettings(data: Partial<UserSettings>): Promise<UserSettings> {
+    const res = await fetch(`${API_BASE}/settings`, { method: 'PATCH', headers: getHeaders(), body: JSON.stringify(data) });
+    if (!res.ok) throw new Error('Failed to update settings');
+    return res.json();
+  },
+
+  // ─── V2: Task Dependencies ───────────────
+  async getTaskDependencies(taskId: number): Promise<TaskDependency[]> {
+    const res = await fetch(`${API_BASE}/tasks/${taskId}/dependencies`, { headers: getHeaders() });
+    if (!res.ok) throw new Error('Failed to fetch dependencies');
+    return res.json();
+  },
+
+  async addTaskDependency(taskId: number, dependsOnId: number): Promise<TaskDependency> {
+    const res = await fetch(`${API_BASE}/tasks/${taskId}/dependencies`, { method: 'POST', headers: getHeaders(), body: JSON.stringify({ depends_on_id: dependsOnId }) });
+    if (!res.ok) throw new Error('Failed to add dependency');
+    return res.json();
+  },
+
+  async removeTaskDependency(taskId: number, dependencyId: number): Promise<void> {
+    const res = await fetch(`${API_BASE}/tasks/${taskId}/dependencies/${dependencyId}`, { method: 'DELETE', headers: getHeaders() });
+    if (!res.ok) throw new Error('Failed to remove dependency');
+  },
 };

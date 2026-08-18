@@ -8,10 +8,14 @@ import {
   TrendingUp,
   Plus,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Sparkles,
+  CalendarClock
 } from 'lucide-react';
 import { Task, Project } from '../types';
 import { currentHourNPT, formatDateNPT, todayNPT, offsetDateNPT, dateStrNPT, formatDateLabel } from '../utils/time';
+import { WhatNowWidget } from '../components/WhatNowWidget';
+import { AISuggestionsCard } from '../components/AISuggestionsCard';
 
 interface TodayViewProps {
   tasks: Task[];
@@ -29,6 +33,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
   onOpenQuickAdd,
 }) => {
   const [selectedDate, setSelectedDate] = useState(todayNPT());
+  const [showPlanDay, setShowPlanDay] = useState(false);
 
   const getGreeting = () => {
     const hour = currentHourNPT();
@@ -99,16 +104,40 @@ export const TodayView: React.FC<TodayViewProps> = ({
           </div>
         </div>
 
-        {/* Quick Add CTA */}
-        <button
-          onClick={onOpenQuickAdd}
-          className="flex items-center space-x-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-medium transition-all shadow-sm"
-        >
-          <Plus size={17} />
-          <span>Quick Capture</span>
-          <kbd className="kbd-badge text-[10px] bg-indigo-700/60 text-indigo-200 border-indigo-500/40">N</kbd>
-        </button>
+        {/* Quick Add & Plan Day CTAs */}
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={onOpenQuickAdd}
+            className="flex items-center space-x-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-medium transition-all shadow-sm"
+          >
+            <Plus size={17} />
+            <span>Quick Capture</span>
+            <kbd className="kbd-badge text-[10px] bg-indigo-700/60 text-indigo-200 border-indigo-500/40">N</kbd>
+          </button>
+          <button
+            onClick={() => setShowPlanDay(true)}
+            className="flex items-center space-x-2 px-4 py-2.5 bg-[#212433] hover:bg-[#2c3044] text-slate-200 border border-[#262a3c] rounded-lg text-sm font-medium transition-all"
+          >
+            <CalendarClock size={17} className="text-indigo-400" />
+            <span>Plan My Day</span>
+            <kbd className="kbd-badge text-[10px]">P</kbd>
+          </button>
+        </div>
       </div>
+
+      {/* V2: What Should I Do Now + AI Suggestions */}
+      {selectedDate === todayNPT() && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <WhatNowWidget onStartTask={(id) => {
+            const task = tasks.find(t => t.id === id);
+            if (task) onSelectTask(task);
+          }} />
+          <AISuggestionsCard onSelectTask={(id) => {
+            const task = tasks.find(t => t.id === id);
+            if (task) onSelectTask(task);
+          }} />
+        </div>
+      )}
 
       {/* Date Toggle Bar */}
       <div className="flex items-center space-x-2">

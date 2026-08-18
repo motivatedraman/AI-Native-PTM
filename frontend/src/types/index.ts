@@ -90,4 +90,120 @@ export interface AIStatus {
   message: string;
 }
 
-export type ActiveView = 'today' | 'inbox' | 'kanban' | 'university' | 'projects' | 'dailylog';
+export type ActiveView = 'today' | 'inbox' | 'kanban' | 'university' | 'projects' | 'dailylog' | 'weeklyreview' | 'aiassistant';
+
+// ─── V2 Types ───────────────────────────────
+
+export interface DecomposeSubtask {
+  title: string;
+  estimated_minutes?: number | null;
+}
+
+export interface DecomposeResult {
+  task_id: number;
+  subtasks: DecomposeSubtask[];
+  reasoning?: string | null;
+}
+
+export interface PlannerItem {
+  time: string;
+  task_id?: number | null;
+  task_title: string;
+  duration_minutes: number;
+  type: 'task' | 'break';
+  note?: string | null;
+}
+
+export interface PlannerResult {
+  items: PlannerItem[];
+  summary: string;
+  total_planned_minutes: number;
+  available_minutes: number;
+  overflow: boolean;
+  overflow_message?: string | null;
+}
+
+export interface WhatNowRecommendation {
+  task_id?: number | null;
+  task_title: string;
+  reason: string;
+  duration_minutes: number;
+  urgency: string;
+}
+
+export interface WhatNowResult {
+  message: string;
+  recommendations: WhatNowRecommendation[];
+  available_minutes: number;
+  suggested_start_time: string;
+}
+
+export interface NLSearchResult {
+  filters: Record<string, any>;
+  explanation: string;
+  results?: Task[];
+  count?: number;
+}
+
+export interface WeeklyReviewResult {
+  highlights: string[];
+  patterns: string[];
+  suggestions: string[];
+  completion_rate: number;
+  summary: string;
+}
+
+export interface ProjectSummaryResult {
+  summary: string;
+  blockers: string[];
+  next_actions: string[];
+  health: 'on_track' | 'at_risk' | 'critical';
+}
+
+export interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  actions?: ChatAction[];
+}
+
+export interface ChatAction {
+  label: string;
+  type: string;
+  task_id?: number;
+  project_id?: number;
+}
+
+export interface ChatResult {
+  answer: string;
+  actions: ChatAction[];
+}
+
+export interface AISuggestion {
+  type: string;
+  title: string;
+  description?: string;
+  task_id?: number;
+  project_id?: number;
+  action?: Record<string, any>;
+}
+
+export interface DailyReflection {
+  id: number;
+  reflection_date: string;
+  content: string;
+  mood?: string | null;
+  created_at: string;
+}
+
+export interface UserSettings {
+  available_start_hour: number;
+  available_end_hour: number;
+  timezone: string;
+}
+
+export interface TaskDependency {
+  id: number;
+  task_id: number;
+  depends_on_id: number;
+  depends_on_title?: string | null;
+}

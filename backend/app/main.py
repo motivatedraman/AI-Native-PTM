@@ -17,6 +17,9 @@ from backend.app.routers import (
     ai_router,
     auth_router
 )
+from backend.app.routers.settings import router as settings_router
+from backend.app.routers.reflections import router as reflections_router
+from backend.app.routers.dependencies import router as dependencies_router
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -65,6 +68,9 @@ app.include_router(projects_router, dependencies=[Depends(get_current_user)])
 app.include_router(tags_router, dependencies=[Depends(get_current_user)])
 app.include_router(activity_router, dependencies=[Depends(get_current_user)])
 app.include_router(ai_router, dependencies=[Depends(get_current_user)])
+app.include_router(settings_router, dependencies=[Depends(get_current_user)])
+app.include_router(reflections_router, dependencies=[Depends(get_current_user)])
+app.include_router(dependencies_router, dependencies=[Depends(get_current_user)])
 
 @app.get("/api/health")
 def health_check():

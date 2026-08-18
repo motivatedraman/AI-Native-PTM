@@ -5,5 +5,15 @@ from backend.app.schemas.activity import ActivityLogResponse, DailyLogGroup
 from backend.app.schemas.task import TaskCreate, TaskUpdate, TaskResponse, TaskQuickAdd
 from backend.app.schemas.ai import (
     AITaskParseRequest, AITaskParseResult, AITaskEnrichResponse,
-    AISubtaskSuggestResponse, AIDailySummaryRequest, AIDailySummaryResponse, AIStatusResponse
+    AISubtaskSuggestResponse, AIDailySummaryRequest, AIDailySummaryResponse, AIStatusResponse,
+    AIDecomposeRequest, AIDecomposeResponse, AIDecomposeSubtask,
+    AIPlannerItem, AIPlannerResponse,
+    AIWhatNowRecommendation, AIWhatNowResponse,
+    AINLSearchRequest, AINLSearchFilters, AINLSearchResponse,
+    AIWeeklyReviewResponse, AIProjectSummaryResponse,
+    AIChatRequest, AIChatResponse,
+    AISuggestionResponse, AISuggestionCreateRequest,
+    DailyReflectionRequest, DailyReflectionResponse,
+    UserSettingsResponse, UserSettingsUpdateRequest,
+    TaskDependencyRequest, TaskDependencyResponse
 )

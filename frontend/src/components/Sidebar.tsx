@@ -13,7 +13,9 @@ import {
   Plus,
   LogOut,
   Menu,
-  X
+  X,
+  BarChart3,
+  MessageSquare
 } from 'lucide-react';
 import { ActiveView, AIStatus } from '../types';
 
@@ -57,6 +59,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'university', label: 'University', icon: GraduationCap, badge: taskCounts.university },
     { id: 'projects', label: 'Projects', icon: FolderKanban },
     { id: 'dailylog', label: 'Daily Log', icon: Clock },
+    { id: 'weeklyreview', label: 'Weekly Review', icon: BarChart3 },
   ];
 
   const handleNavClick = (viewId: string) => {

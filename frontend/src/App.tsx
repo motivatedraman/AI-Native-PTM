@@ -4,12 +4,15 @@ import { LoginScreen } from './components/LoginScreen';
 import { QuickCaptureModal } from './components/QuickCaptureModal';
 import { TaskDetailModal } from './components/TaskDetailModal';
 import { CommandPalette } from './components/CommandPalette';
+import { PlanMyDayModal } from './components/PlanMyDayModal';
+import { AIAssistantPanel } from './components/AIAssistantPanel';
 import { TodayView } from './views/TodayView';
 import { InboxView } from './views/InboxView';
 import { KanbanView } from './views/KanbanView';
 import { UniversityView } from './views/UniversityView';
 import { ProjectsView } from './views/ProjectsView';
 import { DailyLogView } from './views/DailyLogView';
+import { WeeklyReviewView } from './views/WeeklyReviewView';
 import { Task, Project, Tag, ActiveView, AIStatus } from './types';
 import { api } from './services/api';
 import { Menu } from 'lucide-react';
@@ -29,6 +32,8 @@ export const App: React.FC = () => {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [isPlanDayOpen, setIsPlanDayOpen] = useState(false);
+  const [isAIAssistantOpen, setIsAIAssistantOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -99,12 +104,34 @@ export const App: React.FC = () => {
         return;
       }
 
-      if (e.key.toLowerCase() === 'n' && !e.metaKey && !e.ctrlKey) {
+      const key = e.key.toLowerCase();
+
+      if (key === 'n' && !e.metaKey && !e.ctrlKey) {
         e.preventDefault();
         setIsQuickAddOpen(true);
-      } else if (e.key === '/' || ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k')) {
+      } else if (key === 'a' && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault();
+        setIsAIAssistantOpen(true);
+      } else if (key === 'p' && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault();
+        setIsPlanDayOpen(true);
+      } else if (key === 't' && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault();
+        setActiveView('today');
+      } else if (key === 'k' && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault();
+        setActiveView('kanban');
+      } else if (key === 'd' && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault();
+        setActiveView('dailylog');
+      } else if (key === '/' || ((e.metaKey || e.ctrlKey) && key === 'k')) {
         e.preventDefault();
         setIsCommandPaletteOpen(true);
+      } else if (key === 'escape') {
+        setIsQuickAddOpen(false);
+        setIsCommandPaletteOpen(false);
+        setIsPlanDayOpen(false);
+        setIsAIAssistantOpen(false);
       }
     };
 
@@ -147,6 +174,26 @@ export const App: React.FC = () => {
   const handleSelectTask = (task: Task) => {
     setSelectedTask(task);
     setIsDetailOpen(true);
+  };
+
+  // V2: Start a task (move to doing) by ID
+  const handleStartTask = async (taskId: number) => {
+    try {
+      const task = tasks.find(t => t.id === taskId);
+      if (task && task.status !== 'doing') {
+        const updated = await api.updateTask(taskId, { status: 'doing' });
+        handleTaskUpdated(updated);
+      }
+      // Open task detail
+      const freshTask = tasks.find(t => t.id === taskId);
+      if (freshTask) {
+        setSelectedTask(freshTask);
+        setIsDetailOpen(true);
+      }
+      loadData();
+    } catch (err) {
+      console.error('Failed to start task:', err);
+    }
   };
 
   if (isAuthChecking) {
@@ -202,7 +249,7 @@ export const App: React.FC = () => {
             </div>
             <span className="font-semibold text-sm text-slate-100">Nexus OS</span>
           </div>
-          <div className="w-9" /> {/* Spacer for centering */}
+          <div className="w-9" />
         </div>
         {isLoading && tasks.length === 0 ? (
           <div className="flex-1 flex items-center justify-center text-slate-500 text-xs">
@@ -266,6 +313,10 @@ export const App: React.FC = () => {
                 onSelectTask={handleSelectTask}
               />
             )}
+
+            {activeView === 'weeklyreview' && (
+              <WeeklyReviewView />
+            )}
           </>
         )}
       </main>
@@ -297,8 +348,31 @@ export const App: React.FC = () => {
         onClose={() => setIsCommandPaletteOpen(false)}
         setActiveView={setActiveView}
         onOpenQuickAdd={() => setIsQuickAddOpen(true)}
+        onOpenPlanDay={() => setIsPlanDayOpen(true)}
+        onOpenAIAssistant={() => setIsAIAssistantOpen(true)}
         tasks={tasks}
         onSelectTask={handleSelectTask}
+      />
+
+      {/* V2: Plan My Day Modal ('P' shortcut) */}
+      <PlanMyDayModal
+        isOpen={isPlanDayOpen}
+        onClose={() => setIsPlanDayOpen(false)}
+        onApplyPlan={(taskIds) => {
+          // Move all planned tasks to 'planned' status
+          taskIds.forEach(id => {
+            api.updateTask(id, { status: 'planned' }).then(handleTaskUpdated).catch(console.error);
+          });
+          setIsPlanDayOpen(false);
+        }}
+        onStartTask={handleStartTask}
+      />
+
+      {/* V2: AI Assistant Panel ('A' shortcut) */}
+      <AIAssistantPanel
+        isOpen={isAIAssistantOpen}
+        onClose={() => setIsAIAssistantOpen(false)}
+        onStartTask={handleStartTask}
       />
 
     </div>

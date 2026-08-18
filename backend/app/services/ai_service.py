@@ -2,29 +2,174 @@ import os
 import re
 import json
 import httpx
+import time
 from datetime import datetime, timedelta, date, timezone
 from typing import Optional, List, Dict, Any
+from collections import deque
 from backend.app.config import settings
-from backend.app.schemas.ai import AITaskParseResult, AITaskEnrichResponse, AISubtaskSuggestResponse, AIStatusResponse
+from backend.app.schemas.ai import (
+    AITaskParseResult, AITaskEnrichResponse, AISubtaskSuggestResponse,
+    AIStatusResponse, AIDecomposeResponse, AIPlannerResponse, AIPlannerItem,
+    AIWhatNowResponse, AINLSearchResponse, AIWeeklyReviewResponse,
+    AIProjectSummaryResponse, AIChatRequest, AIChatResponse
+)
+
+NPT = timezone(timedelta(hours=5, minutes=45))
+
+
+class RateLimiter:
+    """Simple in-memory sliding window rate limiter."""
+    def __init__(self, max_rpm: int = 8):
+        self.max_rpm = max_rpm
+        self.timestamps: deque = deque()
+
+    def can_proceed(self) -> bool:
+        now = time.time()
+        # Remove timestamps older than 60 seconds
+        while self.timestamps and self.timestamps[0] < now - 60:
+            self.timestamps.popleft()
+        return len(self.timestamps) < self.max_rpm
+
+    def record(self):
+        self.timestamps.append(time.time())
+
+    def wait_time(self) -> float:
+        """Seconds until next request is allowed."""
+        if self.can_proceed():
+            return 0.0
+        oldest = self.timestamps[0]
+        return max(0, oldest + 60 - time.time())
+
+
 
 class AIService:
     def __init__(self):
         self.provider = settings.AI_PROVIDER.lower()
-        self.api_key = settings.AI_API_KEY.strip()
-        self.model = settings.AI_MODEL.strip()
+        self.api_key = settings.get_ai_api_key()
+        self.model = settings.get_ai_model()
+        # Rate limiter: 8 RPM gives headroom under the 10 RPM free tier
+        self.rate_limiter = RateLimiter(max_rpm=8)
+        self._last_error: Optional[str] = None
+        self._consecutive_failures = 0
+
+    def _refresh_key(self):
+        self.api_key = settings.get_ai_api_key()
 
     def get_status(self) -> AIStatusResponse:
         is_configured = bool(self.api_key and len(self.api_key) > 5)
+        healthy = self._consecutive_failures < 3
+        msg = "AI Engine active with structured heuristic fallback"
+        if is_configured:
+            msg = f"AI Engine active with {self.provider.capitalize()} ({self.model})"
+            if not healthy:
+                msg += f" — temporarily degraded: {self._last_error or 'too many failures'}"
+            elif not self.rate_limiter.can_proceed():
+                msg += f" — rate limited, {self.rate_limiter.wait_time():.0f}s until next request"
         return AIStatusResponse(
             is_configured=is_configured,
             provider=self.provider,
             model=self.model,
-            is_healthy=True, # Active with smart fallback if no API key
-            message="AI Engine active with structured heuristic fallback" if not is_configured else f"AI Engine active with {self.provider.capitalize()} ({self.model})"
+            is_healthy=healthy,
+            message=msg
         )
 
+    # ─────────────────────────────────────────────
+    # Core AI call helper with rate limiting
+    # ─────────────────────────────────────────────
+    async def _call_ai(self, prompt: str, expect_json: bool = True) -> Optional[Any]:
+        """Call the AI provider with rate limiting. Returns parsed JSON or raw text."""
+        if not self.api_key or len(self.api_key) < 5:
+            return None
+
+        # Rate limit check
+        if not self.rate_limiter.can_proceed():
+            wait = self.rate_limiter.wait_time()
+            print(f"[AIService] Rate limited, waiting {wait:.1f}s")
+            self._last_error = f"Rate limited, {wait:.0f}s wait"
+            return None
+
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                if self.provider == "gemini":
+                    url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent?key={self.api_key}"
+                    payload: Dict[str, Any] = {
+                        "contents": [{"parts": [{"text": prompt}]}],
+                    }
+                    gen_config: Dict[str, Any] = {}
+                    if expect_json:
+                        gen_config["response_mime_type"] = "application/json"
+                    gen_config["temperature"] = 0.4
+                    gen_config["max_tokens"] = 2048
+                    payload["generationConfig"] = gen_config
+
+                    self.rate_limiter.record()
+                    res = await client.post(url, json=payload)
+
+                    if res.status_code == 429:
+                        self._consecutive_failures += 1
+                        self._last_error = "Rate limited by Gemini API (429)"
+                        print(f"[AIService] Gemini 429 rate limit hit")
+                        return None
+
+                    if res.status_code == 200:
+                        self._consecutive_failures = 0
+                        self._last_error = None
+                        data = res.json()
+                        text_content = data["candidates"][0]["content"]["parts"][0]["text"]
+                        if expect_json:
+                            return json.loads(text_content)
+                        return text_content
+                    else:
+                        self._consecutive_failures += 1
+                        self._last_error = f"Gemini returned {res.status_code}"
+                        print(f"[AIService] Gemini error {res.status_code}: {res.text[:200]}")
+
+                elif self.provider == "openai":
+                    url = "https://api.openai.com/v1/chat/completions"
+                    headers = {"Authorization": f"Bearer {self.api_key}"}
+                    messages = [{"role": "user", "content": prompt}]
+                    payload = {
+                        "model": self.model or "gpt-4o-mini",
+                        "messages": messages,
+                        "temperature": 0.4,
+                    }
+                    if expect_json:
+                        payload["response_format"] = {"type": "json_object"}
+
+                    self.rate_limiter.record()
+                    res = await client.post(url, headers=headers, json=payload)
+
+                    if res.status_code == 429:
+                        self._consecutive_failures += 1
+                        self._last_error = "Rate limited by OpenAI API (429)"
+                        return None
+
+                    if res.status_code == 200:
+                        self._consecutive_failures = 0
+                        self._last_error = None
+                        data = res.json()
+                        text_content = data["choices"][0]["message"]["content"]
+                        if expect_json:
+                            return json.loads(text_content)
+                        return text_content
+                    else:
+                        self._consecutive_failures += 1
+                        self._last_error = f"OpenAI returned {res.status_code}"
+
+        except httpx.TimeoutException:
+            self._consecutive_failures += 1
+            self._last_error = "Request timed out"
+            print("[AIService] Request timed out")
+        except Exception as e:
+            self._consecutive_failures += 1
+            self._last_error = str(e)
+            print(f"[AIService] AI call failed ({e})")
+        return None
+
+    # ─────────────────────────────────────────────
+    # V1: Task Parsing (preserved)
+    # ─────────────────────────────────────────────
     def _heuristic_parse(self, text: str) -> AITaskParseResult:
-        """Robust deterministic parser when AI key is not supplied or offline."""
         clean_text = text.strip()
         category = "Personal"
         priority = "medium"
@@ -32,23 +177,17 @@ class AIService:
         due_date = None
         suggested_project = None
         suggested_tags = []
-
         lower = clean_text.lower()
 
-        # 1. Parse duration
+        # Duration
         duration_match = re.search(r'(?:take[s]?\s*(?:around|about)?\s*|for\s+|~)?(\d+(?:\.\d+)?)\s*(hours?|hrs?|h|minutes?|mins?|m)\b', lower)
         if duration_match:
             val = float(duration_match.group(1))
             unit = duration_match.group(2)
-            if 'h' in unit:
-                estimated_minutes = int(val * 60)
-            else:
-                estimated_minutes = int(val)
+            estimated_minutes = int(val * 60) if 'h' in unit else int(val)
 
-        # 2. Parse due dates (all in NPT — UTC+5:45)
-        NPT = timezone(timedelta(hours=5, minutes=45))
+        # Due dates
         now_npt = datetime.now(NPT)
-        now_utc = datetime.utcnow()
         if "today" in lower or "tonight" in lower:
             due_date_npt = now_npt.replace(hour=20, minute=0, second=0, microsecond=0)
             due_date = due_date_npt.astimezone(timezone.utc).replace(tzinfo=None)
@@ -76,12 +215,12 @@ class AIService:
                     due_date = due_date_npt.astimezone(timezone.utc).replace(tzinfo=None)
                     break
 
-        # 3. Parse category & project hints
-        academic_keywords = ["dbms", "os", "operating systems", "networks", "computer networks", "assignment", "homework", "exam", "study", "lecture", "professor", "chapter", "lab", "thesis", "university", "college", "slides"]
-        coding_keywords = ["fastapi", "react", "backend", "frontend", "api", "database", "git", "bug", "deploy", "auth", "refactor", "docker"]
-        shopping_keywords = ["buy", "order", "purchase", "cable", "groceries", "store", "amazon"]
+        # Category & project
+        academic_kw = ["dbms", "os", "operating systems", "networks", "computer networks", "assignment", "homework", "exam", "study", "lecture", "professor", "chapter", "lab", "thesis", "university", "college", "slides"]
+        coding_kw = ["fastapi", "react", "backend", "frontend", "api", "database", "git", "bug", "deploy", "auth", "refactor", "docker"]
+        shopping_kw = ["buy", "order", "purchase", "cable", "groceries", "store", "amazon"]
 
-        if any(k in lower for k in academic_keywords):
+        if any(k in lower for k in academic_kw):
             category = "University"
             if "dbms" in lower:
                 suggested_project = "DBMS"
@@ -97,23 +236,23 @@ class AIService:
                 suggested_tags.append("Homework")
             else:
                 suggested_tags.append("University")
-        elif any(k in lower for k in coding_keywords):
+        elif any(k in lower for k in coding_kw):
             category = "Project"
             suggested_tags.append("Coding")
             if "fastapi" in lower or "task" in lower:
                 suggested_project = "Personal Task Engine"
-        elif any(k in lower for k in shopping_keywords):
+        elif any(k in lower for k in shopping_kw):
             category = "Personal"
             suggested_tags.append("Shopping")
 
-        # 4. Parse Priority
+        # Priority
         if any(w in lower for w in ["urgent", "asap", "critical", "immediately", "emergency"]):
             priority = "urgent"
             suggested_tags.append("Urgent")
         elif any(w in lower for w in ["important", "must", "exam", "high priority"]):
             priority = "high"
 
-        # 5. Extract Title (strip common trailing qualifiers)
+        # Title cleanup
         title = clean_text
         patterns_to_strip = [
             r'\b(?:should\s+take|taking|take)\s+(?:around\s+|about\s+|~)?\d+(?:\.\d+)?\s*(?:hours?|hrs?|h|minutes?|mins?|m)\b',
@@ -123,94 +262,55 @@ class AIService:
         ]
         for pat in patterns_to_strip:
             title = re.sub(pat, '', title, flags=re.IGNORECASE).strip()
-        
-        # Clean trailing commas, hyphens or spaces
         title = re.sub(r'[\s,\-]+$', '', title).strip()
         if not title:
             title = clean_text
-
-        # Capitalize first letter
         title = title[0].upper() + title[1:] if len(title) > 0 else title
 
         return AITaskParseResult(
-            title=title,
-            category=category,
-            priority=priority,
+            title=title, category=category, priority=priority,
             due_date_str=due_date.strftime("%Y-%m-%d %H:%M") if due_date else None,
             due_date_iso=due_date.isoformat() if due_date else None,
-            estimated_minutes=estimated_minutes,
-            suggested_project=suggested_project,
-            suggested_tags=list(set(suggested_tags)),
-            confidence=0.88,
+            estimated_minutes=estimated_minutes, suggested_project=suggested_project,
+            suggested_tags=list(set(suggested_tags)), confidence=0.88,
             reasoning="Parsed using built-in task heuristic reasoning."
         )
 
     async def parse_task(self, text: str) -> AITaskParseResult:
-        """Parses natural language prompt into structured task data."""
         if not self.api_key or len(self.api_key) < 5:
             return self._heuristic_parse(text)
 
-        NPT = timezone(timedelta(hours=5, minutes=45))
         now_npt = datetime.now(NPT)
-        prompt = f"""
-        You are an intelligent task parsing assistant. Convert the user's natural language task input into structured JSON.
-        Current datetime (Nepal Time / UTC+5:45): {now_npt.strftime("%Y-%m-%d %H:%M")}
-        
-        User input: "{text}"
-        
-        Return ONLY valid JSON matching this schema:
-        {{
-            "title": "Clean, action-oriented task title without date/duration filler words",
-            "category": "Personal | University | Work | Project | Other",
-            "priority": "low | medium | high | urgent",
-            "due_date_iso": "YYYY-MM-DDTHH:MM:SS (in UTC) or null",
-            "estimated_minutes": integer or null,
-            "suggested_project": "Name of project if mentioned (e.g. DBMS, Computer Networks, Operating Systems, Artificial Intelligence) or null",
-            "suggested_tags": ["Tag1", "Tag2"],
-            "confidence": float between 0.0 and 1.0,
-            "reasoning": "brief explanation"
-        }}
-        """
+        prompt = f"""You are an intelligent task parsing assistant. Convert the user's natural language task input into structured JSON.
+Current datetime (Nepal Time / UTC+5:45): {now_npt.strftime("%Y-%m-%d %H:%M")}
 
-        try:
-            async with httpx.AsyncClient(timeout=10.0) as client:
-                if self.provider == "gemini":
-                    url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent?key={self.api_key}"
-                    payload = {
-                        "contents": [{"parts": [{"text": prompt}]}],
-                        "generationConfig": {"response_mime_type": "application/json"}
-                    }
-                    res = await client.post(url, json=payload)
-                    if res.status_code == 200:
-                        data = res.json()
-                        text_content = data["candidates"][0]["content"]["parts"][0]["text"]
-                        parsed_dict = json.loads(text_content)
-                        return AITaskParseResult(**parsed_dict)
-                elif self.provider == "openai":
-                    url = "https://api.openai.com/v1/chat/completions"
-                    headers = {"Authorization": f"Bearer {self.api_key}"}
-                    payload = {
-                        "model": self.model or "gpt-4o-mini",
-                        "messages": [{"role": "user", "content": prompt}],
-                        "response_format": {"type": "json_object"}
-                    }
-                    res = await client.post(url, headers=headers, json=payload)
-                    if res.status_code == 200:
-                        data = res.json()
-                        text_content = data["choices"][0]["message"]["content"]
-                        parsed_dict = json.loads(text_content)
-                        return AITaskParseResult(**parsed_dict)
-        except Exception as e:
-            print(f"[AIService] Remote call failed ({e}), falling back to heuristics.")
+User input: "{text}"
 
+Return ONLY valid JSON matching this schema:
+{{
+    "title": "Clean, action-oriented task title without date/duration filler words",
+    "category": "Personal | University | Work | Project | Other",
+    "priority": "low | medium | high | urgent",
+    "due_date_iso": "YYYY-MM-DDTHH:MM:SS (in UTC) or null",
+    "estimated_minutes": integer or null,
+    "suggested_project": "Name of project if mentioned or null",
+    "suggested_tags": ["Tag1", "Tag2"],
+    "confidence": float between 0.0 and 1.0,
+    "reasoning": "brief explanation"
+}}"""
+
+        result = await self._call_ai(prompt)
+        if result:
+            try:
+                return AITaskParseResult(**result)
+            except Exception:
+                pass
         return self._heuristic_parse(text)
 
     async def enrich_task(self, title: str, description: Optional[str] = None) -> AITaskEnrichResponse:
-        """Suggests metadata, tags, and breaking subtasks for an existing task."""
         combined = f"{title}. {description or ''}"
         heuristics = self._heuristic_parse(combined)
-        
-        # Suggest realistic subtasks based on domain
+
         subtasks = []
         lower = combined.lower()
         if "dbms" in lower or "database" in lower:
@@ -229,8 +329,7 @@ class AIService:
             subtasks = ["Initial Planning", "Execution & Draft", "Review & Polish"]
 
         return AITaskEnrichResponse(
-            category=heuristics.category,
-            priority=heuristics.priority,
+            category=heuristics.category, priority=heuristics.priority,
             due_date_iso=heuristics.due_date_iso,
             estimated_minutes=heuristics.estimated_minutes or 60,
             suggested_project=heuristics.suggested_project,
@@ -241,21 +340,708 @@ class AIService:
 
     async def suggest_subtasks(self, task_id: int, title: str) -> AISubtaskSuggestResponse:
         enrichment = await self.enrich_task(title=title)
-        return AISubtaskSuggestResponse(
-            task_id=task_id,
-            suggested_subtasks=enrichment.subtasks
-        )
+        return AISubtaskSuggestResponse(task_id=task_id, suggested_subtasks=enrichment.subtasks)
 
     async def generate_daily_summary(self, date_str: str, completed_titles: List[str], activity_descriptions: List[str]) -> str:
-        """Generates a concise, motivating daily productivity executive summary."""
         if not completed_titles and not activity_descriptions:
-            return f"No logged activity yet for {date_str}. Start by dumping your tasks into the Inbox or Today dashboard!"
-        
+            return f"No logged activity yet for {date_str}. Start by capturing tasks in the Inbox!"
+
         comp_count = len(completed_titles)
         if comp_count > 0:
             tasks_str = ", ".join(f"'{t}'" for t in completed_titles[:4])
             return f"High-impact progress on {date_str}: Completed {comp_count} task(s) including {tasks_str}. Strong execution momentum!"
-        
         return f"Active progress on {date_str}: Logged {len(activity_descriptions)} actions. Keep focusing on top priority items!"
+
+    # ─────────────────────────────────────────────
+    # V2: Task Decomposition (§2)
+    # ─────────────────────────────────────────────
+    async def decompose_task(self, task_id: int, title: str, description: Optional[str], existing_subtasks: List[Dict], sibling_tasks: List[Dict]) -> AIDecomposeResponse:
+        """AI suggests subtask breakdown for a task."""
+        existing_titles = [s["title"] for s in existing_subtasks]
+        sibling_titles = [s.get("title", "") for s in sibling_tasks]
+
+        if not self.api_key or len(self.api_key) < 5:
+            # Heuristic decomposition
+            return self._heuristic_decompose(task_id, title, existing_titles)
+
+        prompt = f"""You are a task decomposition assistant. Break down the following task into actionable subtasks.
+
+Task: "{title}"
+{f"Description: {description}" if description else ""}
+{f"Existing subtasks (DO NOT duplicate): {existing_titles}" if existing_titles else ""}
+{f"Sibling tasks in same project (avoid overlap): {sibling_titles[:5]}" if sibling_titles else ""}
+
+Return ONLY valid JSON:
+{{
+    "subtasks": [
+        {{"title": "Subtask title", "estimated_minutes": 30}},
+        ...
+    ],
+    "reasoning": "Brief explanation of the breakdown"
+}}
+
+Rules:
+- Each subtask should be completable in 15-90 minutes
+- 3-8 subtasks is ideal
+- Do NOT duplicate existing subtasks
+- Order from dependency-first to last
+- Be specific and actionable, not vague"""
+
+        result = await self._call_ai(prompt)
+        if result and "subtasks" in result:
+            return AIDecomposeResponse(
+                task_id=task_id,
+                subtasks=[{"title": s["title"], "estimated_minutes": s.get("estimated_minutes")} for s in result["subtasks"]],
+                reasoning=result.get("reasoning", "AI decomposed the task")
+            )
+        return self._heuristic_decompose(task_id, title, existing_titles)
+
+    def _heuristic_decompose(self, task_id: int, title: str, existing_titles: List[str]) -> AIDecomposeResponse:
+        lower = title.lower()
+        subtasks = []
+        if "dbms" in lower or "database" in lower:
+            subtasks = [{"title": "Design ER diagram and schema", "estimated_minutes": 45}, {"title": "Write SQL queries", "estimated_minutes": 60}, {"title": "Verify normalization (3NF/BCNF)", "estimated_minutes": 30}, {"title": "Test with sample data", "estimated_minutes": 30}, {"title": "Write final report", "estimated_minutes": 45}]
+        elif "network" in lower:
+            subtasks = [{"title": "Review relevant protocols", "estimated_minutes": 30}, {"title": "Study key concepts", "estimated_minutes": 45}, {"title": "Practice with examples", "estimated_minutes": 30}, {"title": "Summarize findings", "estimated_minutes": 20}]
+        elif "fastapi" in lower or "api" in lower or "backend" in lower:
+            subtasks = [{"title": "Define data models and schemas", "estimated_minutes": 30}, {"title": "Implement route handlers", "estimated_minutes": 60}, {"title": "Add validation and error handling", "estimated_minutes": 30}, {"title": "Write tests", "estimated_minutes": 45}, {"title": "Update API documentation", "estimated_minutes": 15}]
+        elif "deploy" in lower:
+            subtasks = [{"title": "Prepare production configuration", "estimated_minutes": 30}, {"title": "Run build and verify", "estimated_minutes": 20}, {"title": "Deploy to production", "estimated_minutes": 30}, {"title": "Verify deployment health", "estimated_minutes": 15}]
+        else:
+            subtasks = [{"title": "Research and plan approach", "estimated_minutes": 30}, {"title": "Execute core work", "estimated_minutes": 60}, {"title": "Review and polish", "estimated_minutes": 20}]
+
+        # Filter out existing
+        existing_lower = {t.lower() for t in existing_titles}
+        subtasks = [s for s in subtasks if s["title"].lower() not in existing_lower]
+
+        return AIDecomposeResponse(
+            task_id=task_id, subtasks=subtasks,
+            reasoning="Decomposed using heuristic task analysis"
+        )
+
+    # ─────────────────────────────────────────────
+    # V2: Daily Planner (§3)
+    # ─────────────────────────────────────────────
+    async def plan_my_day(self, context: Dict[str, Any]) -> AIPlannerResponse:
+        """Generate a realistic daily plan based on context."""
+        today_tasks = context.get("today_tasks", [])
+        overdue_tasks = context.get("overdue_tasks", [])
+        floating_tasks = context.get("floating_tasks", [])
+        upcoming_tasks = context.get("upcoming_tasks", [])
+        available_hours = context.get("available_hours_today", 8)
+        current_time = context.get("current_time_npt", "09:00")
+        start_hour = context.get("available_start", 9)
+        end_hour = context.get("available_end", 18)
+
+        # Combine all tasks that need scheduling
+        all_needs_work = overdue_tasks + today_tasks + floating_tasks[:5] + upcoming_tasks[:3]
+        total_minutes_needed = sum(t.get("estimated_minutes") or 30 for t in all_needs_work)
+        total_minutes_available = available_hours * 60
+
+        if not self.api_key or len(self.api_key) < 5:
+            return self._heuristic_plan(all_needs_work, start_hour, end_hour, current_time, total_minutes_needed, total_minutes_available)
+
+        prompt = f"""You are an intelligent daily planner. Create a realistic schedule.
+
+Current time: {current_time} NPT
+Available hours: {start_hour}:00 - {end_hour}:00 ({available_hours} hours = {total_minutes_available} minutes)
+Total estimated work: ~{total_minutes_needed} minutes
+
+Overdue tasks (MUST prioritize):
+{json.dumps(overdue_tasks, indent=2)}
+
+Today's tasks:
+{json.dumps(today_tasks, indent=2)}
+
+Floating tasks (no due date, available if time permits):
+{json.dumps(floating_tasks[:5], indent=2)}
+
+Upcoming tasks (due this week):
+{json.dumps(upcoming_tasks[:3], indent=2)}
+
+Return ONLY valid JSON:
+{{
+    "items": [
+        {{
+            "time": "HH:MM",
+            "task_id": 123,
+            "task_title": "Task name",
+            "duration_minutes": 60,
+            "type": "task",
+            "note": "optional note"
+        }},
+        {{
+            "time": "HH:MM",
+            "task_title": "Break",
+            "duration_minutes": 15,
+            "type": "break"
+        }}
+    ],
+    "summary": "Brief summary of the day",
+    "total_planned_minutes": 480,
+    "available_minutes": {total_minutes_available},
+    "overflow": false,
+    "overflow_message": null
+}}
+
+Rules:
+- Schedule breaks every 90-120 minutes
+- Prioritize overdue tasks first, then today's urgent tasks
+- If work exceeds available time, set overflow=true and suggest what to defer
+- Be realistic about time estimates
+- Start from current time if planning mid-day
+- Never schedule past available_end_hour"""
+
+        result = await self._call_ai(prompt)
+        if result and "items" in result:
+            items = [AIPlannerItem(**item) for item in result["items"]]
+            return AIPlannerResponse(
+                items=items,
+                summary=result.get("summary", "Your day plan"),
+                total_planned_minutes=result.get("total_planned_minutes", total_minutes_needed),
+                available_minutes=total_minutes_available,
+                overflow=result.get("overflow", total_minutes_needed > total_minutes_available),
+                overflow_message=result.get("overflow_message")
+            )
+        return self._heuristic_plan(all_needs_work, start_hour, end_hour, current_time, total_minutes_needed, total_minutes_available)
+
+    def _heuristic_plan(self, tasks: List[Dict], start_hour: int, end_hour: int, current_time: str, total_needed: int, total_available: int) -> AIPlannerResponse:
+        items = []
+        try:
+            current_h, current_m = map(int, current_time.split(":"))
+        except (ValueError, AttributeError):
+            current_h, current_m = start_hour, 0
+
+        # Start from later of current time or start_hour
+        sched_hour = max(current_h, start_hour)
+        sched_min = 0 if sched_hour > current_h else current_m
+
+        overflow = total_needed > total_available
+        # If overflow, only take tasks that fit
+        included_tasks = tasks
+        if overflow:
+            remaining = total_available
+            included_tasks = []
+            for t in tasks:
+                dur = t.get("estimated_minutes") or 30
+                if remaining - dur >= 0:
+                    included_tasks.append(t)
+                    remaining -= dur
+                else:
+                    break
+
+        for t in included_tasks:
+            duration = t.get("estimated_minutes") or 30
+            time_str = f"{sched_hour:02d}:{sched_min:02d}"
+            items.append(AIPlannerItem(
+                time=time_str,
+                task_id=t.get("id"),
+                task_title=t.get("title", "Task"),
+                duration_minutes=duration,
+                type="task"
+            ))
+
+            sched_min += duration
+            while sched_min >= 60:
+                sched_hour += 1
+                sched_min -= 60
+            if sched_hour >= end_hour:
+                break
+
+            # Add break after every 90+ min of work
+            if len(items) % 2 == 0 and items:
+                break_time = f"{sched_hour:02d}:{sched_min:02d}"
+                items.append(AIPlannerItem(time=break_time, task_title="Break", duration_minutes=15, type="break"))
+                sched_min += 15
+                while sched_min >= 60:
+                    sched_hour += 1
+                    sched_min -= 60
+
+        overflow_msg = None
+        if overflow:
+            overflow_msg = f"You have approximately {total_available // 60}h {total_available % 60}m available but ~{total_needed // 60}h {total_needed % 60}m of planned work. Some tasks have been deferred."
+
+        return AIPlannerResponse(
+            items=items,
+            summary=f"Planned {len([i for i in items if i.type == 'task'])} tasks for today",
+            total_planned_minutes=sum(i.duration_minutes for i in items if i.type == "task"),
+            available_minutes=total_available,
+            overflow=overflow,
+            overflow_message=overflow_msg
+        )
+
+    # ─────────────────────────────────────────────
+    # V2: What Should I Do Now? (§5)
+    # ─────────────────────────────────────────────
+    async def what_should_i_do_now(self, context: Dict[str, Any]) -> AIWhatNowResponse:
+        current_time = context.get("current_time_npt", "09:00")
+        available_hours = context.get("available_hours_today", 8)
+        overdue = context.get("overdue_tasks", [])
+        today = context.get("today_tasks", [])
+        floating = context.get("floating_tasks", [])
+
+        all_candidates = overdue + today + floating[:5]
+
+        if not self.api_key or len(self.api_key) < 5:
+            return self._heuristic_what_now(all_candidates, available_hours, current_time)
+
+        prompt = f"""You are a smart productivity advisor. Tell the user what to focus on RIGHT NOW.
+
+Current time: {current_time} NPT
+Available time today: ~{available_hours} hours ({available_hours * 60} minutes)
+
+Overdue tasks:
+{json.dumps(overdue[:5], indent=2)}
+
+Today's tasks:
+{json.dumps(today[:8], indent=2)}
+
+Floating tasks (no deadline):
+{json.dumps(floating[:5], indent=2)}
+
+Return ONLY valid JSON:
+{{
+    "message": "Personalized recommendation message (2-3 sentences)",
+    "recommendations": [
+        {{
+            "task_id": 123,
+            "task_title": "Task name",
+            "reason": "Why this should be done now",
+            "duration_minutes": 60,
+            "urgency": "critical | high | medium | low"
+        }}
+    ],
+    "available_minutes": {available_hours * 60},
+    "suggested_start_time": "HH:MM"
+}}
+
+Rules:
+- Maximum 3-5 recommendations
+- Always prioritize overdue tasks
+- Consider estimated duration vs available time
+- Be direct and actionable
+- If nothing urgent, suggest the most impactful task"""
+
+        result = await self._call_ai(prompt)
+        if result and "recommendations" in result:
+            return AIWhatNowResponse(
+                message=result.get("message", "Here's what I recommend:"),
+                recommendations=result["recommendations"],
+                available_minutes=available_hours * 60,
+                suggested_start_time=result.get("suggested_start_time", current_time)
+            )
+        return self._heuristic_what_now(all_candidates, available_hours, current_time)
+
+    def _heuristic_what_now(self, candidates: List[Dict], available_hours: int, current_time: str) -> AIWhatNowResponse:
+        # Sort: overdue first, then by priority, then by due date
+        priority_order = {"urgent": 0, "high": 1, "medium": 2, "low": 3}
+        sorted_candidates = sorted(candidates, key=lambda t: (
+            0 if t.get("due_date") and t["due_date"] < datetime.utcnow().isoformat() else 1,
+            priority_order.get(t.get("priority", "medium"), 2)
+        ))
+
+        recommendations = []
+        remaining = available_hours * 60
+        for t in sorted_candidates[:3]:
+            dur = t.get("estimated_minutes") or 30
+            if remaining <= 0:
+                break
+            overdue = t.get("due_date") and t["due_date"] < datetime.utcnow().isoformat()
+            recommendations.append({
+                "task_id": t.get("id"),
+                "task_title": t.get("title"),
+                "reason": "Overdue — needs immediate attention" if overdue else f"Priority: {t.get('priority', 'medium')}",
+                "duration_minutes": dur,
+                "urgency": "critical" if overdue else t.get("priority", "medium")
+            })
+            remaining -= dur
+
+        msg = f"You have about {available_hours}h available. "
+        if recommendations:
+            msg += f"I recommend starting with \"{recommendations[0]['task_title']}\"."
+        else:
+            msg += "No urgent tasks found. Consider planning new tasks."
+
+        return AIWhatNowResponse(
+            message=msg,
+            recommendations=recommendations,
+            available_minutes=available_hours * 60,
+            suggested_start_time=current_time
+        )
+
+    # ─────────────────────────────────────────────
+    # V2: Natural Language Search (§10)
+    # ─────────────────────────────────────────────
+    async def natural_language_search(self, query: str, context: Dict[str, Any]) -> AINLSearchResponse:
+        """Convert natural language query into structured filter."""
+        now_npt = datetime.now(NPT)
+
+        prompt = f"""You are a search filter assistant. Convert the user's natural language query into structured JSON filters.
+
+Current date (Nepal Time): {now_npt.strftime("%Y-%m-%d")} ({now_npt.strftime("%A")})
+Available tasks: {len(context.get("tasks", []))} tasks
+Available projects: {[p["name"] for p in context.get("projects", [])]}
+Available tags: {[t["name"] for t in context.get("tags", [])]}
+
+User query: "{query}"
+
+Return ONLY valid JSON:
+{{
+    "filters": {{
+        "status": ["inbox", "planned", "doing"] or null to show all,
+        "priority": ["low", "medium", "high", "urgent"] or null,
+        "category": ["Personal", "University", "Work", "Project"] or null,
+        "project_name": "exact project name" or null,
+        "tag": "tag name" or null,
+        "due_before": "YYYY-MM-DDTHH:MM:SS" or null,
+        "due_after": "YYYY-MM-DDTHH:MM:SS" or null,
+        "completed": true/false/null (true = only completed, false = only not completed, null = all),
+        "search_keyword": "text to search in title" or null
+    }},
+    "explanation": "Brief explanation of what the filters mean"
+}}
+
+Rules:
+- "this week" = due before end of current week
+- "yesterday" = completed yesterday
+- "postponed" = tasks that have been reopened or moved back
+- "overdue" = tasks past their due date
+- Be precise with date calculations based on current date"""
+
+        result = await self._call_ai(prompt)
+        if result and "filters" in result:
+            return AINLSearchResponse(
+                filters=result["filters"],
+                explanation=result.get("explanation", f"Searching for: {query}")
+            )
+
+        # Fallback: basic keyword search
+        return AINLSearchResponse(
+            filters={"search_keyword": query, "completed": False},
+            explanation=f"Basic keyword search for: {query}"
+        )
+
+    # ─────────────────────────────────────────────
+    # V2: Weekly Review (§13)
+    # ─────────────────────────────────────────────
+    async def generate_weekly_review(self, context: Dict[str, Any]) -> AIWeeklyReviewResponse:
+        """Generate weekly review with patterns."""
+        completed_count = context.get("completed_count", 0)
+        incomplete_count = context.get("incomplete_count", 0)
+        overdue_count = context.get("overdue_count", 0)
+        reopened_count = context.get("reopened_count", 0)
+        completed_by_cat = context.get("completed_by_category", {})
+        incomplete_by_cat = context.get("incomplete_by_category", {})
+
+        if not self.api_key or len(self.api_key) < 5:
+            return self._heuristic_weekly_review(context)
+
+        prompt = f"""You are a productivity analyst. Generate a concise weekly review.
+
+Week: {context.get("week_start", "?")} to {context.get("week_end", "?")}
+
+Statistics:
+- Completed: {completed_count} tasks
+- Incomplete: {incomplete_count} tasks
+- Overdue: {overdue_count} tasks
+- Reopened (postponed): {reopened_count} tasks
+
+Completed by category: {json.dumps(completed_by_cat)}
+Incomplete by category: {json.dumps(incomplete_by_cat)}
+
+Overdue tasks: {json.dumps(context.get("overdue_tasks", [])[:5])}
+
+Return ONLY valid JSON:
+{{
+    "highlights": ["Highlight 1", "Highlight 2"],
+    "patterns": ["Observable pattern 1 based on data", "Pattern 2"],
+    "suggestions": ["Suggestion 1", "Suggestion 2"],
+    "completion_rate": 75,
+    "summary": "2-3 sentence overall summary"
+}}
+
+Rules:
+- Only identify patterns supported by actual data
+- Do NOT make psychological or medical claims
+- Be specific and actionable
+- If a task was postponed multiple times, mention it
+- If most tasks were completed last-minute, note it"""
+
+        result = await self._call_ai(prompt)
+        if result:
+            return AIWeeklyReviewResponse(
+                highlights=result.get("highlights", []),
+                patterns=result.get("patterns", []),
+                suggestions=result.get("suggestions", []),
+                completion_rate=result.get("completion_rate", 0),
+                summary=result.get("summary", "Weekly review generated")
+            )
+        return self._heuristic_weekly_review(context)
+
+    def _heuristic_weekly_review(self, context: Dict[str, Any]) -> AIWeeklyReviewResponse:
+        completed = context.get("completed_count", 0)
+        incomplete = context.get("incomplete_count", 0)
+        overdue = context.get("overdue_count", 0)
+        reopened = context.get("reopened_count", 0)
+        total = completed + incomplete
+        rate = round(completed / total * 100) if total > 0 else 0
+
+        highlights = [f"Completed {completed} tasks this week"]
+        if overdue > 0:
+            highlights.append(f"{overdue} tasks are overdue")
+        if reopened > 0:
+            highlights.append(f"{reopened} tasks were postponed/reopened")
+
+        patterns = []
+        cat_data = context.get("completed_by_category", {})
+        if cat_data:
+            top_cat = max(cat_data, key=cat_data.get)
+            patterns.append(f"Most productive category: {top_cat} ({cat_data[top_cat]} tasks)")
+
+        suggestions = []
+        if overdue > 0:
+            suggestions.append("Focus on overdue tasks first next week")
+        if reopened > 0:
+            suggestions.append("Consider breaking down postponed tasks into smaller subtasks")
+        if rate < 50:
+            suggestions.append("Try reducing task load to increase completion rate")
+
+        return AIWeeklyReviewResponse(
+            highlights=highlights, patterns=patterns, suggestions=suggestions,
+            completion_rate=rate,
+            summary=f"Completed {completed}/{total} tasks ({rate}% completion rate). {overdue} overdue, {reopened} postponed."
+        )
+
+    # ─────────────────────────────────────────────
+    # V2: Project Summary (§15)
+    # ─────────────────────────────────────────────
+    async def generate_project_summary(self, context: Dict[str, Any]) -> AIProjectSummaryResponse:
+        project = context.get("project", {})
+        remaining = context.get("remaining_tasks", [])
+        overdue = context.get("overdue_tasks", [])
+        blocked = context.get("blocked_tasks", [])
+        progress = context.get("progress_pct", 0)
+
+        if not self.api_key or len(self.api_key) < 5:
+            return self._heuristic_project_summary(context)
+
+        prompt = f"""You are a project analyst. Generate a concise project summary.
+
+Project: {project.get("name", "Unknown")}
+Category: {project.get("category", "General")}
+Progress: {progress}% ({context.get("completed_count", 0)}/{context.get("total_tasks", 0)} tasks)
+Remaining tasks: {len(remaining)}
+Overdue tasks: {len(overdue)}
+Blocked tasks: {len(blocked)}
+
+Remaining: {json.dumps(remaining[:10])}
+Overdue: {json.dumps(overdue[:5])}
+Blocked: {json.dumps(blocked[:5])}
+
+Return ONLY valid JSON:
+{{
+    "summary": "2-3 sentence project status summary",
+    "blockers": ["Blocker 1 or empty if none"],
+    "next_actions": ["Action 1", "Action 2"],
+    "health": "on_track | at_risk | critical"
+}}
+
+Rules:
+- Be specific about what's blocking progress
+- Suggest concrete next actions
+- Health: on_track if <3 overdue and <2 blocked, at_risk if some issues, critical if many blocked/overdue"""
+
+        result = await self._call_ai(prompt)
+        if result:
+            return AIProjectSummaryResponse(
+                summary=result.get("summary", ""),
+                blockers=result.get("blockers", []),
+                next_actions=result.get("next_actions", []),
+                health=result.get("health", "on_track")
+            )
+        return self._heuristic_project_summary(context)
+
+    def _heuristic_project_summary(self, context: Dict[str, Any]) -> AIProjectSummaryResponse:
+        project = context.get("project", {})
+        overdue = context.get("overdue_tasks", [])
+        blocked = context.get("blocked_tasks", [])
+        progress = context.get("progress_pct", 0)
+        remaining = context.get("remaining_count", 0)
+
+        health = "on_track"
+        if len(overdue) > 2 or len(blocked) > 2:
+            health = "critical"
+        elif len(overdue) > 0 or len(blocked) > 0:
+            health = "at_risk"
+
+        next_actions = [t["title"] for t in context.get("remaining_tasks", [])[:3]]
+        blockers = [b.get("blocked_by", "Unknown") for b in blocked]
+
+        return AIProjectSummaryResponse(
+            summary=f"Project '{project.get('name', '')}' is {progress}% complete with {remaining} tasks remaining.",
+            blockers=blockers, next_actions=next_actions, health=health
+        )
+
+    # ─────────────────────────────────────────────
+    # V2: AI Suggestions Center (§16)
+    # ─────────────────────────────────────────────
+    async def generate_suggestions(self, context: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """Generate AI suggestions based on current context."""
+        overdue = context.get("overdue_tasks", [])
+        today = context.get("today_tasks", [])
+        floating = context.get("floating_tasks", [])
+        projects = context.get("project_summaries", [])
+
+        suggestions = []
+
+        # Deadline warnings
+        for t in overdue[:3]:
+            suggestions.append({
+                "type": "deadline_warning",
+                "title": f"⚠ {t['title']} is overdue",
+                "description": f"Originally due: {t.get('due_date', 'unknown')}",
+                "task_id": t["id"],
+                "action": {"type": "schedule", "task_id": t["id"]}
+            })
+
+        # Daily focus suggestion
+        if today:
+            top = today[0]
+            suggestions.append({
+                "type": "daily_tip",
+                "title": f"✦ Focus on \"{top['title']}\" today",
+                "description": f"Priority: {top.get('priority', 'medium')}",
+                "task_id": top["id"],
+                "action": {"type": "start_task", "task_id": top["id"]}
+            })
+
+        # Project insight
+        for p in projects[:2]:
+            if p["remaining"] > 0:
+                suggestions.append({
+                    "type": "project_insight",
+                    "title": f"✦ {p['name']}: {p['remaining']} tasks remaining",
+                    "description": f"{p['done']}/{p['total']} complete",
+                    "project_id": p.get("id"),
+                    "action": {"type": "view_project", "project_id": p.get("id")}
+                })
+
+        # Floating tasks reminder
+        if floating:
+            suggestions.append({
+                "type": "daily_tip",
+                "title": f"📋 {len(floating)} tasks have no deadline",
+                "description": "Consider scheduling them to avoid forgetting",
+                "action": {"type": "review_floating"}
+            })
+
+        return suggestions[:6]
+
+    # ─────────────────────────────────────────────
+    # V2: Context-Aware Chat Assistant (§8)
+    # ─────────────────────────────────────────────
+    async def chat_assistant(self, message: str, context: Dict[str, Any]) -> AIChatResponse:
+        """Context-aware AI assistant that answers questions about tasks."""
+        if not self.api_key or len(self.api_key) < 5:
+            return AIChatResponse(
+                answer="AI assistant requires an API key to answer contextual questions. Please configure GEMINI_API_KEY.",
+                actions=[]
+            )
+
+        prompt = f"""You are a task management assistant embedded in a personal task manager app. You have access to the user's actual task data. Answer their question using ONLY the data provided. Never fabricate information.
+
+TASK DATA:
+{json.dumps(context, indent=2)[:4000]}
+
+User question: "{message}"
+
+Return ONLY valid JSON:
+{{
+    "answer": "Clear, concise answer using the actual task data. Be specific with task names, dates, and counts. If the data doesn't contain enough info to answer, say so.",
+    "actions": [
+        {{
+            "label": "Action button text",
+            "type": "start_task | view_task | view_project | plan_day",
+            "task_id": 123,
+            "project_id": null
+        }}
+    ]
+}}
+
+Rules:
+- Use ONLY data from the context, never make up tasks
+- Be concise and direct
+- Include specific task names, dates, counts from the data
+- If nothing matches, say "I don't see that in your current tasks"
+- Actions should help the user act on the answer"""
+
+        result = await self._call_ai(prompt)
+        if result:
+            return AIChatResponse(
+                answer=result.get("answer", "I couldn't generate a response."),
+                actions=result.get("actions", [])
+            )
+        return AIChatResponse(
+            answer="I'm having trouble connecting to the AI service. Please try again.",
+            actions=[]
+        )
+
+    # ─────────────────────────────────────────────
+    # V2: Enhanced Daily Summary (§11)
+    # ─────────────────────────────────────────────
+    async def generate_enhanced_daily_summary(self, context: Dict[str, Any]) -> str:
+        """Generate a richer daily summary with context."""
+        completed = context.get("completed_tasks", [])
+        activities = context.get("activities", [])
+        overdue = context.get("overdue_tasks", [])
+        upcoming = context.get("upcoming_tasks", [])
+
+        if not self.api_key or len(self.api_key) < 5:
+            # Heuristic enhanced summary
+            parts = []
+            if completed:
+                parts.append(f"Completed {len(completed)} task(s): {', '.join(t.get('title', '') for t in completed[:3])}")
+            if overdue:
+                parts.append(f"⚠ {len(overdue)} overdue task(s) need attention")
+            if upcoming:
+                parts.append(f"Coming up: {', '.join(t.get('title', '') for t in upcoming[:2])}")
+            if not parts:
+                return "No activity recorded yet today. Start by capturing tasks!"
+            return " | ".join(parts)
+
+        prompt = f"""You are a daily productivity assistant. Generate a concise end-of-day summary.
+
+Completed today: {json.dumps(completed[:10])}
+Activities: {len(activities)} actions logged
+Overdue tasks: {json.dumps(overdue[:5])}
+Upcoming tomorrow: {json.dumps(upcoming[:3])}
+
+Return ONLY valid JSON:
+{{
+    "summary": "2-3 sentence daily summary",
+    "highlights": ["Highlight 1", "Highlight 2"],
+    "tomorrow_outlook": "Brief note about tomorrow's priorities"
+}}
+
+Rules:
+- Only report information that exists in the data
+- If time tracking data doesn't exist, say "Estimated from task durations"
+- Be factual, not motivational"""
+
+        result = await self._call_ai(prompt)
+        if result:
+            parts = [result.get("summary", "")]
+            if result.get("highlights"):
+                parts.append("Highlights: " + " | ".join(result["highlights"]))
+            if result.get("tomorrow_outlook"):
+                parts.append(f"Tomorrow: {result['tomorrow_outlook']}")
+            return " ".join(parts)
+
+        return await self.generate_daily_summary(
+            date_str=datetime.now(NPT).strftime("%B %d, %Y"),
+            completed_titles=[t.get("title", "") for t in completed],
+            activity_descriptions=[a.get("description", "") for a in activities]
+        )
+
 
 ai_service = AIService()

@@ -7,7 +7,20 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///./data/app.db"
     AI_PROVIDER: str = "gemini"
     AI_API_KEY: str = ""
-    AI_MODEL: str = "gemini-1.5-flash"
+    GEMINI_API_KEY: str = ""
+    AI_MODEL: str = "gemini-2.5-flash"
+    
+    def get_ai_model(self) -> str:
+        """Get the AI model, with deprecation detection."""
+        model = self.AI_MODEL.strip()
+        # Detect deprecated models and auto-upgrade
+        deprecated = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash", "gemini-2.0-flash-lite"]
+        if model in deprecated:
+            print(f"[Config] WARNING: {model} is deprecated/shut down. Auto-upgrading to gemini-2.5-flash")
+            return "gemini-2.5-flash"
+        return model
+    AVAILABLE_START_HOUR: int = 9
+    AVAILABLE_END_HOUR: int = 18
     SECRET_KEY: str = "dev-secret-key-replace-in-production-nexus-os-32chars"
     CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173"
 
@@ -38,6 +51,15 @@ class Settings(BaseSettings):
         if not clean or len(clean) < 16:
             return "super-secret-jwt-key-nexus-os-secure-production-32-chars-long"
         return clean
+
+    def get_ai_api_key(self) -> str:
+        # Prefer AI_API_KEY, fall back to GEMINI_API_KEY
+        key = os.environ.get("AI_API_KEY", "").strip()
+        if not key:
+            key = os.environ.get("GEMINI_API_KEY", "").strip()
+        if not key:
+            key = self.AI_API_KEY.strip()
+        return key
 
     model_config = SettingsConfigDict(
         env_file=".env",

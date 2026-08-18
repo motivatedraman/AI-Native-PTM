@@ -1,16 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Search, 
-  Calendar, 
-  Inbox, 
-  Kanban, 
-  GraduationCap, 
-  FolderKanban, 
-  Clock, 
-  Plus, 
-  CheckCircle2, 
-  ChevronRight, 
-  X 
+  Search, Calendar, Inbox, Kanban, GraduationCap, FolderKanban, Clock, Plus, 
+  CheckCircle2, ChevronRight, X, Sparkles, BarChart3, MessageSquare, Target
 } from 'lucide-react';
 import { ActiveView, Task } from '../types';
 
@@ -19,6 +10,8 @@ interface CommandPaletteProps {
   onClose: () => void;
   setActiveView: (view: ActiveView) => void;
   onOpenQuickAdd: () => void;
+  onOpenPlanDay: () => void;
+  onOpenAIAssistant: () => void;
   tasks: Task[];
   onSelectTask: (task: Task) => void;
 }
@@ -28,6 +21,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   onClose,
   setActiveView,
   onOpenQuickAdd,
+  onOpenPlanDay,
+  onOpenAIAssistant,
   tasks,
   onSelectTask,
 }) => {
@@ -52,13 +47,17 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     : [];
 
   const actions = [
-    { label: 'Capture New Task', icon: Plus, action: () => { onClose(); onOpenQuickAdd(); } },
-    { label: 'Go to Today Dashboard', icon: Calendar, action: () => { setActiveView('today'); onClose(); } },
-    { label: 'Go to Inbox', icon: Inbox, action: () => { setActiveView('inbox'); onClose(); } },
-    { label: 'Go to Kanban Board', icon: Kanban, action: () => { setActiveView('kanban'); onClose(); } },
-    { label: 'Go to University Hub', icon: GraduationCap, action: () => { setActiveView('university'); onClose(); } },
-    { label: 'Go to Projects', icon: FolderKanban, action: () => { setActiveView('projects'); onClose(); } },
-    { label: 'Go to Daily Log & Activity', icon: Clock, action: () => { setActiveView('dailylog'); onClose(); } },
+    { label: 'Capture New Task', icon: Plus, shortcut: 'N', action: () => { onClose(); onOpenQuickAdd(); } },
+    { label: 'Plan My Day', icon: Calendar, shortcut: 'P', action: () => { onClose(); onOpenPlanDay(); } },
+    { label: 'What Should I Do Now?', icon: Target, shortcut: null, action: () => { setActiveView('today'); onClose(); } },
+    { label: 'AI Assistant', icon: MessageSquare, shortcut: 'A', action: () => { onClose(); onOpenAIAssistant(); } },
+    { label: 'Weekly Review', icon: BarChart3, shortcut: null, action: () => { setActiveView('weeklyreview'); onClose(); } },
+    { label: 'Go to Today Dashboard', icon: Calendar, shortcut: 'T', action: () => { setActiveView('today'); onClose(); } },
+    { label: 'Go to Inbox', icon: Inbox, shortcut: null, action: () => { setActiveView('inbox'); onClose(); } },
+    { label: 'Go to Kanban Board', icon: Kanban, shortcut: 'K', action: () => { setActiveView('kanban'); onClose(); } },
+    { label: 'Go to University Hub', icon: GraduationCap, shortcut: null, action: () => { setActiveView('university'); onClose(); } },
+    { label: 'Go to Projects', icon: FolderKanban, shortcut: null, action: () => { setActiveView('projects'); onClose(); } },
+    { label: 'Go to Daily Log', icon: Clock, shortcut: 'D', action: () => { setActiveView('dailylog'); onClose(); } },
   ].filter(a => !query || a.label.toLowerCase().includes(query.toLowerCase()));
 
   return (
@@ -124,7 +123,12 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                       <Icon size={15} className="text-indigo-400 group-hover:scale-110 transition-transform" />
                       <span>{act.label}</span>
                     </div>
-                    <ChevronRight size={13} className="text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className="flex items-center space-x-2">
+                      {act.shortcut && (
+                        <kbd className="kbd-badge text-[10px]">{act.shortcut}</kbd>
+                      )}
+                      <ChevronRight size={13} className="text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
                   </button>
                 );
               })}
@@ -133,7 +137,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         </div>
 
         <div className="px-4 py-2 border-t border-[#262a3c]/60 text-[10px] text-slate-400 flex items-center justify-between">
-          <span>Navigate with mouse or shortcuts</span>
+          <span>N = New · P = Plan · A = AI · T = Today · K = Kanban · D = Log</span>
           <span><kbd className="kbd-badge">Esc</kbd> to close</span>
         </div>
       </div>
