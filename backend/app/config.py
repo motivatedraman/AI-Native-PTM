@@ -2,22 +2,30 @@ import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import List
 
+# Resolve the project root (parent of backend/) so .env is found regardless of CWD
+_env_file = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    ".env"
+)
+if not os.path.exists(_env_file):
+    _env_file = ".env"
+
 class Settings(BaseSettings):
     PROJECT_NAME: str = "AI-Native Personal Task Manager"
     DATABASE_URL: str = "sqlite:///./data/app.db"
     AI_PROVIDER: str = "gemini"
     AI_API_KEY: str = ""
     GEMINI_API_KEY: str = ""
-    AI_MODEL: str = "gemini-2.5-flash"
+    AI_MODEL: str = "gemini-3.5-flash-lite"
     
     def get_ai_model(self) -> str:
         """Get the AI model, with deprecation detection."""
         model = self.AI_MODEL.strip()
-        # Detect deprecated models and auto-upgrade
-        deprecated = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash", "gemini-2.0-flash-lite"]
+        # Detect deprecated models and auto-upgrade to the flash-lite for best free-tier rate limits
+        deprecated = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash", "gemini-2.0-flash-lite", "gemini-2.5-flash", "gemini-3.6-flash"]
         if model in deprecated:
-            print(f"[Config] WARNING: {model} is deprecated/shut down. Auto-upgrading to gemini-2.5-flash")
-            return "gemini-2.5-flash"
+            print(f"[Config] WARNING: {model} is deprecated/has lower RPM limits. Auto-upgrading to gemini-3.5-flash-lite")
+            return "gemini-3.5-flash-lite"
         return model
     AVAILABLE_START_HOUR: int = 9
     AVAILABLE_END_HOUR: int = 18
@@ -62,7 +70,7 @@ class Settings(BaseSettings):
         return key
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=_env_file,
         env_file_encoding="utf-8",
         extra="ignore"
     )

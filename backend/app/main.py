@@ -5,9 +5,17 @@ from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.exceptions import RequestValidationError
 import os
+import sys
 import traceback
 
+# Ensure the project root (parent of backend/) is always on sys.path
+# so the server works when launched from either the project root or the backend/ directory.
+_project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
+
 from backend.app.config import settings
+from backend.app.database import engine, Base
 from backend.app.services.auth_service import get_current_user
 from backend.app.routers import (
     tasks_router,
@@ -71,6 +79,17 @@ app.include_router(ai_router, dependencies=[Depends(get_current_user)])
 app.include_router(settings_router, dependencies=[Depends(get_current_user)])
 app.include_router(reflections_router, dependencies=[Depends(get_current_user)])
 app.include_router(dependencies_router, dependencies=[Depends(get_current_user)])
+
+@app.on_event("startup")
+def create_tables():
+    """Auto-create tables on first run (fallback for when alembic isn't run)."""
+    # Import all models so Base.metadata knows about them
+    from backend.app.models import (
+        Project, Tag, Subtask, ActivityLog, Task,
+        TaskDependency, DailyReflection, UserSettings, AISuggestion
+    )
+    Base.metadata.create_all(bind=engine)
+    print("[Startup] Database tables ensured.")
 
 @app.get("/api/health")
 def health_check():

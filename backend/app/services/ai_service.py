@@ -3,6 +3,7 @@ import re
 import json
 import httpx
 import time
+import asyncio
 from datetime import datetime, timedelta, date, timezone
 from typing import Optional, List, Dict, Any
 from collections import deque
@@ -13,6 +14,12 @@ from backend.app.schemas.ai import (
     AIWhatNowResponse, AINLSearchResponse, AIWeeklyReviewResponse,
     AIProjectSummaryResponse, AIChatRequest, AIChatResponse
 )
+
+# Lazy-import google-genai so the module loads even without the package
+try:
+    from google import genai as _genai
+except ImportError:
+    _genai = None
 
 NPT = timezone(timedelta(hours=5, minutes=45))
 
@@ -47,8 +54,8 @@ class AIService:
         self.provider = settings.AI_PROVIDER.lower()
         self.api_key = settings.get_ai_api_key()
         self.model = settings.get_ai_model()
-        # Rate limiter: 8 RPM gives headroom under the 10 RPM free tier
-        self.rate_limiter = RateLimiter(max_rpm=8)
+        # Rate limiter: 20 RPM gives headroom under the 30 RPM free tier of flash-lite
+        self.rate_limiter = RateLimiter(max_rpm=20)
         self._last_error: Optional[str] = None
         self._consecutive_failures = 0
 
@@ -77,85 +84,22 @@ class AIService:
     # Core AI call helper with rate limiting
     # ─────────────────────────────────────────────
     async def _call_ai(self, prompt: str, expect_json: bool = True) -> Optional[Any]:
-        """Call the AI provider with rate limiting. Returns parsed JSON or raw text."""
+        """Call the AI provider with rate limiting and async wait on throttle. Returns parsed JSON or raw text."""
         if not self.api_key or len(self.api_key) < 5:
             return None
 
-        # Rate limit check
-        if not self.rate_limiter.can_proceed():
-            wait = self.rate_limiter.wait_time()
-            print(f"[AIService] Rate limited, waiting {wait:.1f}s")
-            self._last_error = f"Rate limited, {wait:.0f}s wait"
-            return None
+        # If rate limited, wait for the window to clear instead of silently dropping
+        wait = self.rate_limiter.wait_time()
+        if wait > 0:
+            print(f"[AIService] Rate limit reached, sleeping {wait:.1f}s before proceeding")
+            self._last_error = f"Rate limited, waiting {wait:.0f}s"
+            await asyncio.sleep(wait + 0.5)  # small buffer to avoid edge-case re-throttle
 
         try:
-            async with httpx.AsyncClient(timeout=30.0) as client:
-                if self.provider == "gemini":
-                    url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent?key={self.api_key}"
-                    payload: Dict[str, Any] = {
-                        "contents": [{"parts": [{"text": prompt}]}],
-                    }
-                    gen_config: Dict[str, Any] = {}
-                    if expect_json:
-                        gen_config["response_mime_type"] = "application/json"
-                    gen_config["temperature"] = 0.4
-                    gen_config["max_tokens"] = 2048
-                    payload["generationConfig"] = gen_config
-
-                    self.rate_limiter.record()
-                    res = await client.post(url, json=payload)
-
-                    if res.status_code == 429:
-                        self._consecutive_failures += 1
-                        self._last_error = "Rate limited by Gemini API (429)"
-                        print(f"[AIService] Gemini 429 rate limit hit")
-                        return None
-
-                    if res.status_code == 200:
-                        self._consecutive_failures = 0
-                        self._last_error = None
-                        data = res.json()
-                        text_content = data["candidates"][0]["content"]["parts"][0]["text"]
-                        if expect_json:
-                            return json.loads(text_content)
-                        return text_content
-                    else:
-                        self._consecutive_failures += 1
-                        self._last_error = f"Gemini returned {res.status_code}"
-                        print(f"[AIService] Gemini error {res.status_code}: {res.text[:200]}")
-
-                elif self.provider == "openai":
-                    url = "https://api.openai.com/v1/chat/completions"
-                    headers = {"Authorization": f"Bearer {self.api_key}"}
-                    messages = [{"role": "user", "content": prompt}]
-                    payload = {
-                        "model": self.model or "gpt-4o-mini",
-                        "messages": messages,
-                        "temperature": 0.4,
-                    }
-                    if expect_json:
-                        payload["response_format"] = {"type": "json_object"}
-
-                    self.rate_limiter.record()
-                    res = await client.post(url, headers=headers, json=payload)
-
-                    if res.status_code == 429:
-                        self._consecutive_failures += 1
-                        self._last_error = "Rate limited by OpenAI API (429)"
-                        return None
-
-                    if res.status_code == 200:
-                        self._consecutive_failures = 0
-                        self._last_error = None
-                        data = res.json()
-                        text_content = data["choices"][0]["message"]["content"]
-                        if expect_json:
-                            return json.loads(text_content)
-                        return text_content
-                    else:
-                        self._consecutive_failures += 1
-                        self._last_error = f"OpenAI returned {res.status_code}"
-
+            if self.provider == "gemini":
+                return await self._call_gemini(prompt, expect_json)
+            elif self.provider == "openai":
+                return await self._call_openai(prompt, expect_json)
         except httpx.TimeoutException:
             self._consecutive_failures += 1
             self._last_error = "Request timed out"
@@ -164,6 +108,95 @@ class AIService:
             self._consecutive_failures += 1
             self._last_error = str(e)
             print(f"[AIService] AI call failed ({e})")
+        return None
+
+    async def _call_gemini(self, prompt: str, expect_json: bool) -> Optional[Any]:
+        """Call Gemini using the official google-genai SDK with retry on 429."""
+        if _genai is None:
+            self._last_error = "google-genai package not installed"
+            print("[AIService] google-genai not installed, falling back to heuristic")
+            return None
+
+        client = _genai.Client(api_key=self.api_key)
+
+        config: Dict[str, Any] = {
+            "temperature": 0.4,
+            "max_output_tokens": 2048,
+        }
+        if expect_json:
+            config["response_mime_type"] = "application/json"
+
+        max_retries = 3
+        for attempt in range(1, max_retries + 1):
+            try:
+                response = await client.aio.models.generate_content(
+                    model=self.model,
+                    contents=prompt,
+                    config=config,
+                )
+                # Only count this as a used slot after a successful call
+                self.rate_limiter.record()
+                self._consecutive_failures = 0
+                self._last_error = None
+
+                text = response.text
+                if expect_json:
+                    return json.loads(text)
+                return text
+
+            except Exception as e:
+                err_str = str(e).lower()
+                # Detect 429 / quota exhausted from Gemini SDK
+                is_rate_error = (
+                    "429" in err_str
+                    or "resource_exhausted" in err_str
+                    or "quota" in err_str
+                    or "rate" in err_str
+                )
+                if is_rate_error and attempt < max_retries:
+                    backoff = 15 * attempt  # 15s, 30s, ...
+                    print(f"[AIService] Gemini 429 on attempt {attempt}/{max_retries}, retrying in {backoff}s")
+                    self._last_error = f"Rate limited by Gemini (attempt {attempt}), retrying"
+                    await asyncio.sleep(backoff)
+                    continue
+                # Non-retryable or last attempt
+                self._consecutive_failures += 1
+                self._last_error = str(e)
+                raise
+
+    async def _call_openai(self, prompt: str, expect_json: bool) -> Optional[Any]:
+        """Call OpenAI via raw HTTP (unchanged)."""
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            url = "https://api.openai.com/v1/chat/completions"
+            headers = {"Authorization": f"Bearer {self.api_key}"}
+            messages = [{"role": "user", "content": prompt}]
+            payload: Dict[str, Any] = {
+                "model": self.model or "gpt-4o-mini",
+                "messages": messages,
+                "temperature": 0.4,
+            }
+            if expect_json:
+                payload["response_format"] = {"type": "json_object"}
+
+            res = await client.post(url, headers=headers, json=payload)
+
+            if res.status_code == 429:
+                self._consecutive_failures += 1
+                self._last_error = "Rate limited by OpenAI API (429)"
+                return None
+
+            if res.status_code == 200:
+                self._consecutive_failures = 0
+                self._last_error = None
+                data = res.json()
+                text_content = data["choices"][0]["message"]["content"]
+                if expect_json:
+                    return json.loads(text_content)
+                return text_content
+            else:
+                self._consecutive_failures += 1
+                self._last_error = f"OpenAI returned {res.status_code}"
+                print(f"[AIService] OpenAI error {res.status_code}: {res.text[:200]}")
         return None
 
     # ─────────────────────────────────────────────
@@ -216,7 +249,7 @@ class AIService:
                     break
 
         # Category & project
-        academic_kw = ["dbms", "os", "operating systems", "networks", "computer networks", "assignment", "homework", "exam", "study", "lecture", "professor", "chapter", "lab", "thesis", "university", "college", "slides"]
+        academic_kw = ["dbms", "os", "operating systems", "networks", "computer networks", "assignment", "homework", "exam", "study", "lecture", "professor", "chapter", "lab", "thesis", "university", "college", "slides", "teacher", "taught", "class", "course", "coursework", "syllabus", "curriculum", "tutorial", "seminar", "workshop", "assignment", "quiz", "test", "paper", "essay", "research", "read the book", "textbook", "notes", "review chapter", "before class", "prepare for class", "lecture notes", "prof"]
         coding_kw = ["fastapi", "react", "backend", "frontend", "api", "database", "git", "bug", "deploy", "auth", "refactor", "docker"]
         shopping_kw = ["buy", "order", "purchase", "cable", "groceries", "store", "amazon"]
 
@@ -241,6 +274,18 @@ class AIService:
             suggested_tags.append("Coding")
             if "fastapi" in lower or "task" in lower:
                 suggested_project = "Personal Task Engine"
+        # Reading / book detection — often academic
+        reading_kw = ["read the book", "read a chapter", "textbook", "reading", "book", "review chapter"]
+        if any(k in lower for k in reading_kw):
+            # If already matched academic_kw, keep it. Otherwise, still likely academic.
+            if category == "Personal":
+                category = "University"
+                suggested_tags.append("Reading")
+        # 'read' alone with teacher/professor/class context
+        if "read" in lower and any(w in lower for w in ["teacher", "taught", "professor", "class", "course", "book", "chapter"]):
+            if category == "Personal":
+                category = "University"
+                suggested_tags.append("Reading")
         elif any(k in lower for k in shopping_kw):
             category = "Personal"
             suggested_tags.append("Shopping")
@@ -258,7 +303,8 @@ class AIService:
             r'\b(?:should\s+take|taking|take)\s+(?:around\s+|about\s+|~)?\d+(?:\.\d+)?\s*(?:hours?|hrs?|h|minutes?|mins?|m)\b',
             r'\bfor\s+(?:around\s+|about\s+|~)?\d+(?:\.\d+)?\s*(?:hours?|hrs?|h|minutes?|mins?|m)\b',
             r'\b(?:before|by|on|due)\s+(?:tomorrow|today|friday|monday|tuesday|wednesday|thursday|saturday|sunday)\b',
-            r'\b(?:tomorrow|today|tonight)\b'
+            r'\b(?:tomorrow|today|tonight)\b',
+            r"\b(?:i\s+need\s+to|i\s+should|i\s+have\s+to|don'?t\s+forget\s+to|remember\s+to)\b"
         ]
         for pat in patterns_to_strip:
             title = re.sub(pat, '', title, flags=re.IGNORECASE).strip()
