@@ -60,11 +60,20 @@ class Settings(BaseSettings):
             return "super-secret-jwt-key-nexus-os-secure-production-32-chars-long"
         return clean
 
+    def get_database_url(self) -> str:
+        url = (os.environ.get("DATABASE_URL") or self.DATABASE_URL).strip()
+        # Render PostgreSQL URL compatibility (postgres:// -> postgresql://)
+        if url.startswith("postgres://"):
+            url = url.replace("postgres://", "postgresql://", 1)
+        return url
+
     def get_ai_api_key(self) -> str:
-        # Prefer AI_API_KEY, fall back to GEMINI_API_KEY
+        # Prefer AI_API_KEY, fall back to GEMINI_API_KEY or GOOGLE_API_KEY
         key = os.environ.get("AI_API_KEY", "").strip()
         if not key:
             key = os.environ.get("GEMINI_API_KEY", "").strip()
+        if not key:
+            key = os.environ.get("GOOGLE_API_KEY", "").strip()
         if not key:
             key = self.AI_API_KEY.strip()
         return key

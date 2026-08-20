@@ -3,17 +3,25 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 from backend.app.config import settings
 
-# Normalize sqlite URL for absolute vs relative path if needed
-db_url = settings.DATABASE_URL
+# Normalize database URL for Render PostgreSQL and SQLite
+db_url = settings.get_database_url()
+
 if db_url.startswith("sqlite"):
     # Ensure data directory exists
-    os.makedirs("./data", exist_ok=True)
+    if "./data" in db_url or "/data" in db_url:
+        os.makedirs("./data", exist_ok=True)
     engine = create_engine(
         db_url,
         connect_args={"check_same_thread": False}
     )
 else:
-    engine = create_engine(db_url, pool_pre_ping=True)
+    engine = create_engine(
+        db_url,
+        pool_pre_ping=True,
+        pool_recycle=300,
+        pool_size=10,
+        max_overflow=20
+    )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
