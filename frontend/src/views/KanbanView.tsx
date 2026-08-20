@@ -165,6 +165,28 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
                       </div>
                     )}
 
+                    {/* Time Progress if logged */}
+                    {task.spent_minutes && task.spent_minutes > 0 && task.estimated_minutes && task.status !== 'done' && (
+                      <div className="space-y-1 pt-1">
+                        <div className="flex items-center justify-between text-[11px] text-zinc-400 font-mono">
+                          <span className="flex items-center space-x-1">
+                            <Clock size={11} className="text-violet-400" />
+                            <span>Logged</span>
+                          </span>
+                          <span className="text-violet-300 font-semibold">{task.spent_minutes}/{task.estimated_minutes}m ({Math.round((task.spent_minutes / task.estimated_minutes) * 100)}%)</span>
+                        </div>
+                        <div className="w-full bg-[#1e2230] rounded-full h-1.5 overflow-hidden">
+                          <div
+                            className="h-full rounded-full"
+                            style={{
+                              width: `${Math.min(100, (task.spent_minutes / task.estimated_minutes) * 100)}%`,
+                              background: 'linear-gradient(90deg, #8b5cf6, #ec4899)'
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )}
+
                     {/* Bottom Metadata */}
                     <div className="flex items-center justify-between pt-1.5 border-t border-[#262a3c]/40 text-xs text-slate-400">
                       {task.due_date ? (
@@ -174,7 +196,7 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
                         </span>
                       ) : <span />}
 
-                      {task.estimated_minutes && (
+                      {task.estimated_minutes && (!task.spent_minutes || task.spent_minutes === 0 || task.status === 'done') && (
                         <span className="flex items-center space-x-1 font-mono">
                           <Clock size={12} />
                           <span>~{task.estimated_minutes}m</span>

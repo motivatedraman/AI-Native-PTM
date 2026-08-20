@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Lock, ArrowRight, Loader2, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Loader2, Shield } from 'lucide-react';
 import { api } from '../services/api';
 
 interface LoginScreenProps {
@@ -30,32 +30,68 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
   };
 
   return (
-    <div className="min-h-screen w-screen bg-[#090a0f] flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-[#12141c] border border-[#262a3c] rounded-2xl p-8 shadow-2xl space-y-6">
-        
+    <div
+      className="min-h-screen w-screen flex items-center justify-center p-4"
+      style={{ background: '#0d0d0f' }}
+    >
+      {/* Background ambient glow */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse 60% 50% at 50% 0%, rgba(139, 92, 246, 0.12) 0%, transparent 70%)',
+        }}
+      />
+
+      <div
+        className="relative w-full max-w-sm rounded-3xl p-8 shadow-2xl"
+        style={{
+          background: '#141416',
+          border: '1px solid #2e2e33',
+          boxShadow: '0 0 0 1px #2e2e33, 0 32px 64px rgba(0,0,0,0.6), 0 0 60px rgba(139, 92, 246, 0.08)',
+        }}
+      >
         {/* Brand & Title */}
-        <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 mx-auto">
-            <Lock size={22} />
+        <div className="text-center space-y-4 mb-8">
+          {/* Logo mark */}
+          <div className="flex justify-center">
+            <div
+              className="w-16 h-16 rounded-2xl flex items-center justify-center text-white font-bold text-2xl"
+              style={{
+                background: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
+                boxShadow: '0 0 30px rgba(139, 92, 246, 0.4), 0 0 60px rgba(236, 72, 153, 0.2)',
+                animation: 'float 3s ease-in-out infinite',
+              }}
+            >
+              ✦
+            </div>
           </div>
-          <h1 className="text-xl font-bold text-slate-100 tracking-tight">
-            Nexus Personal Command Center
-          </h1>
-          <p className="text-xs text-slate-400">
-            Single-user authenticated execution environment.
-          </p>
+          <div>
+            <h1 className="text-2xl font-bold text-white tracking-tight">
+              Nexus OS
+            </h1>
+            <p className="text-sm mt-1" style={{ color: '#71717a' }}>
+              Your personal command center
+            </p>
+          </div>
         </div>
 
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <div className="p-3 rounded-lg bg-rose-950/40 border border-rose-800/40 text-rose-300 text-xs text-center">
+            <div
+              className="p-3 rounded-xl text-sm text-center"
+              style={{
+                background: 'rgba(244, 63, 94, 0.1)',
+                border: '1px solid rgba(244, 63, 94, 0.3)',
+                color: '#fb7185',
+              }}
+            >
               {error}
             </div>
           )}
 
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            <label className="block text-xs font-semibold uppercase tracking-wider" style={{ color: '#71717a' }}>
               Username
             </label>
             <input
@@ -64,13 +100,25 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Enter your username"
               autoComplete="username"
-              className="w-full bg-[#181a24] border border-[#262a3c] rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors"
+              className="w-full px-4 py-3 text-sm text-white rounded-xl outline-none transition-all"
+              style={{
+                background: '#1c1c1f',
+                border: '1px solid #2e2e33',
+              }}
+              onFocus={e => {
+                e.target.style.borderColor = '#8b5cf6';
+                e.target.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.12)';
+              }}
+              onBlur={e => {
+                e.target.style.borderColor = '#2e2e33';
+                e.target.style.boxShadow = '';
+              }}
               required
             />
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            <label className="block text-xs font-semibold uppercase tracking-wider" style={{ color: '#71717a' }}>
               Password
             </label>
             <input
@@ -79,7 +127,19 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
               autoComplete="current-password"
-              className="w-full bg-[#181a24] border border-[#262a3c] rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors"
+              className="w-full px-4 py-3 text-sm text-white rounded-xl outline-none transition-all"
+              style={{
+                background: '#1c1c1f',
+                border: '1px solid #2e2e33',
+              }}
+              onFocus={e => {
+                e.target.style.borderColor = '#8b5cf6';
+                e.target.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.12)';
+              }}
+              onBlur={e => {
+                e.target.style.borderColor = '#2e2e33';
+                e.target.style.boxShadow = '';
+              }}
               required
             />
           </div>
@@ -87,7 +147,24 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full flex items-center justify-center space-x-2 py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-xl text-xs font-semibold tracking-wide transition-all shadow-md mt-2"
+            className="w-full flex items-center justify-center space-x-2 py-3 text-white rounded-xl text-sm font-semibold tracking-wide transition-all mt-2"
+            style={{
+              background: isLoading
+                ? 'linear-gradient(135deg, #6d28d9, #be185d)'
+                : 'linear-gradient(135deg, #8b5cf6, #ec4899)',
+              boxShadow: '0 4px 20px rgba(139, 92, 246, 0.35)',
+              opacity: isLoading ? 0.7 : 1,
+            }}
+            onMouseEnter={e => {
+              if (!isLoading) {
+                (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 30px rgba(139, 92, 246, 0.55)';
+                (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)';
+              }
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 20px rgba(139, 92, 246, 0.35)';
+              (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
+            }}
           >
             {isLoading ? (
               <>
@@ -96,19 +173,28 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
               </>
             ) : (
               <>
-                <span>Unlock Workspace</span>
-                <ArrowRight size={15} />
+                <span>Enter Workspace</span>
+                <ArrowRight size={16} />
               </>
             )}
           </button>
         </form>
 
         {/* Security badge */}
-        <div className="pt-4 border-t border-[#262a3c]/60 flex items-center justify-center space-x-2 text-[11px] text-slate-400">
-          <ShieldCheck size={14} className="text-emerald-400" />
-          <span>Single-user encrypted session token</span>
+        <div
+          className="pt-5 mt-5 flex items-center justify-center space-x-2 text-xs"
+          style={{ borderTop: '1px solid #2e2e33', color: '#52525b' }}
+        >
+          <Shield size={12} style={{ color: '#10b981' }} />
+          <span>Single-user encrypted session</span>
         </div>
 
+        <style>{`
+          @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+          }
+        `}</style>
       </div>
     </div>
   );

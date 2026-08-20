@@ -12,6 +12,7 @@ class TaskBase(BaseModel):
     priority: Optional[str] = "medium"  # low, medium, high, urgent
     due_date: Optional[datetime] = None
     estimated_minutes: Optional[int] = None
+    spent_minutes: Optional[int] = 0
     category: Optional[str] = "Personal"  # Personal, University, Work, Project, Other
     project_id: Optional[int] = None
     parent_task_id: Optional[int] = None
@@ -31,6 +32,7 @@ class TaskUpdate(BaseModel):
     priority: Optional[str] = None
     due_date: Optional[datetime] = None
     estimated_minutes: Optional[int] = None
+    spent_minutes: Optional[int] = None
     category: Optional[str] = None
     project_id: Optional[int] = None
     parent_task_id: Optional[int] = None

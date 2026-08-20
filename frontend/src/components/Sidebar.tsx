@@ -12,12 +12,11 @@ import {
   ChevronRight,
   Plus,
   LogOut,
-  Menu,
   X,
   BarChart3,
-  MessageSquare
 } from 'lucide-react';
 import { ActiveView, AIStatus } from '../types';
+import { StreakBadge } from './TaskCompletionBurst';
 
 interface SidebarProps {
   activeView: ActiveView;
@@ -34,6 +33,7 @@ interface SidebarProps {
     inbox: number;
     university: number;
   };
+  streak?: number;
   isMobileOpen?: boolean;
   onMobileClose?: () => void;
 }
@@ -49,6 +49,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   currentUser,
   onLogout,
   taskCounts,
+  streak = 0,
   isMobileOpen = false,
   onMobileClose,
 }) => {
@@ -72,7 +73,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Mobile backdrop */}
       {isMobileOpen && (
         <div
-          className="fixed inset-0 bg-black/60 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 lg:hidden"
           onClick={onMobileClose}
         />
       )}
@@ -82,18 +83,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
         className={`
           fixed lg:relative inset-y-0 left-0 z-50
           flex flex-col justify-between
-          border-r border-[#262a3c] bg-[#12141c]
-          transition-all duration-200 select-none
+          border-r bg-[#0d0d0f]
+          transition-all duration-300 select-none
           ${isCollapsed ? 'w-16' : 'w-64'}
           h-screen
           ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
+        style={{ borderColor: '#2e2e33' }}
       >
         {/* Mobile close button */}
         {isMobileOpen && (
           <button
             onClick={onMobileClose}
-            className="absolute top-4 right-4 p-1.5 rounded-md hover:bg-[#212433] text-slate-400 hover:text-slate-200 transition-colors z-10 lg:hidden"
+            className="absolute top-4 right-4 p-1.5 rounded-md text-zinc-400 hover:text-zinc-200 transition-colors z-10 lg:hidden"
+            style={{ background: '#1c1c1f' }}
           >
             <X size={18} />
           </button>
@@ -101,21 +104,42 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Top Header */}
         <div>
-          <div className="flex items-center justify-between p-4 border-b border-[#262a3c]/60">
+          <div
+            className="flex items-center justify-between p-4"
+            style={{ borderBottom: '1px solid #2e2e33' }}
+          >
             {!isCollapsed && (
               <div className="flex items-center space-x-2.5">
-                <div className="w-7 h-7 rounded-lg bg-indigo-600/30 border border-indigo-500/40 flex items-center justify-center text-indigo-400 font-bold text-sm">
+                {/* Logo */}
+                <div
+                  className="w-8 h-8 rounded-xl flex items-center justify-center text-white font-bold text-sm"
+                  style={{
+                    background: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
+                    boxShadow: '0 0 16px rgba(139, 92, 246, 0.4)',
+                  }}
+                >
                   ✦
                 </div>
-                <span className="font-semibold text-sm tracking-tight text-slate-100">
-                  Nexus OS
-                </span>
+                <div>
+                  <span className="font-bold text-sm tracking-tight text-white">Nexus OS</span>
+                  {streak > 0 && !isCollapsed && (
+                    <div className="mt-0.5">
+                      <StreakBadge streak={streak} compact />
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+            {isCollapsed && streak > 0 && (
+              <div className="mx-auto" title={`${streak} day streak!`}>
+                <span className="text-lg" style={{ filter: 'drop-shadow(0 0 6px rgba(249, 115, 22, 0.7))' }}>🔥</span>
               </div>
             )}
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="p-1.5 rounded-md hover:bg-[#212433] text-slate-400 hover:text-slate-200 transition-colors mx-auto hidden lg:block"
-              title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              className="p-1.5 rounded-md text-zinc-500 hover:text-zinc-200 transition-colors mx-auto hidden lg:block"
+              style={{ background: 'transparent' }}
+              title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             >
               {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
             </button>
@@ -125,22 +149,46 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="p-3 space-y-2">
             <button
               onClick={onOpenQuickAdd}
-              className="w-full flex items-center justify-center space-x-2 py-2.5 px-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-medium transition-all shadow-sm group"
+              className="w-full flex items-center justify-center space-x-2 py-2.5 px-3 text-white rounded-xl text-sm font-semibold transition-all group shadow-lg"
+              style={{
+                background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+                boxShadow: '0 4px 15px rgba(139, 92, 246, 0.3)',
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 25px rgba(139, 92, 246, 0.5)';
+                (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)';
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 15px rgba(139, 92, 246, 0.3)';
+                (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
+              }}
             >
-              <Plus size={16} className="group-hover:scale-110 transition-transform" />
+              <Plus size={16} className="group-hover:rotate-90 transition-transform duration-200" />
               {!isCollapsed && (
                 <div className="flex items-center justify-between flex-1">
                   <span>Capture Task</span>
-                  <span className="kbd-badge text-[10px] bg-indigo-700/50 text-indigo-200 border-indigo-500/40">N</span>
+                  <span className="kbd-badge text-[10px] bg-violet-700/50 text-violet-200 border-violet-500/40">N</span>
                 </div>
               )}
             </button>
 
             <button
               onClick={onOpenCommandPalette}
-              className="w-full flex items-center space-x-2 py-2 px-3 rounded-lg text-sm text-slate-400 hover:bg-[#212433] hover:text-slate-200 transition-colors border border-[#262a3c]"
+              className="w-full flex items-center space-x-2 py-2 px-3 rounded-xl text-sm text-zinc-400 hover:text-zinc-200 transition-all"
+              style={{
+                background: '#141416',
+                border: '1px solid #2e2e33',
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLElement).style.borderColor = '#3a3a40';
+                (e.currentTarget as HTMLElement).style.background = '#1c1c1f';
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLElement).style.borderColor = '#2e2e33';
+                (e.currentTarget as HTMLElement).style.background = '#141416';
+              }}
             >
-              <Search size={15} className="text-slate-400" />
+              <Search size={15} className="text-zinc-500" />
               {!isCollapsed && (
                 <div className="flex items-center justify-between flex-1">
                   <span>Search / Cmds</span>
@@ -151,7 +199,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
 
           {/* Navigation list */}
-          <nav className="px-2 py-1 space-y-1">
+          <nav className="px-2 py-1 space-y-0.5">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeView === item.id;
@@ -159,24 +207,49 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <button
                   key={item.id}
                   onClick={() => handleNavClick(item.id)}
-                  className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors relative ${
+                  className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 relative ${
                     isActive
-                      ? 'bg-[#212433] text-indigo-400 font-semibold'
-                      : 'text-slate-400 hover:bg-[#181a24] hover:text-slate-200'
+                      ? 'text-violet-300 font-semibold'
+                      : 'text-zinc-500 hover:text-zinc-200'
                   }`}
+                  style={
+                    isActive
+                      ? {
+                          background: 'linear-gradient(90deg, rgba(139, 92, 246, 0.18), rgba(139, 92, 246, 0.06))',
+                          borderLeft: '2px solid #8b5cf6',
+                          boxShadow: 'inset 0 0 20px rgba(139, 92, 246, 0.04)',
+                        }
+                      : {}
+                  }
+                  onMouseEnter={e => {
+                    if (!isActive) {
+                      (e.currentTarget as HTMLElement).style.background = '#1c1c1f';
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    if (!isActive) {
+                      (e.currentTarget as HTMLElement).style.background = '';
+                    }
+                  }}
                   title={isCollapsed ? item.label : undefined}
                 >
-                  <Icon size={18} className={isActive ? 'text-indigo-400' : 'text-slate-400'} />
+                  <Icon
+                    size={17}
+                    className={isActive ? 'text-violet-400' : 'text-zinc-500'}
+                  />
                   {!isCollapsed && (
                     <span className="flex-1 text-left">{item.label}</span>
                   )}
                   {!isCollapsed && item.badge !== undefined && item.badge > 0 && (
-                    <span className="px-2 py-0.5 text-xs rounded-full bg-[#262a3c] text-slate-300 font-mono">
+                    <span
+                      className="px-2 py-0.5 text-xs rounded-full font-mono font-medium"
+                      style={{
+                        background: isActive ? 'rgba(139, 92, 246, 0.25)' : '#252528',
+                        color: isActive ? '#a78bfa' : '#71717a',
+                      }}
+                    >
                       {item.badge}
                     </span>
-                  )}
-                  {isActive && (
-                    <div className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-indigo-500 rounded-r" />
                   )}
                 </button>
               );
@@ -185,15 +258,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* Bottom User & AI Status */}
-        <div className="p-3 border-t border-[#262a3c]/60 space-y-2">
+        <div className="p-3 space-y-2" style={{ borderTop: '1px solid #2e2e33' }}>
           {/* User Card */}
-          <div className={`flex items-center justify-between p-2.5 rounded-lg bg-[#181a24] border border-[#262a3c] text-sm ${isCollapsed ? 'justify-center' : ''}`}>
+          <div
+            className={`flex items-center justify-between p-2.5 rounded-xl text-sm ${isCollapsed ? 'justify-center' : ''}`}
+            style={{ background: '#141416', border: '1px solid #2e2e33' }}
+          >
             <div className="flex items-center space-x-2.5 truncate">
-              <div className="w-7 h-7 rounded-full bg-indigo-600/30 border border-indigo-500/40 flex items-center justify-center text-indigo-300 font-bold text-xs flex-shrink-0">
+              <div
+                className="w-7 h-7 rounded-full flex items-center justify-center text-white font-bold text-xs flex-shrink-0"
+                style={{
+                  background: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
+                }}
+              >
                 {currentUser ? currentUser[0].toUpperCase() : 'U'}
               </div>
               {!isCollapsed && (
-                <span className="text-slate-200 font-medium truncate text-sm">
+                <span className="text-zinc-200 font-medium truncate text-sm">
                   {currentUser || 'Raman'}
                 </span>
               )}
@@ -201,35 +282,41 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {!isCollapsed && (
               <button
                 onClick={onLogout}
-                className="p-1 rounded text-slate-500 hover:text-rose-400 hover:bg-rose-950/30 transition-colors"
+                className="p-1 rounded text-zinc-600 hover:text-rose-400 transition-colors"
                 title="Logout"
               >
-                <LogOut size={15} />
+                <LogOut size={14} />
               </button>
             )}
           </div>
 
           {/* AI Engine Status */}
           <div
-            className={`flex items-center space-x-2.5 p-2.5 rounded-lg bg-[#181a24] border border-[#262a3c] text-sm ${
-              isCollapsed ? 'justify-center' : ''
-            }`}
-            title={aiStatus?.message || "AI Engine"}
+            className={`flex items-center space-x-2.5 p-2.5 rounded-xl text-sm ${isCollapsed ? 'justify-center' : ''}`}
+            style={{ background: '#141416', border: '1px solid #2e2e33' }}
+            title={aiStatus?.message || 'AI Engine'}
           >
             <div className="relative">
-              <Sparkles size={15} className={aiStatus?.is_configured ? "text-amber-400" : "text-emerald-400"} />
-              <div className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <Sparkles size={14} className="text-violet-400" />
+              <div
+                className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full"
+                style={{
+                  background: '#10b981',
+                  boxShadow: '0 0 6px #10b981',
+                  animation: 'pulse 2s ease-in-out infinite',
+                }}
+              />
             </div>
             {!isCollapsed && (
               <div className="flex-1 overflow-hidden">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-medium text-slate-300">
+                  <span className="font-medium text-zinc-300">
                     {aiStatus?.provider ? aiStatus.provider.toUpperCase() : 'AI'}
                   </span>
                   <span className="text-[10px] text-emerald-400 font-mono">ACTIVE</span>
                 </div>
-                <p className="text-[11px] text-slate-400 truncate">
-                  {aiStatus?.is_configured ? aiStatus.model : 'Heuristic Engine'}
+                <p className="text-[11px] text-zinc-500 truncate">
+                  {aiStatus?.is_configured ? aiStatus.model : 'Nexus Core'}
                 </p>
               </div>
             )}

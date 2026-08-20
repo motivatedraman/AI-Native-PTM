@@ -24,6 +24,7 @@ def get_settings(db: Session = Depends(get_db)):
     return UserSettingsResponse(
         available_start_hour=settings.available_start_hour,
         available_end_hour=settings.available_end_hour,
+        daily_chunks=settings.daily_chunks,
         timezone=settings.timezone,
     )
 
@@ -35,6 +36,8 @@ def update_settings(payload: UserSettingsUpdateRequest, db: Session = Depends(ge
         settings.available_start_hour = payload.available_start_hour
     if payload.available_end_hour is not None:
         settings.available_end_hour = payload.available_end_hour
+    if payload.daily_chunks is not None:
+        settings.daily_chunks = payload.daily_chunks
     if payload.timezone is not None:
         settings.timezone = payload.timezone
     db.commit()
@@ -42,5 +45,6 @@ def update_settings(payload: UserSettingsUpdateRequest, db: Session = Depends(ge
     return UserSettingsResponse(
         available_start_hour=settings.available_start_hour,
         available_end_hour=settings.available_end_hour,
+        daily_chunks=settings.daily_chunks,
         timezone=settings.timezone,
     )

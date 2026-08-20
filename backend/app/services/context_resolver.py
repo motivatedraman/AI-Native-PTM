@@ -56,8 +56,8 @@ class ContextResolver:
         self.now_npt = _now_npt()
         self.utc_now = _utc_now()
 
-    def get_today_context(self) -> Dict[str, Any]:
-        """Context for 'What should I do today / now?' queries."""
+    def get_today_context(self, custom_chunks: Optional[List[Dict[str, Any]]] = None) -> Dict[str, Any]:
+        """Context for 'What should I do today / now?' and 'Plan My Day' queries with dynamic time chunks."""
         day_start, day_end = _day_bounds_utc(self.today)
 
         # Today's tasks (due today)
@@ -112,22 +112,85 @@ class ContextResolver:
             if blocking_task and blocking_task.status != "done":
                 blocked_task_ids.append(dep.task_id)
 
-        # Available time
-        available_hours = self.user_settings.available_end_hour - self.user_settings.available_start_hour
-        current_hour_npt = self.now_npt.hour
-        remaining_hours_today = max(0, self.user_settings.available_end_hour - max(current_hour_npt, self.user_settings.available_start_hour))
+        # Process Available Time & Discrete Time Chunks
+        raw_chunks = custom_chunks or self.user_settings.daily_chunks
+        start_hour = self.user_settings.available_start_hour or 6
+        end_hour = self.user_settings.available_end_hour or 22
 
-        # Total estimated work
+        parsed_chunks: List[Dict[str, Any]] = []
+        total_available_minutes = 0
+
+        if raw_chunks and len(raw_chunks) > 0:
+            for c in raw_chunks:
+                try:
+                    s_str = c.get("start", f"{start_hour:02d}:00")
+                    e_str = c.get("end", f"{end_hour:02d}:00")
+                    sh, sm = map(int, s_str.split(":"))
+                    eh, em = map(int, e_str.split(":"))
+                    dur = (eh * 60 + em) - (sh * 60 + sm)
+                    if dur > 0:
+                        parsed_chunks.append({
+                            "start": s_str,
+                            "end": e_str,
+                            "duration_minutes": dur,
+                            "start_mins": sh * 60 + sm,
+                            "end_mins": eh * 60 + em
+                        })
+                        total_available_minutes += dur
+                except Exception:
+                    continue
+
+        if not parsed_chunks:
+            # Fallback to single chunk from start_hour to end_hour
+            dur = max(0, (end_hour - start_hour) * 60)
+            parsed_chunks = [{
+                "start": f"{start_hour:02d}:00",
+                "end": f"{end_hour:02d}:00",
+                "duration_minutes": dur,
+                "start_mins": start_hour * 60,
+                "end_mins": end_hour * 60
+            }]
+            total_available_minutes = dur
+
+        # Calculate remaining available intervals and minutes today from current time
+        current_mins_npt = self.now_npt.hour * 60 + self.now_npt.minute
+        active_remaining_chunks: List[Dict[str, Any]] = []
+        remaining_minutes_today = 0
+
+        for chunk in parsed_chunks:
+            c_start = chunk["start_mins"]
+            c_end = chunk["end_mins"]
+            if c_end <= current_mins_npt:
+                continue  # Completely in the past
+
+            effective_start_mins = max(c_start, current_mins_npt)
+            dur = c_end - effective_start_mins
+            if dur >= 15:
+                sh = effective_start_mins // 60
+                sm = effective_start_mins % 60
+                active_remaining_chunks.append({
+                    "start": f"{sh:02d}:{sm:02d}",
+                    "end": chunk["end"],
+                    "duration_minutes": dur,
+                    "start_mins": effective_start_mins,
+                    "end_mins": c_end
+                })
+                remaining_minutes_today += dur
+
+        # Total estimated work (accounting for time already spent)
         all_pending = self.db.query(Task).filter(Task.status.notin_(["done"])).all()
-        total_estimated_minutes = sum(t.estimated_minutes or 30 for t in all_pending)
+        total_estimated_minutes = sum(max(0, (t.estimated_minutes or 30) - (t.spent_minutes or 0)) for t in all_pending)
 
         return {
             "current_time_npt": self.now_npt.strftime("%H:%M"),
             "today_date": self.today.isoformat(),
-            "available_hours_today": remaining_hours_today,
-            "total_available_hours": available_hours,
-            "available_start": self.user_settings.available_start_hour,
-            "available_end": self.user_settings.available_end_hour,
+            "available_hours_today": round(remaining_minutes_today / 60, 1),
+            "available_minutes_today": remaining_minutes_today,
+            "total_available_minutes": remaining_minutes_today,
+            "total_available_hours": round(remaining_minutes_today / 60, 1),
+            "available_start": start_hour,
+            "available_end": end_hour,
+            "daily_chunks": active_remaining_chunks if active_remaining_chunks else parsed_chunks,
             "today_tasks": [self._task_summary(t) for t in today_tasks],
             "overdue_tasks": [self._task_summary(t) for t in overdue_tasks],
             "upcoming_tasks": [self._task_summary(t) for t in upcoming_tasks[:10]],
@@ -312,6 +375,10 @@ class ContextResolver:
         }
 
     def _task_summary(self, task: Task) -> Dict[str, Any]:
+        est = task.estimated_minutes or 30
+        spent = task.spent_minutes or 0
+        rem = max(0, est - spent)
+        pct = 100 if task.status == "done" else (round((spent / est) * 100) if est > 0 else 0)
         return {
             "id": task.id,
             "title": task.title,
@@ -320,10 +387,17 @@ class ContextResolver:
             "category": task.category,
             "due_date": task.due_date.isoformat() if task.due_date else None,
             "estimated_minutes": task.estimated_minutes,
+            "spent_minutes": spent,
+            "remaining_minutes": rem,
+            "progress_pct": pct,
             "project_id": task.project_id,
         }
 
     def _task_detail(self, task: Task) -> Dict[str, Any]:
+        est = task.estimated_minutes or 30
+        spent = task.spent_minutes or 0
+        rem = max(0, est - spent)
+        pct = 100 if task.status == "done" else (round((spent / est) * 100) if est > 0 else 0)
         return {
             "id": task.id,
             "title": task.title,
@@ -333,6 +407,9 @@ class ContextResolver:
             "category": task.category,
             "due_date": task.due_date.isoformat() if task.due_date else None,
             "estimated_minutes": task.estimated_minutes,
+            "spent_minutes": spent,
+            "remaining_minutes": rem,
+            "progress_pct": pct,
             "project_id": task.project_id,
             "subtask_count": len(task.subtasks),
             "completed_subtasks": sum(1 for s in task.subtasks if s.is_completed),

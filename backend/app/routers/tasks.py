@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
@@ -48,6 +48,9 @@ def get_tasks(
 
 @router.post("", response_model=TaskResponse, status_code=status.HTTP_201_CREATED)
 def create_task(task_in: TaskCreate, db: Session = Depends(get_db)):
+    if task_in.due_date and task_in.due_date < datetime.utcnow() - timedelta(minutes=5):
+        raise HTTPException(status_code=400, detail="Due date cannot be set in the past")
+
     task = Task(
         title=task_in.title,
         description=task_in.description,
@@ -123,6 +126,9 @@ async def quick_add_task(payload: TaskQuickAdd, db: Session = Depends(get_db)):
         }
     )
 
+    db.add(task)
+    db.flush()
+
     # Link tags matching suggested_tags
     if parsed.suggested_tags:
         for t_name in parsed.suggested_tags:
@@ -133,7 +139,6 @@ async def quick_add_task(payload: TaskQuickAdd, db: Session = Depends(get_db)):
                 db.flush()
             task.tags.append(tag)
 
-    db.add(task)
     db.commit()
     db.refresh(task)
 
@@ -155,6 +160,10 @@ def update_task(task_id: int, task_update: TaskUpdate, db: Session = Depends(get
 
     old_status = task.status
     update_data = task_update.model_dump(exclude_unset=True)
+
+    if "due_date" in update_data and update_data["due_date"]:
+        if update_data["due_date"] < datetime.utcnow() - timedelta(minutes=5):
+            raise HTTPException(status_code=400, detail="Due date cannot be set in the past")
 
     # Handle tag_ids specially
     if "tag_ids" in update_data:
@@ -227,6 +236,26 @@ def reopen_task(task_id: int, db: Session = Depends(get_db)):
     db.refresh(task)
 
     log_activity(db, action_type="task_reopened", description=f"Reopened task '{task.title}'", task_id=task.id)
+    return task
+
+@router.post("/{task_id}/log-time", response_model=TaskResponse)
+def log_task_time(task_id: int, minutes: int = Query(..., ge=1, le=1440), db: Session = Depends(get_db)):
+    task = db.query(Task).filter(Task.id == task_id).first()
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    task.spent_minutes = (task.spent_minutes or 0) + minutes
+    task.updated_at = datetime.utcnow()
+
+    log_activity(
+        db, action_type="time_logged",
+        description=f"Worked {minutes}m on '{task.title}' ({task.spent_minutes}/{task.estimated_minutes or '?'}m)",
+        task_id=task.id,
+        details={"minutes_logged": minutes, "total_spent": task.spent_minutes}
+    )
+
+    db.commit()
+    db.refresh(task)
     return task
 
 @router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)

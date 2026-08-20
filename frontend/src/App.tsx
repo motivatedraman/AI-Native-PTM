@@ -16,6 +16,8 @@ import { WeeklyReviewView } from './views/WeeklyReviewView';
 import { Task, Project, Tag, ActiveView, AIStatus } from './types';
 import { api } from './services/api';
 import { Menu } from 'lucide-react';
+import { useStreak } from './utils/useStreak';
+
 
 export const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<string | null>(null);
@@ -36,6 +38,9 @@ export const App: React.FC = () => {
   const [isAIAssistantOpen, setIsAIAssistantOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  // Computed streak from completed tasks
+  const streak = useStreak(tasks);
 
   // Check auth session
   useEffect(() => {
@@ -198,8 +203,8 @@ export const App: React.FC = () => {
 
   if (isAuthChecking) {
     return (
-      <div className="h-screen w-screen bg-[#090a0f] flex items-center justify-center text-slate-500 text-xs font-mono">
-        Verifying security session...
+      <div className="h-screen w-screen flex items-center justify-center text-zinc-600 text-xs font-mono" style={{ background: '#0d0d0f' }}>
+        Verifying session...
       </div>
     );
   }
@@ -215,7 +220,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen w-screen bg-[#090a0f] text-slate-100 overflow-hidden select-none">
+    <div className="flex h-screen w-screen overflow-hidden select-none" style={{ background: '#0d0d0f', color: '#f8fafc' }}>
       
       {/* Collapsible Minimal Sidebar */}
       <Sidebar
@@ -229,17 +234,19 @@ export const App: React.FC = () => {
         currentUser={currentUser}
         onLogout={handleLogout}
         taskCounts={taskCounts}
+        streak={streak}
         isMobileOpen={isMobileMenuOpen}
         onMobileClose={() => setIsMobileMenuOpen(false)}
       />
 
       {/* Main View Area */}
-      <main className="flex-1 flex flex-col h-screen overflow-y-auto bg-[#090a0f] p-4 lg:p-6">
+      <main className="flex-1 flex flex-col h-screen overflow-y-auto p-4 lg:p-6" style={{ background: '#0d0d0f' }}>
         {/* Mobile header with hamburger */}
-        <div className="flex items-center justify-between pb-3 mb-2 border-b border-[#262a3c]/60 lg:hidden">
+        <div className="flex items-center justify-between pb-3 mb-2 lg:hidden" style={{ borderBottom: '1px solid #2e2e33' }}>
           <button
             onClick={() => setIsMobileMenuOpen(true)}
-            className="p-2 rounded-lg hover:bg-[#212433] text-slate-400 hover:text-slate-200 transition-colors"
+            className="p-2 rounded-xl transition-colors"
+            style={{ color: '#71717a' }}
           >
             <Menu size={22} />
           </button>
@@ -252,7 +259,7 @@ export const App: React.FC = () => {
           <div className="w-9" />
         </div>
         {isLoading && tasks.length === 0 ? (
-          <div className="flex-1 flex items-center justify-center text-slate-500 text-xs">
+          <div className="flex-1 flex items-center justify-center text-xs font-mono" style={{ color: '#52525b' }}>
             Syncing workspace data...
           </div>
         ) : (
@@ -264,6 +271,7 @@ export const App: React.FC = () => {
                 onSelectTask={handleSelectTask}
                 onToggleComplete={handleToggleComplete}
                 onOpenQuickAdd={() => setIsQuickAddOpen(true)}
+                onOpenPlanDay={() => setIsPlanDayOpen(true)}
               />
             )}
 

@@ -1,13 +1,6 @@
-INFO:     Started server process [775]
+INFO:     Started server process [1914]
 INFO:     Waiting for application startup.
+[Startup] Database tables ensured.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-[Startup] Database tables ensured.
-INFO:     192.168.122.1:38666 - "GET / HTTP/1.1" 304 Not Modified
-INFO:     192.168.122.1:38666 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.122.1:38676 - "GET /api/ai/status HTTP/1.1" 200 OK
-INFO:     192.168.122.1:38670 - "GET /api/projects HTTP/1.1" 200 OK
-INFO:     192.168.122.1:38674 - "GET /api/tags HTTP/1.1" 200 OK
-INFO:     192.168.122.1:38666 - "GET /api/tasks HTTP/1.1" 200 OK
-INFO:     192.168.122.1:38666 - "GET /api/ai/suggestions HTTP/1.1" 200 OK
-INFO:     192.168.122.1:38674 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     192.168.122.1:34754 - "GET /api/settings HTTP/1.1" 200 OK

@@ -7,7 +7,7 @@ from backend.app.schemas.ai import (
     AITaskParseRequest, AITaskParseResult, AITaskEnrichResponse,
     AISubtaskSuggestResponse, AIDailySummaryRequest, AIDailySummaryResponse, AIStatusResponse,
     AIDecomposeRequest, AIDecomposeResponse, AIDecomposeSubtask,
-    AIPlannerItem, AIPlannerResponse,
+    AIPlannerItem, AIPlannerResponse, AIPlannerRequest, TimeChunk,
     AIWhatNowRecommendation, AIWhatNowResponse,
     AINLSearchRequest, AINLSearchFilters, AINLSearchResponse,
     AIWeeklyReviewResponse, AIProjectSummaryResponse,

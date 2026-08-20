@@ -4,12 +4,18 @@
 
 @layer base {
   :root {
-    --bg-main: #090a0f;
-    --bg-surface: #12141c;
-    --bg-card: #181a24;
-    --border-color: #262a3c;
-    --text-main: #f1f5f9;
-    --text-muted: #94a3b8;
+    --bg-main: #0d0d0f;
+    --bg-surface: #141416;
+    --bg-card: #1c1c1f;
+    --border-color: #2e2e33;
+    --text-main: #f8fafc;
+    --text-muted: #a1a1aa;
+    --primary: #8b5cf6;
+    --primary-glow: rgba(139, 92, 246, 0.3);
+    --success: #10b981;
+    --success-glow: rgba(16, 185, 129, 0.3);
+    --streak: #f97316;
+    --streak-glow: rgba(249, 115, 22, 0.3);
   }
 
   body {
@@ -22,29 +28,58 @@
   }
 }
 
-/* Subtle scrollbars */
+/* Beautiful scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #2b3044;
-  border-radius: 4px;
+  background: linear-gradient(180deg, #8b5cf6, #6d28d9);
+  border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3b425e;
+  background: linear-gradient(180deg, #a78bfa, #8b5cf6);
 }
 
-/* Glass & Card utilities */
+/* Glass panel */
 .glass-panel {
-  background: rgba(18, 20, 28, 0.85);
-  backdrop-filter: blur(12px);
-  border: 1px solid #262a3c;
+  background: rgba(20, 20, 22, 0.88);
+  backdrop-filter: blur(16px);
+  border: 1px solid #2e2e33;
 }
 
+/* Gradient text */
+.text-gradient-primary {
+  background: linear-gradient(135deg, #a78bfa, #ec4899);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-streak {
+  background: linear-gradient(135deg, #f97316, #ef4444);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glow effects */
+.glow-primary {
+  box-shadow: 0 0 20px var(--primary-glow), 0 0 40px rgba(139, 92, 246, 0.1);
+}
+
+.glow-success {
+  box-shadow: 0 0 20px var(--success-glow), 0 0 40px rgba(16, 185, 129, 0.1);
+}
+
+.glow-streak {
+  box-shadow: 0 0 20px var(--streak-glow), 0 0 40px rgba(249, 115, 22, 0.1);
+}
+
+/* kbd badge */
 .kbd-badge {
   display: inline-flex;
   align-items: center;
@@ -53,9 +88,79 @@
   font-size: 0.7rem;
   font-family: monospace;
   font-weight: 600;
-  color: #94a3b8;
-  background-color: #1e2230;
-  border: 1px solid #2d3348;
+  color: #a1a1aa;
+  background-color: #252528;
+  border: 1px solid #3a3a40;
   border-radius: 0.25rem;
-  box-shadow: 0 1px 0 rgba(0,0,0,0.4);
+  box-shadow: 0 1px 0 rgba(0,0,0,0.5);
+}
+
+/* Task completion burst animation */
+@keyframes confetti-piece {
+  0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+  100% { transform: translateY(-60px) rotate(720deg) scale(0); opacity: 0; }
+}
+
+.confetti-piece {
+  animation: confetti-piece 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* Shimmer effect for loading */
+.shimmer-bg {
+  background: linear-gradient(90deg, #1c1c1f 0%, #252528 50%, #1c1c1f 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s linear infinite;
+}
+
+/* Progress ring */
+.progress-ring {
+  transform-origin: center;
+  transform: rotate(-90deg);
+  transition: stroke-dashoffset 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Sidebar gradient active state */
+.sidebar-active-glow {
+  background: linear-gradient(90deg, rgba(139, 92, 246, 0.15), rgba(139, 92, 246, 0.05));
+  border-right: 2px solid #8b5cf6;
+  box-shadow: inset 0 0 20px rgba(139, 92, 246, 0.05);
+}
+
+/* Streak fire badge */
+.streak-badge {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.2), rgba(239, 68, 68, 0.2));
+  border: 1px solid rgba(249, 115, 22, 0.4);
+  animation: streak-pulse 2s ease-in-out infinite;
+}
+
+/* Card hover lift */
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card-hover:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(139, 92, 246, 0.1);
+}
+
+/* Celebrate animation */
+@keyframes celebrate {
+  0% { transform: scale(1) rotate(0deg); }
+  25% { transform: scale(1.2) rotate(-5deg); }
+  50% { transform: scale(1.1) rotate(5deg); }
+  75% { transform: scale(1.15) rotate(-3deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+.celebrate {
+  animation: celebrate 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* Fade slide in for views */
+@keyframes view-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.view-enter {
+  animation: view-enter 0.25s ease-out forwards;
 }

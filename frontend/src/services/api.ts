@@ -94,6 +94,12 @@ export const api = {
     if (!res.ok) throw new Error('Failed to delete task');
   },
 
+  async logTaskTime(taskId: number, minutes: number): Promise<Task> {
+    const res = await fetch(`${API_BASE}/tasks/${taskId}/log-time?minutes=${minutes}`, { method: 'POST', headers: getHeaders() });
+    if (!res.ok) throw new Error('Failed to log time');
+    return res.json();
+  },
+
   // ─── Subtasks ────────────────────────────
   async addSubtask(taskId: number, title: string): Promise<Subtask> {
     const res = await fetch(`${API_BASE}/tasks/${taskId}/subtasks`, { method: 'POST', headers: getHeaders(), body: JSON.stringify({ title }) });
@@ -165,8 +171,8 @@ export const api = {
     return res.json();
   },
 
-  async parseTaskWithAI(text: string): Promise<AIParseResult> {
-    const res = await fetch(`${API_BASE}/ai/parse-task`, { method: 'POST', headers: getHeaders(), body: JSON.stringify({ text }) });
+  async parseTaskWithAI(text: string, force_ai: boolean = false): Promise<AIParseResult> {
+    const res = await fetch(`${API_BASE}/ai/parse-task`, { method: 'POST', headers: getHeaders(), body: JSON.stringify({ text, force_ai }) });
     if (!res.ok) throw new Error('Failed to parse task with AI');
     return res.json();
   },
@@ -191,8 +197,12 @@ export const api = {
   },
 
   // ─── AI V2: Planner ─────────────────────
-  async planMyDay(): Promise<PlannerResult> {
-    const res = await fetch(`${API_BASE}/ai/plan-my-day`, { method: 'POST', headers: getHeaders() });
+  async planMyDay(chunks?: Array<{ start: string; end: string }>): Promise<PlannerResult> {
+    const res = await fetch(`${API_BASE}/ai/plan-my-day`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: chunks ? JSON.stringify({ chunks }) : undefined,
+    });
     if (!res.ok) throw new Error('Failed to plan day');
     return res.json();
   },

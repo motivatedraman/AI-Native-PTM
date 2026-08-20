@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 class AITaskParseRequest(BaseModel):
     text: str
+    force_ai: Optional[bool] = False
 
 class AITaskParseResult(BaseModel):
     title: str
@@ -60,6 +61,14 @@ class AIDecomposeResponse(BaseModel):
     subtasks: List[AIDecomposeSubtask]
     reasoning: Optional[str] = None
 
+class TimeChunk(BaseModel):
+    start: str  # "HH:MM" e.g. "06:00"
+    end: str    # "HH:MM" e.g. "09:00"
+
+class AIPlannerRequest(BaseModel):
+    chunks: Optional[List[TimeChunk]] = None
+    target_date: Optional[str] = None
+
 class AIPlannerItem(BaseModel):
     time: str
     task_id: Optional[int] = None
@@ -67,6 +76,7 @@ class AIPlannerItem(BaseModel):
     duration_minutes: int
     type: str = "task"  # task, break
     note: Optional[str] = None
+    session_part: Optional[str] = None
 
 class AIPlannerResponse(BaseModel):
     items: List[AIPlannerItem]
@@ -160,11 +170,13 @@ class DailyReflectionResponse(BaseModel):
 class UserSettingsResponse(BaseModel):
     available_start_hour: int
     available_end_hour: int
+    daily_chunks: Optional[List[Dict[str, str]]] = None
     timezone: str
 
 class UserSettingsUpdateRequest(BaseModel):
     available_start_hour: Optional[int] = None
     available_end_hour: Optional[int] = None
+    daily_chunks: Optional[List[Dict[str, str]]] = None
     timezone: Optional[str] = None
 
 class TaskDependencyRequest(BaseModel):

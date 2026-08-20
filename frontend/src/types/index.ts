@@ -47,6 +47,7 @@ export interface Task {
   priority: TaskPriority;
   due_date?: string | null;
   estimated_minutes?: number | null;
+  spent_minutes?: number;
   category: string;
   project_id?: number | null;
   parent_task_id?: number | null;
@@ -195,9 +196,16 @@ export interface DailyReflection {
   created_at: string;
 }
 
+export interface TimeChunk {
+  start: string;
+  end: string;
+  duration_minutes?: number;
+}
+
 export interface UserSettings {
   available_start_hour: number;
   available_end_hour: number;
+  daily_chunks?: TimeChunk[];
   timezone: string;
 }
 

@@ -14,6 +14,7 @@ class Task(Base):
     priority = Column(String(20), default="medium", index=True)  # low, medium, high, urgent
     due_date = Column(DateTime, nullable=True, index=True)
     estimated_minutes = Column(Integer, nullable=True)
+    spent_minutes = Column(Integer, default=0, nullable=False)
     category = Column(String(50), default="Personal", index=True)  # Personal, University, Work, Project, Other
     
     project_id = Column(Integer, ForeignKey("projects.id", ondelete="SET NULL"), nullable=True)

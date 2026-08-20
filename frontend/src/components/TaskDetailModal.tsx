@@ -47,6 +47,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   const [category, setCategory] = useState(task.category);
   const [projectId, setProjectId] = useState<number | undefined>(task.project_id || undefined);
   const [estimatedMinutes, setEstimatedMinutes] = useState<number | undefined>(task.estimated_minutes || undefined);
+  const [spentMinutes, setSpentMinutes] = useState<number>(task.spent_minutes || 0);
   const [dueDate, setDueDate] = useState<string>(task.due_date ? task.due_date.slice(0, 16) : '');
   
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
@@ -62,9 +63,20 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
     setCategory(task.category);
     setProjectId(task.project_id || undefined);
     setEstimatedMinutes(task.estimated_minutes || undefined);
+    setSpentMinutes(task.spent_minutes || 0);
     setDueDate(task.due_date ? task.due_date.slice(0, 16) : '');
     setAiSuggestions(null);
   }, [task]);
+
+  const handleLogTime = async (additionalMins: number) => {
+    try {
+      const updated = await api.logTaskTime(task.id, additionalMins);
+      setSpentMinutes(updated.spent_minutes || 0);
+      onTaskUpdated(updated);
+    } catch (err) {
+      console.error("Failed to log time:", err);
+    }
+  };
 
   const handleSave = async () => {
     try {
@@ -76,6 +88,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
         category,
         project_id: projectId || null,
         estimated_minutes: estimatedMinutes || null,
+        spent_minutes: spentMinutes,
         due_date: dueDate ? new Date(dueDate).toISOString() : null,
       });
       onTaskUpdated(updated);
@@ -368,6 +381,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                 <input
                   type="datetime-local"
                   value={dueDate}
+                  min={new Date().toISOString().slice(0, 16)}
                   onChange={(e) => setDueDate(e.target.value)}
                   onBlur={handleSave}
                   className="w-full bg-transparent text-slate-200 focus:outline-none text-xs"
@@ -387,6 +401,51 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                   placeholder="e.g. 60"
                   className="w-full bg-transparent text-slate-200 focus:outline-none text-xs"
                 />
+              </div>
+            </div>
+          </div>
+
+          {/* Time Tracking & Partial Progress */}
+          <div className="p-3.5 rounded-xl space-y-3 bg-[#181a24] border border-[#262a3c]">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Clock size={14} className="text-violet-400" />
+                <span className="text-xs font-semibold text-zinc-200">Time Logged & Progress</span>
+              </div>
+              <span className="text-xs font-mono font-medium text-violet-300">
+                {spentMinutes}m / {estimatedMinutes || 0}m {estimatedMinutes ? `(${Math.min(100, Math.round((spentMinutes / estimatedMinutes) * 100))}%)` : ''}
+              </span>
+            </div>
+
+            {/* Visual Progress Bar */}
+            {estimatedMinutes && estimatedMinutes > 0 ? (
+              <div className="w-full bg-[#12141c] rounded-full h-2 overflow-hidden border border-[#262a3c]">
+                <div
+                  className="h-full rounded-full transition-all duration-300"
+                  style={{
+                    width: `${Math.min(100, (spentMinutes / estimatedMinutes) * 100)}%`,
+                    background: spentMinutes >= estimatedMinutes
+                      ? 'linear-gradient(90deg, #10b981, #34d399)'
+                      : 'linear-gradient(90deg, #8b5cf6, #ec4899)',
+                  }}
+                />
+              </div>
+            ) : null}
+
+            {/* Quick Log Buttons */}
+            <div className="flex items-center justify-between pt-1">
+              <span className="text-[11px] text-slate-400">Log time spent:</span>
+              <div className="flex items-center space-x-1.5">
+                {[15, 30, 60, 120].map((mins) => (
+                  <button
+                    key={mins}
+                    type="button"
+                    onClick={() => handleLogTime(mins)}
+                    className="px-2.5 py-1 rounded-lg text-[11px] font-medium text-slate-300 bg-[#212433] hover:bg-violet-600 hover:text-white border border-[#3a3f54] transition-colors"
+                  >
+                    +{mins >= 60 ? `${mins / 60}h` : `${mins}m`}
+                  </button>
+                ))}
               </div>
             </div>
           </div>

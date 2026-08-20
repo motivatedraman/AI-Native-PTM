@@ -27,8 +27,8 @@ class Settings(BaseSettings):
             print(f"[Config] WARNING: {model} is deprecated/has lower RPM limits. Auto-upgrading to gemini-3.5-flash-lite")
             return "gemini-3.5-flash-lite"
         return model
-    AVAILABLE_START_HOUR: int = 9
-    AVAILABLE_END_HOUR: int = 18
+    AVAILABLE_START_HOUR: int = 6
+    AVAILABLE_END_HOUR: int = 22
     SECRET_KEY: str = "dev-secret-key-replace-in-production-nexus-os-32chars"
     CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173"
 

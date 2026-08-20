@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, Play, Clock, Loader2, AlertTriangle } from 'lucide-react';
+import { Sparkles, Play, Clock, Loader2 } from 'lucide-react';
 import { WhatNowResult } from '../types';
 import { api } from '../services/api';
 
@@ -26,59 +26,85 @@ export const WhatNowWidget: React.FC<WhatNowWidgetProps> = ({ onStartTask }) => 
   };
 
   return (
-    <div className="p-4 rounded-xl bg-[#12141c] border border-indigo-500/20 space-y-3">
+    <div
+      className="p-4 rounded-2xl space-y-3"
+      style={{
+        background: '#141416',
+        border: '1px solid rgba(139, 92, 246, 0.2)',
+      }}
+    >
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2 text-sm font-semibold text-indigo-300">
-          <Sparkles size={15} />
+        <div className="flex items-center space-x-2 text-sm font-semibold text-violet-300">
+          <Sparkles size={15} style={{ color: '#8b5cf6' }} />
           <span>What Should I Do Now?</span>
         </div>
         <button
           onClick={fetchRecommendation}
           disabled={loading}
-          className="px-3 py-1 bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 rounded-md text-xs border border-indigo-500/30 transition-colors disabled:opacity-50"
+          className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-all shadow-sm disabled:opacity-50"
+          style={{
+            background: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
+          }}
         >
-          {loading ? <Loader2 size={12} className="animate-spin" /> : 'Ask AI'}
+          {loading ? (
+            <>
+              <Loader2 size={12} className="animate-spin" />
+              <span>Analyzing...</span>
+            </>
+          ) : (
+            <>
+              <Sparkles size={12} />
+              <span>Ask AI (Deep Focus)</span>
+            </>
+          )}
         </button>
       </div>
 
       {error && (
-        <p className="text-xs text-slate-400">Could not get recommendation. Try again.</p>
+        <p className="text-xs" style={{ color: '#fb7185' }}>Could not get recommendation. Try again.</p>
       )}
 
       {!loading && !error && !result && (
-        <p className="text-xs text-slate-400">Click "Ask AI" to get a personalized recommendation based on your current tasks.</p>
+        <p className="text-xs" style={{ color: '#71717a' }}>
+          Click "Ask AI" for an intelligent prioritization analysis across your deadlines, focus times, and energy blocks.
+        </p>
       )}
 
       {result && (
         <div className="space-y-3">
-          <p className="text-sm text-slate-300 leading-relaxed">{result.message}</p>
+          <p className="text-sm leading-relaxed text-zinc-200">{result.message}</p>
           {result.recommendations.length > 0 && (
             <div className="space-y-2">
               {result.recommendations.map((rec, i) => (
                 <div
                   key={i}
-                  className="flex items-center justify-between p-3 bg-[#181a24] rounded-lg border border-[#262a3c] group"
+                  className="flex items-center justify-between p-3 rounded-xl group transition-all"
+                  style={{ background: '#1c1c1f', border: '1px solid #2e2e33' }}
                 >
                   <div className="flex items-center space-x-3 truncate">
-                    <span className="text-xs font-mono text-slate-400 w-4">{i + 1}.</span>
+                    <span className="text-xs font-mono w-4" style={{ color: '#71717a' }}>{i + 1}.</span>
                     <div>
-                      <span className="text-sm text-slate-200 font-medium">{rec.task_title}</span>
-                      <p className="text-[11px] text-slate-400 mt-0.5">{rec.reason}</p>
+                      <span className="text-sm font-medium text-white">{rec.task_title}</span>
+                      <p className="text-[11px] mt-0.5" style={{ color: '#a1a1aa' }}>{rec.reason}</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2 flex-shrink-0">
-                    <span className="text-xs text-slate-400 font-mono">~{rec.duration_minutes}m</span>
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono ${
-                      rec.urgency === 'critical' ? 'bg-red-950/50 text-red-300' :
-                      rec.urgency === 'high' ? 'bg-amber-950/50 text-amber-300' :
-                      'bg-[#1e2230] text-slate-400'
-                    }`}>
-                      {rec.urgency.toUpperCase()}
+                    <span className="text-xs font-mono" style={{ color: '#71717a' }}>~{rec.duration_minutes}m</span>
+                    <span
+                      className="text-[10px] px-2 py-0.5 rounded-md font-mono uppercase font-medium"
+                      style={{
+                        background: rec.urgency === 'critical' ? 'rgba(244, 63, 94, 0.15)' : rec.urgency === 'high' ? 'rgba(245, 158, 11, 0.15)' : '#252528',
+                        color: rec.urgency === 'critical' ? '#fb7185' : rec.urgency === 'high' ? '#fbbf24' : '#a1a1aa',
+                        border: `1px solid ${rec.urgency === 'critical' ? 'rgba(244, 63, 94, 0.3)' : rec.urgency === 'high' ? 'rgba(245, 158, 11, 0.3)' : '#3a3a40'}`,
+                      }}
+                    >
+                      {rec.urgency}
                     </span>
                     {rec.task_id && (
                       <button
                         onClick={() => onStartTask(rec.task_id!)}
-                        className="opacity-0 group-hover:opacity-100 flex items-center space-x-1 px-2 py-1 bg-indigo-600/30 text-indigo-300 rounded text-[10px] transition-opacity"
+                        className="opacity-0 group-hover:opacity-100 flex items-center space-x-1 px-2 py-1 rounded-lg text-[10px] text-white font-medium transition-opacity"
+                        style={{ background: 'linear-gradient(135deg, #10b981, #06b6d4)' }}
                       >
                         <Play size={10} />
                         <span>Start</span>
@@ -89,9 +115,9 @@ export const WhatNowWidget: React.FC<WhatNowWidgetProps> = ({ onStartTask }) => 
               ))}
             </div>
           )}
-          <div className="flex items-center space-x-1 text-[11px] text-slate-500">
+          <div className="flex items-center space-x-1 text-[11px]" style={{ color: '#71717a' }}>
             <Clock size={11} />
-            <span>Available: ~{Math.floor(result.available_minutes / 60)}h {result.available_minutes % 60}m</span>
+            <span>Available slot: ~{Math.floor(result.available_minutes / 60)}h {result.available_minutes % 60}m</span>
           </div>
         </div>
       )}

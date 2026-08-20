@@ -1,3 +1,4 @@
+from typing import Optional, List, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from datetime import datetime
@@ -8,7 +9,7 @@ from backend.app.schemas import (
     AITaskParseRequest, AITaskParseResult, AITaskEnrichResponse,
     AISubtaskSuggestResponse, AIStatusResponse,
     AIDecomposeRequest, AIDecomposeResponse,
-    AIPlannerResponse,
+    AIPlannerResponse, AIPlannerRequest,
     AIWhatNowResponse,
     AINLSearchRequest, AINLSearchResponse,
     AIWeeklyReviewResponse, AIProjectSummaryResponse,
@@ -78,7 +79,7 @@ async def test_ai_connection():
 
 @router.post("/parse-task", response_model=AITaskParseResult)
 async def parse_natural_language_task(payload: AITaskParseRequest):
-    return await ai_service.parse_task(payload.text)
+    return await ai_service.parse_task(payload.text, force_ai=payload.force_ai or False)
 
 
 @router.post("/enrich-task/{task_id}", response_model=AITaskEnrichResponse)
@@ -121,10 +122,11 @@ async def decompose_task(task_id: int, db: Session = Depends(get_db)):
 # ─── V2: Daily Planner (§3) ──────────────────
 
 @router.post("/plan-my-day", response_model=AIPlannerResponse)
-async def plan_my_day(db: Session = Depends(get_db)):
-    """AI generates a realistic daily plan."""
+async def plan_my_day(payload: Optional[AIPlannerRequest] = None, db: Session = Depends(get_db)):
+    """AI generates a realistic daily plan fitted into available time chunks."""
     resolver = ContextResolver(db)
-    context = resolver.get_today_context()
+    custom_chunks = [c.model_dump() for c in payload.chunks] if (payload and payload.chunks) else None
+    context = resolver.get_today_context(custom_chunks=custom_chunks)
     return await ai_service.plan_my_day(context)
 
 
