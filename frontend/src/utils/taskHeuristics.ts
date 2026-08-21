@@ -29,7 +29,7 @@ export function parseTaskLocally(text: string): AIParseResult {
   const suggested_tags: string[] = [];
 
   // 1. Tags extraction (#tag or #homework)
-  const tagMatches = clean.match(/#([A-Za-z0-9_\-]+)/g);
+  const tagMatches = clean.match(/#([A-Za-z0-9_-]+)/g);
   if (tagMatches) {
     tagMatches.forEach(t => {
       const name = t.replace('#', '');
@@ -218,7 +218,7 @@ export function parseTaskLocally(text: string): AIParseResult {
   // 7. Title Cleaning
   let title = clean;
   const patternsToStrip = [
-    /#[A-Za-z0-9_\-]+/g,
+    /#[A-Za-z0-9_-]+/g,
     /!urgent|!high|!medium|!low|\bp[1-4]\b/gi,
     /\b(?:takes?|taking|should\s+take|duration|est|~|for)?\s*\d+(?:\.\d+)?\s*(?:hours?|hrs?|h|minutes?|mins?|m)\b/gi,
     /\bfor\s+(?:around\s+|about\s+|~)?\d+(?:\.\d+)?\s*(?:hours?|hrs?|h|minutes?|mins?|m)\b/gi,
@@ -234,7 +234,7 @@ export function parseTaskLocally(text: string): AIParseResult {
     title = title.replace(pat, '');
   });
 
-  title = title.replace(/[\s,\-~:;]+/g, ' ').trim();
+  title = title.replace(/[\s, ~:;]+/g, ' ').trim();
   if (!title) title = clean;
   title = title.charAt(0).toUpperCase() + title.slice(1);
 

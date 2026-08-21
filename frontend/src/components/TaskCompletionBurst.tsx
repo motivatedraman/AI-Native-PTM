@@ -15,7 +15,7 @@ interface TaskCompletionBurstProps {
   onComplete?: () => void;
 }
 
-const COLORS = ['#8b5cf6', '#ec4899', '#10b981', '#f59e0b', '#06b6d4', '#f97316', '#a78bfa', '#34d399'];
+const COLORS = ['rgb(var(--am-600))', 'var(--brand-deep)', 'var(--success)', 'rgb(var(--am-400))', 'var(--cyan)', 'var(--streak)', 'rgb(var(--am-400))', 'var(--emerald-bright)'];
 
 const MESSAGES = [
   '🔥 Crushed it!',
@@ -60,6 +60,7 @@ export const TaskCompletionBurst: React.FC<TaskCompletionBurstProps> = ({ trigge
     }, 1000);
 
     return () => clearTimeout(hideTimer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [trigger]);
 
   if (!showMessage && particles.length === 0) return null;
@@ -76,8 +77,8 @@ export const TaskCompletionBurst: React.FC<TaskCompletionBurstProps> = ({ trigge
           <div
             className="px-6 py-3 rounded-2xl text-white font-bold text-xl shadow-2xl select-none"
             style={{
-              background: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
-              boxShadow: '0 0 40px rgba(139, 92, 246, 0.6), 0 0 80px rgba(236, 72, 153, 0.3)',
+              background: 'linear-gradient(135deg, rgb(var(--am-600)), var(--brand-deep))',
+              boxShadow: '0 0 40px rgba(171, 118, 49, 0.6), 0 0 80px rgba(165, 100, 42, 0.3)',
             }}
           >
             {message}
@@ -162,15 +163,15 @@ export const AnimatedCheck: React.FC<AnimatedCheckProps> = ({ isDone, onClick, s
         >
           <defs>
             <radialGradient id="successGrad" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#34d399" />
-              <stop offset="100%" stopColor="#10b981" />
+              <stop offset="0%" style={{ stopColor: 'var(--emerald-bright)' }} />
+              <stop offset="100%" style={{ stopColor: 'var(--success)' }} />
             </radialGradient>
           </defs>
           <circle cx="12" cy="12" r="11" fill="url(#successGrad)" opacity="0.2" />
           <circle cx="12" cy="12" r="10" stroke="url(#successGrad)" strokeWidth="1.8" />
           <path
             d="M7.5 12l3 3 6-6"
-            stroke="#34d399"
+            style={{ stroke: 'var(--emerald-bright)' }}
             strokeWidth="2.5"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -188,15 +189,15 @@ export const AnimatedCheck: React.FC<AnimatedCheckProps> = ({ isDone, onClick, s
             cx="12"
             cy="12"
             r="10"
-            stroke="#52525b"
+            stroke="rgb(var(--st-600))"
             strokeWidth="1.5"
-            className="group-hover/check:stroke-violet-400 transition-colors duration-200"
+            className="group-hover/check:stroke-amber-400 transition-colors duration-200"
           />
           <circle
             cx="12"
             cy="12"
             r="10"
-            stroke="#8b5cf6"
+            stroke="rgb(var(--am-600))"
             strokeWidth="3"
             opacity="0"
             className="group-hover/check:opacity-20 transition-opacity duration-200"
@@ -239,7 +240,7 @@ export const StreakBadge: React.FC<StreakBadgeProps> = ({ streak, compact = fals
 
   return (
     <div className="flex items-center space-x-2 px-3 py-2 rounded-xl streak-badge">
-      <span className="text-2xl" style={{ filter: 'drop-shadow(0 0 8px rgba(249, 115, 22, 0.8))' }}>🔥</span>
+      <span className="text-2xl" style={{ filter: 'drop-shadow(0 0 8px rgba(201, 106, 38, 0.8))' }}>🔥</span>
       <div>
         <div className="text-gradient-streak font-bold text-lg leading-none">{streak}</div>
         <div className="text-[10px] text-orange-300/70 font-medium">day streak</div>

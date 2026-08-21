@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from './components/Sidebar';
+import { ThemeToggle } from './components/ThemeToggle';
 import { LoginScreen } from './components/LoginScreen';
 import { QuickCaptureModal } from './components/QuickCaptureModal';
 import { TaskDetailModal } from './components/TaskDetailModal';
@@ -55,7 +56,7 @@ export const App: React.FC = () => {
         const user = await api.getMe();
         setCurrentUser(user.username);
         loadData();
-      } catch (err) {
+      } catch {
         api.clearToken();
         setCurrentUser(null);
       } finally {
@@ -209,7 +210,7 @@ export const App: React.FC = () => {
 
   if (isAuthChecking) {
     return (
-      <div className="h-screen w-screen flex items-center justify-center text-zinc-600 text-xs font-mono" style={{ background: '#0d0d0f' }}>
+      <div className="h-screen w-screen flex items-center justify-center text-stone-600 text-xs font-mono" style={{ background: 'rgb(var(--sx-bg))' }}>
         Verifying session...
       </div>
     );
@@ -227,7 +228,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden select-none" style={{ background: '#0d0d0f', color: '#f8fafc' }}>
+    <div className="flex h-screen w-screen overflow-hidden select-none" style={{ background: 'rgb(var(--sx-bg))', color: 'rgb(var(--st-200))' }}>
       
       {/* Collapsible Minimal Sidebar */}
       <Sidebar
@@ -247,26 +248,31 @@ export const App: React.FC = () => {
       />
 
       {/* Main View Area */}
-      <main className="flex-1 flex flex-col h-screen overflow-y-auto p-4 lg:p-6" style={{ background: '#0d0d0f' }}>
+      <main className="flex-1 flex flex-col h-screen overflow-y-auto p-4 lg:p-6" style={{ background: 'rgb(var(--sx-bg))' }}>
+        {/* Desktop top bar — theme toggle, top right */}
+        <div className="hidden lg:flex items-center justify-end mb-2">
+          <ThemeToggle />
+        </div>
+
         {/* Mobile header with hamburger */}
-        <div className="flex items-center justify-between pb-3 mb-2 lg:hidden" style={{ borderBottom: '1px solid #2e2e33' }}>
+        <div className="flex items-center justify-between pb-3 mb-2 lg:hidden" style={{ borderBottom: '1px solid rgb(var(--sx-border-2))' }}>
           <button
             onClick={() => setIsMobileMenuOpen(true)}
             className="p-2 rounded-xl transition-colors"
-            style={{ color: '#71717a' }}
+            style={{ color: 'rgb(var(--st-500))' }}
           >
             <Menu size={22} />
           </button>
           <div className="flex items-center space-x-2">
-            <div className="w-6 h-6 rounded-lg bg-indigo-600/30 border border-indigo-500/40 flex items-center justify-center text-indigo-400 font-bold text-xs">
+            <div className="w-6 h-6 rounded-lg bg-amber-600/30 border border-amber-500/40 flex items-center justify-center text-amber-400 font-bold text-xs">
               ✦
             </div>
-            <span className="font-semibold text-sm text-slate-100">Nexus OS</span>
+            <span className="font-semibold text-sm text-stone-100">Nexus OS</span>
           </div>
-          <div className="w-9" />
+          <ThemeToggle />
         </div>
         {isLoading && tasks.length === 0 ? (
-          <div className="flex-1 flex items-center justify-center text-xs font-mono" style={{ color: '#52525b' }}>
+          <div className="flex-1 flex items-center justify-center text-xs font-mono" style={{ color: 'rgb(var(--st-600))' }}>
             Syncing workspace data...
           </div>
         ) : (

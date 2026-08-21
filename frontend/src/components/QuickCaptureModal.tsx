@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, ArrowRight, Loader2, Calendar, Clock, Tag as TagIcon, X, Zap, Cpu } from 'lucide-react';
+import { Sparkles, ArrowRight, Loader2, Calendar, Clock, Tag as TagIcon, X, Zap } from 'lucide-react';
 import { api } from '../services/api';
 import { Task, AIParseResult } from '../types';
 import { parseTaskLocally } from '../utils/taskHeuristics';
@@ -83,20 +83,20 @@ export const QuickCaptureModal: React.FC<QuickCaptureModalProps> = ({
       <div
         className="w-full max-w-xl rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150"
         style={{
-          background: '#141416',
-          border: '1px solid #2e2e33',
-          boxShadow: '0 24px 48px rgba(0,0,0,0.6), 0 0 40px rgba(139, 92, 246, 0.1)',
+          background: 'rgb(var(--sx-surface))',
+          border: '1px solid rgb(var(--sx-border-2))',
+          boxShadow: '0 24px 48px rgba(0,0,0,0.6), 0 0 40px rgba(171, 118, 49, 0.1)',
         }}
       >
         {/* Header */}
         <div
           className="flex items-center justify-between px-5 py-3.5"
-          style={{ borderBottom: '1px solid #2e2e33' }}
+          style={{ borderBottom: '1px solid rgb(var(--sx-border-2))' }}
         >
-          <div className="flex items-center space-x-2 text-xs font-semibold text-zinc-200">
+          <div className="flex items-center space-x-2 text-xs font-semibold text-stone-200">
             <div
               className="w-5 h-5 rounded-lg flex items-center justify-center text-white text-[10px] font-bold"
-              style={{ background: 'linear-gradient(135deg, #8b5cf6, #ec4899)' }}
+              style={{ background: 'linear-gradient(135deg, rgb(var(--am-600)), var(--brand-deep))' }}
             >
               ✦
             </div>
@@ -104,7 +104,7 @@ export const QuickCaptureModal: React.FC<QuickCaptureModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-zinc-400 hover:text-zinc-200 hover:bg-[#252528] transition-colors"
+            className="p-1 rounded-lg text-stone-400 hover:text-stone-200 hover:bg-[rgb(var(--sx-hover))] transition-colors"
           >
             <X size={16} />
           </button>
@@ -122,17 +122,17 @@ export const QuickCaptureModal: React.FC<QuickCaptureModalProps> = ({
                 if (useAiDeepParse) setUseAiDeepParse(false);
               }}
               placeholder="e.g. Finish DBMS homework tomorrow at 5pm ~2h !urgent #Homework"
-              className="w-full rounded-xl px-4 py-3.5 text-sm text-white placeholder-zinc-500 outline-none transition-all"
+              className="w-full rounded-xl px-4 py-3.5 text-sm text-stone-100 placeholder-stone-500 outline-none transition-all"
               style={{
-                background: '#1c1c1f',
-                border: '1px solid #2e2e33',
+                background: 'rgb(var(--sx-card))',
+                border: '1px solid rgb(var(--sx-border-2))',
               }}
               onFocus={e => {
-                e.target.style.borderColor = '#8b5cf6';
-                e.target.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.15)';
+                e.target.style.borderColor = 'rgb(var(--am-600))';
+                e.target.style.boxShadow = '0 0 0 3px rgba(171, 118, 49, 0.15)';
               }}
               onBlur={e => {
-                e.target.style.borderColor = '#2e2e33';
+                e.target.style.borderColor = 'rgb(var(--sx-border-2))';
                 e.target.style.boxShadow = '';
               }}
               disabled={isSubmitting}
@@ -144,13 +144,13 @@ export const QuickCaptureModal: React.FC<QuickCaptureModalProps> = ({
             <div
               className="p-4 rounded-xl text-xs space-y-2.5 transition-all"
               style={{
-                background: '#1c1c1f',
-                border: '1px solid #2e2e33',
+                background: 'rgb(var(--sx-card))',
+                border: '1px solid rgb(var(--sx-border-2))',
               }}
             >
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-1.5 text-zinc-400 font-medium">
-                  <Zap size={13} style={{ color: '#8b5cf6' }} />
+                <div className="flex items-center space-x-1.5 text-stone-400 font-medium">
+                  <Zap size={13} style={{ color: 'rgb(var(--am-600))' }} />
                   <span>Interpreted Details:</span>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -161,9 +161,9 @@ export const QuickCaptureModal: React.FC<QuickCaptureModalProps> = ({
                       disabled={isAiLoading}
                       className="flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all"
                       style={{
-                        background: 'rgba(139, 92, 246, 0.15)',
-                        color: '#a78bfa',
-                        border: '1px solid rgba(139, 92, 246, 0.3)',
+                        background: 'rgba(171, 118, 49, 0.15)',
+                        color: 'rgb(var(--am-400))',
+                        border: '1px solid rgba(171, 118, 49, 0.3)',
                       }}
                     >
                       {isAiLoading ? (
@@ -177,7 +177,7 @@ export const QuickCaptureModal: React.FC<QuickCaptureModalProps> = ({
                 </div>
               </div>
 
-              <div className="text-sm font-semibold text-white">
+              <div className="text-sm font-semibold text-stone-100">
                 {preview.title}
               </div>
 
@@ -185,7 +185,7 @@ export const QuickCaptureModal: React.FC<QuickCaptureModalProps> = ({
                 {preview.category && (
                   <span
                     className="px-2 py-0.5 rounded-lg text-xs"
-                    style={{ background: 'rgba(139, 92, 246, 0.15)', color: '#a78bfa', border: '1px solid rgba(139, 92, 246, 0.3)' }}
+                    style={{ background: 'rgba(171, 118, 49, 0.15)', color: 'rgb(var(--am-400))', border: '1px solid rgba(171, 118, 49, 0.3)' }}
                   >
                     {preview.category}
                   </span>
@@ -194,9 +194,9 @@ export const QuickCaptureModal: React.FC<QuickCaptureModalProps> = ({
                   <span
                     className="px-2 py-0.5 rounded-lg text-xs uppercase font-mono font-medium"
                     style={{
-                      background: preview.priority === 'urgent' ? 'rgba(244, 63, 94, 0.15)' : preview.priority === 'high' ? 'rgba(245, 158, 11, 0.15)' : '#252528',
-                      color: preview.priority === 'urgent' ? '#fb7185' : preview.priority === 'high' ? '#fbbf24' : '#a1a1aa',
-                      border: `1px solid ${preview.priority === 'urgent' ? 'rgba(244, 63, 94, 0.3)' : preview.priority === 'high' ? 'rgba(245, 158, 11, 0.3)' : '#3a3a40'}`,
+                      background: preview.priority === 'urgent' ? 'rgba(244, 63, 94, 0.15)' : preview.priority === 'high' ? 'rgba(207, 164, 95, 0.15)' : 'rgb(var(--sx-hover))',
+                      color: preview.priority === 'urgent' ? 'var(--rose)' : preview.priority === 'high' ? 'var(--gold)' : 'rgb(var(--st-400))',
+                      border: `1px solid ${preview.priority === 'urgent' ? 'rgba(244, 63, 94, 0.3)' : preview.priority === 'high' ? 'rgba(207, 164, 95, 0.3)' : 'rgb(var(--sx-border-3))'}`,
                     }}
                   >
                     {preview.priority}
@@ -205,7 +205,7 @@ export const QuickCaptureModal: React.FC<QuickCaptureModalProps> = ({
                 {preview.due_date_str && (
                   <span
                     className="flex items-center space-x-1 px-2 py-0.5 rounded-lg text-xs"
-                    style={{ background: 'rgba(245, 158, 11, 0.12)', color: '#fbbf24', border: '1px solid rgba(245, 158, 11, 0.25)' }}
+                    style={{ background: 'rgba(207, 164, 95, 0.12)', color: 'var(--gold)', border: '1px solid rgba(207, 164, 95, 0.25)' }}
                   >
                     <Calendar size={11} />
                     <span>{preview.due_date_str}</span>
@@ -214,7 +214,7 @@ export const QuickCaptureModal: React.FC<QuickCaptureModalProps> = ({
                 {preview.estimated_minutes && (
                   <span
                     className="flex items-center space-x-1 px-2 py-0.5 rounded-lg text-xs font-mono"
-                    style={{ background: 'rgba(6, 182, 212, 0.12)', color: '#22d3ee', border: '1px solid rgba(6, 182, 212, 0.25)' }}
+                    style={{ background: 'rgba(6, 182, 212, 0.12)', color: 'var(--cyan-bright)', border: '1px solid rgba(6, 182, 212, 0.25)' }}
                   >
                     <Clock size={11} />
                     <span>~{preview.estimated_minutes}m</span>
@@ -223,7 +223,7 @@ export const QuickCaptureModal: React.FC<QuickCaptureModalProps> = ({
                 {preview.suggested_project && (
                   <span
                     className="flex items-center space-x-1 px-2 py-0.5 rounded-lg text-xs"
-                    style={{ background: 'rgba(16, 185, 129, 0.12)', color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.25)' }}
+                    style={{ background: 'rgba(16, 185, 129, 0.12)', color: 'var(--emerald-bright)', border: '1px solid rgba(16, 185, 129, 0.25)' }}
                   >
                     <TagIcon size={11} />
                     <span>{preview.suggested_project}</span>
@@ -233,7 +233,7 @@ export const QuickCaptureModal: React.FC<QuickCaptureModalProps> = ({
                   <span
                     key={t}
                     className="px-2 py-0.5 rounded-lg text-xs"
-                    style={{ background: '#252528', color: '#a1a1aa', border: '1px solid #3a3a40' }}
+                    style={{ background: 'rgb(var(--sx-hover))', color: 'rgb(var(--st-400))', border: '1px solid rgb(var(--sx-border-3))' }}
                   >
                     #{t}
                   </span>
@@ -245,9 +245,9 @@ export const QuickCaptureModal: React.FC<QuickCaptureModalProps> = ({
           {/* Action Bar */}
           <div
             className="flex items-center justify-between pt-3 text-xs"
-            style={{ borderTop: '1px solid #2e2e33' }}
+            style={{ borderTop: '1px solid rgb(var(--sx-border-2))' }}
           >
-            <span className="text-zinc-500 text-[11px]">
+            <span className="text-stone-500 text-[11px]">
               Press <kbd className="kbd-badge">Enter</kbd> to save · <kbd className="kbd-badge">Esc</kbd> to dismiss
             </span>
             <button
@@ -255,8 +255,8 @@ export const QuickCaptureModal: React.FC<QuickCaptureModalProps> = ({
               disabled={!text.trim() || isSubmitting}
               className="flex items-center space-x-2 px-4 py-2.5 rounded-xl font-semibold text-white transition-all shadow-lg"
               style={{
-                background: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
-                boxShadow: '0 4px 15px rgba(139, 92, 246, 0.3)',
+                background: 'linear-gradient(135deg, rgb(var(--am-600)), var(--brand-deep))',
+                boxShadow: '0 4px 15px rgba(171, 118, 49, 0.3)',
                 opacity: !text.trim() || isSubmitting ? 0.5 : 1,
               }}
             >

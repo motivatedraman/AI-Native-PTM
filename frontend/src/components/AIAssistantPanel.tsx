@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Send, Sparkles, Loader2, Play, ExternalLink } from 'lucide-react';
+import { X, Send, Sparkles, Loader2, Play } from 'lucide-react';
 import { ChatMessage, ChatAction } from '../types';
 import { api } from '../services/api';
 
@@ -31,7 +31,7 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
     if (isOpen) {
       setTimeout(() => inputRef.current?.focus(), 100);
     }
-  }, [isOpen]);
+  }, [isOpen, messages.length]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -52,7 +52,7 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
         actions: result.actions || [],
       };
       setMessages(prev => [...prev, assistantMsg]);
-    } catch (err) {
+    } catch {
       setMessages(prev => [...prev, {
         role: 'assistant',
         content: "Sorry, I couldn't process that right now. Please try again.",
@@ -81,14 +81,14 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:justify-end sm:p-4">
       <div className="fixed inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative w-full sm:w-96 h-[85vh] sm:h-[600px] bg-[#12141c] border border-[#262a3c] rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom sm:slide-in-from-right duration-200">
+      <div className="relative w-full sm:w-96 h-[85vh] sm:h-[600px] bg-[rgb(var(--sx-modal))] border border-[rgb(var(--sx-border))] rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom sm:slide-in-from-right duration-200">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-[#262a3c] bg-[#181a24]">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-[rgb(var(--sx-border))] bg-[rgb(var(--sx-header))]">
           <div className="flex items-center space-x-2">
-            <Sparkles size={16} className="text-indigo-400" />
-            <span className="text-sm font-semibold text-slate-200">AI Assistant</span>
+            <Sparkles size={16} className="text-amber-400" />
+            <span className="text-sm font-semibold text-stone-200">AI Assistant</span>
           </div>
-          <button onClick={onClose} className="p-1 rounded text-slate-400 hover:text-slate-200 hover:bg-[#212433]">
+          <button onClick={onClose} className="p-1 rounded text-stone-400 hover:text-stone-200 hover:bg-[rgb(var(--sx-chip))]">
             <X size={16} />
           </button>
         </div>
@@ -99,8 +99,8 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
             <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div className={`max-w-[85%] rounded-xl px-4 py-3 text-sm ${
                 msg.role === 'user'
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-[#1e2230] text-slate-200 border border-[#262a3c]'
+                  ? 'bg-amber-600 text-white'
+                  : 'bg-[rgb(var(--sx-raised))] text-stone-200 border border-[rgb(var(--sx-border))]'
               }`}>
                 <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>
                 {msg.actions && msg.actions.length > 0 && (
@@ -109,7 +109,7 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
                       <button
                         key={j}
                         onClick={() => handleAction(action)}
-                        className="flex items-center space-x-1 px-2.5 py-1 bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 rounded-md text-xs border border-indigo-500/30 transition-colors"
+                        className="flex items-center space-x-1 px-2.5 py-1 bg-amber-600/30 hover:bg-amber-600/50 text-amber-300 rounded-md text-xs border border-amber-500/30 transition-colors"
                       >
                         <Play size={10} />
                         <span>{action.label}</span>
@@ -122,9 +122,9 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
           ))}
           {isLoading && (
             <div className="flex justify-start">
-              <div className="bg-[#1e2230] border border-[#262a3c] rounded-xl px-4 py-3 flex items-center space-x-2">
-                <Loader2 size={14} className="animate-spin text-indigo-400" />
-                <span className="text-xs text-slate-400">Thinking...</span>
+              <div className="bg-[rgb(var(--sx-raised))] border border-[rgb(var(--sx-border))] rounded-xl px-4 py-3 flex items-center space-x-2">
+                <Loader2 size={14} className="animate-spin text-amber-400" />
+                <span className="text-xs text-stone-400">Thinking...</span>
               </div>
             </div>
           )}
@@ -138,7 +138,7 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
               <button
                 key={i}
                 onClick={() => { setInput(p); }}
-                className="px-3 py-1.5 bg-[#1e2230] hover:bg-[#262a3c] text-slate-400 hover:text-slate-200 rounded-lg text-xs border border-[#262a3c] transition-colors"
+                className="px-3 py-1.5 bg-[rgb(var(--sx-raised))] hover:bg-[rgb(var(--sx-border))] text-stone-400 hover:text-stone-200 rounded-lg text-xs border border-[rgb(var(--sx-border))] transition-colors"
               >
                 {p}
               </button>
@@ -147,7 +147,7 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
         )}
 
         {/* Input */}
-        <div className="p-3 border-t border-[#262a3c] bg-[#181a24]">
+        <div className="p-3 border-t border-[rgb(var(--sx-border))] bg-[rgb(var(--sx-header))]">
           <form onSubmit={(e) => { e.preventDefault(); handleSend(); }} className="flex items-center space-x-2">
             <input
               ref={inputRef}
@@ -155,13 +155,13 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask about your tasks..."
-              className="flex-1 bg-[#12141c] border border-[#262a3c] rounded-lg px-3 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+              className="flex-1 bg-[rgb(var(--sx-modal))] border border-[rgb(var(--sx-border))] rounded-lg px-3 py-2.5 text-sm text-stone-100 placeholder-stone-500 focus:outline-none focus:border-amber-500"
               disabled={isLoading}
             />
             <button
               type="submit"
               disabled={!input.trim() || isLoading}
-              className="p-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white rounded-lg transition-colors"
+              className="p-2.5 bg-amber-600 hover:bg-amber-500 disabled:opacity-40 text-white rounded-lg transition-colors"
             >
               <Send size={16} />
             </button>

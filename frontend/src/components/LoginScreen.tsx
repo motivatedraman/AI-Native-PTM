@@ -32,22 +32,22 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
   return (
     <div
       className="min-h-screen w-screen flex items-center justify-center p-4"
-      style={{ background: '#0d0d0f' }}
+      style={{ background: 'rgb(var(--sx-bg))' }}
     >
       {/* Background ambient glow */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'radial-gradient(ellipse 60% 50% at 50% 0%, rgba(139, 92, 246, 0.12) 0%, transparent 70%)',
+          background: 'radial-gradient(ellipse 60% 50% at 50% 0%, rgba(171, 118, 49, 0.12) 0%, transparent 70%)',
         }}
       />
 
       <div
         className="relative w-full max-w-sm rounded-3xl p-8 shadow-2xl"
         style={{
-          background: '#141416',
-          border: '1px solid #2e2e33',
-          boxShadow: '0 0 0 1px #2e2e33, 0 32px 64px rgba(0,0,0,0.6), 0 0 60px rgba(139, 92, 246, 0.08)',
+          background: 'rgb(var(--sx-surface))',
+          border: '1px solid rgb(var(--sx-border-2))',
+          boxShadow: '0 0 0 1px rgb(var(--sx-border-2)), 0 32px 64px rgba(0,0,0,0.6), 0 0 60px rgba(171, 118, 49, 0.08)',
         }}
       >
         {/* Brand & Title */}
@@ -57,8 +57,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
             <div
               className="w-16 h-16 rounded-2xl flex items-center justify-center text-white font-bold text-2xl"
               style={{
-                background: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
-                boxShadow: '0 0 30px rgba(139, 92, 246, 0.4), 0 0 60px rgba(236, 72, 153, 0.2)',
+                background: 'linear-gradient(135deg, rgb(var(--am-600)), var(--brand-deep))',
+                boxShadow: '0 0 30px rgba(171, 118, 49, 0.4), 0 0 60px rgba(165, 100, 42, 0.2)',
                 animation: 'float 3s ease-in-out infinite',
               }}
             >
@@ -66,10 +66,10 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
             </div>
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">
+            <h1 className="text-2xl font-bold text-stone-100 tracking-tight">
               Nexus OS
             </h1>
-            <p className="text-sm mt-1" style={{ color: '#71717a' }}>
+            <p className="text-sm mt-1" style={{ color: 'rgb(var(--st-500))' }}>
               Your personal command center
             </p>
           </div>
@@ -83,7 +83,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
               style={{
                 background: 'rgba(244, 63, 94, 0.1)',
                 border: '1px solid rgba(244, 63, 94, 0.3)',
-                color: '#fb7185',
+                color: 'var(--rose)',
               }}
             >
               {error}
@@ -91,7 +91,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
           )}
 
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold uppercase tracking-wider" style={{ color: '#71717a' }}>
+            <label className="block text-xs font-semibold uppercase tracking-wider" style={{ color: 'rgb(var(--st-500))' }}>
               Username
             </label>
             <input
@@ -100,17 +100,17 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Enter your username"
               autoComplete="username"
-              className="w-full px-4 py-3 text-sm text-white rounded-xl outline-none transition-all"
+              className="w-full px-4 py-3 text-sm text-stone-100 rounded-xl outline-none transition-all"
               style={{
-                background: '#1c1c1f',
-                border: '1px solid #2e2e33',
+                background: 'rgb(var(--sx-card))',
+                border: '1px solid rgb(var(--sx-border-2))',
               }}
               onFocus={e => {
-                e.target.style.borderColor = '#8b5cf6';
-                e.target.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.12)';
+                e.target.style.borderColor = 'rgb(var(--am-600))';
+                e.target.style.boxShadow = '0 0 0 3px rgba(171, 118, 49, 0.12)';
               }}
               onBlur={e => {
-                e.target.style.borderColor = '#2e2e33';
+                e.target.style.borderColor = 'rgb(var(--sx-border-2))';
                 e.target.style.boxShadow = '';
               }}
               required
@@ -118,7 +118,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold uppercase tracking-wider" style={{ color: '#71717a' }}>
+            <label className="block text-xs font-semibold uppercase tracking-wider" style={{ color: 'rgb(var(--st-500))' }}>
               Password
             </label>
             <input
@@ -127,17 +127,17 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
               autoComplete="current-password"
-              className="w-full px-4 py-3 text-sm text-white rounded-xl outline-none transition-all"
+              className="w-full px-4 py-3 text-sm text-stone-100 rounded-xl outline-none transition-all"
               style={{
-                background: '#1c1c1f',
-                border: '1px solid #2e2e33',
+                background: 'rgb(var(--sx-card))',
+                border: '1px solid rgb(var(--sx-border-2))',
               }}
               onFocus={e => {
-                e.target.style.borderColor = '#8b5cf6';
-                e.target.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.12)';
+                e.target.style.borderColor = 'rgb(var(--am-600))';
+                e.target.style.boxShadow = '0 0 0 3px rgba(171, 118, 49, 0.12)';
               }}
               onBlur={e => {
-                e.target.style.borderColor = '#2e2e33';
+                e.target.style.borderColor = 'rgb(var(--sx-border-2))';
                 e.target.style.boxShadow = '';
               }}
               required
@@ -150,19 +150,19 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
             className="w-full flex items-center justify-center space-x-2 py-3 text-white rounded-xl text-sm font-semibold tracking-wide transition-all mt-2"
             style={{
               background: isLoading
-                ? 'linear-gradient(135deg, #6d28d9, #be185d)'
-                : 'linear-gradient(135deg, #8b5cf6, #ec4899)',
-              boxShadow: '0 4px 20px rgba(139, 92, 246, 0.35)',
+                ? 'linear-gradient(135deg, rgb(var(--am-800)), #c2410c)'
+                : 'linear-gradient(135deg, rgb(var(--am-600)), var(--brand-deep))',
+              boxShadow: '0 4px 20px rgba(171, 118, 49, 0.35)',
               opacity: isLoading ? 0.7 : 1,
             }}
             onMouseEnter={e => {
               if (!isLoading) {
-                (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 30px rgba(139, 92, 246, 0.55)';
+                (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 30px rgba(171, 118, 49, 0.55)';
                 (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)';
               }
             }}
             onMouseLeave={e => {
-              (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 20px rgba(139, 92, 246, 0.35)';
+              (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 20px rgba(171, 118, 49, 0.35)';
               (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
             }}
           >
@@ -183,9 +183,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
         {/* Security badge */}
         <div
           className="pt-5 mt-5 flex items-center justify-center space-x-2 text-xs"
-          style={{ borderTop: '1px solid #2e2e33', color: '#52525b' }}
+          style={{ borderTop: '1px solid rgb(var(--sx-border-2))', color: 'rgb(var(--st-600))' }}
         >
-          <Shield size={12} style={{ color: '#10b981' }} />
+          <Shield size={12} style={{ color: 'var(--success)' }} />
           <span>Single-user encrypted session</span>
         </div>
 

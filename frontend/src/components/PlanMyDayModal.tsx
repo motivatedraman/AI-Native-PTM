@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Calendar, Clock, AlertTriangle, Loader2, CheckCircle2, Coffee, Plus, Trash2, Sunrise, Sun, Moon, Layers } from 'lucide-react';
+import { X, Clock, AlertTriangle, Loader2, CheckCircle2, Coffee, Plus, Trash2, Sunrise, Sun, Moon, Layers } from 'lucide-react';
 import { PlannerResult, PlannerItem, TimeChunk } from '../types';
 import { api } from '../services/api';
 import { todayNPT } from '../utils/time';
@@ -60,7 +60,7 @@ export const PlanMyDayModal: React.FC<PlanMyDayModalProps> = ({
     try {
       const result = await api.planMyDay(chunksToUse);
       setPlan(result);
-    } catch (err) {
+    } catch {
       setError('Failed to generate plan. Please try again.');
     } finally {
       setLoading(false);
@@ -112,6 +112,7 @@ export const PlanMyDayModal: React.FC<PlanMyDayModalProps> = ({
         generatePlan(adjusted);
       });
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   const handleApply = () => {
@@ -148,33 +149,33 @@ export const PlanMyDayModal: React.FC<PlanMyDayModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4 view-enter">
       <div
         className="w-full max-w-xl rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
-        style={{ background: '#141416', border: '1px solid #2e2e33' }}
+        style={{ background: 'rgb(var(--sx-surface))', border: '1px solid rgb(var(--sx-border-2))' }}
       >
         {/* Header */}
         <div
           className="flex items-center justify-between px-6 py-4"
-          style={{ borderBottom: '1px solid #2e2e33' }}
+          style={{ borderBottom: '1px solid rgb(var(--sx-border-2))' }}
         >
           <div className="flex items-center space-x-2.5">
             <div
               className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-bold shadow-sm"
-              style={{ background: 'linear-gradient(135deg, #8b5cf6, #ec4899)' }}
+              style={{ background: 'linear-gradient(135deg, rgb(var(--am-600)), var(--brand-deep))' }}
             >
               ✦
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <span className="text-sm font-semibold text-white">Daily Execution Planner</span>
-                <span className="text-[11px] text-zinc-400 font-mono">{todayNPT()}</span>
+                <span className="text-sm font-semibold text-stone-100">Daily Execution Planner</span>
+                <span className="text-[11px] text-stone-400 font-mono">{todayNPT()}</span>
               </div>
-              <p className="text-[11px] text-zinc-500">
+              <p className="text-[11px] text-stone-500">
                 Fitted to your available time chunks ({formatMins(totalChunkMinutes)} free today)
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-200 hover:bg-[#252528] transition-colors"
+            className="p-1.5 rounded-lg text-stone-400 hover:text-stone-200 hover:bg-[rgb(var(--sx-hover))] transition-colors"
           >
             <X size={18} />
           </button>
@@ -182,18 +183,18 @@ export const PlanMyDayModal: React.FC<PlanMyDayModalProps> = ({
 
         {/* Dynamic Availability Selector */}
         <div
-          className="px-6 py-3.5 space-y-2.5 bg-[#1c1c1f]/70"
-          style={{ borderBottom: '1px solid #2e2e33' }}
+          className="px-6 py-3.5 space-y-2.5 bg-[rgb(var(--sx-card)/0.7)]"
+          style={{ borderBottom: '1px solid rgb(var(--sx-border-2))' }}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-zinc-300 flex items-center space-x-1.5">
-              <Clock size={13} className="text-violet-400" />
+            <span className="text-xs font-semibold text-stone-300 flex items-center space-x-1.5">
+              <Clock size={13} className="text-amber-400" />
               <span>Available Time Today:</span>
             </span>
             <button
               type="button"
               onClick={() => setShowChunkEditor(!showChunkEditor)}
-              className="text-[11px] font-medium text-violet-400 hover:text-violet-300 transition-colors"
+              className="text-[11px] font-medium text-amber-400 hover:text-amber-300 transition-colors"
             >
               {showChunkEditor ? 'Hide Slots' : 'Edit Custom Slots ▾'}
             </button>
@@ -210,14 +211,14 @@ export const PlanMyDayModal: React.FC<PlanMyDayModalProps> = ({
                   onClick={() => applyPreset(p.chunks)}
                   className="flex items-center space-x-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all"
                   style={{
-                    background: '#252528',
-                    border: '1px solid #3a3a40',
-                    color: '#e4e4e7',
+                    background: 'rgb(var(--sx-hover))',
+                    border: '1px solid rgb(var(--sx-border-3))',
+                    color: 'rgb(var(--st-300))',
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#8b5cf6')}
-                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#3a3a40')}
+                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgb(var(--am-600))')}
+                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'rgb(var(--sx-border-3))')}
                 >
-                  <Icon size={12} className="text-violet-400" />
+                  <Icon size={12} className="text-amber-400" />
                   <span>{p.label}</span>
                 </button>
               );
@@ -226,13 +227,13 @@ export const PlanMyDayModal: React.FC<PlanMyDayModalProps> = ({
 
           {/* Custom Chunks Editor */}
           {showChunkEditor && (
-            <div className="p-3 rounded-xl bg-[#141416] border border-[#2e2e33] space-y-2 view-enter">
-              <div className="flex items-center justify-between text-[11px] text-zinc-400 font-medium">
+            <div className="p-3 rounded-xl bg-[rgb(var(--sx-surface))] border border-[rgb(var(--sx-border-2))] space-y-2 view-enter">
+              <div className="flex items-center justify-between text-[11px] text-stone-400 font-medium">
                 <span>Configure your free intervals:</span>
                 <button
                   type="button"
                   onClick={handleAddChunk}
-                  className="flex items-center space-x-1 text-violet-400 hover:text-violet-300"
+                  className="flex items-center space-x-1 text-amber-400 hover:text-amber-300"
                 >
                   <Plus size={12} />
                   <span>Add Interval</span>
@@ -242,25 +243,25 @@ export const PlanMyDayModal: React.FC<PlanMyDayModalProps> = ({
               <div className="space-y-1.5 max-h-32 overflow-y-auto pr-1">
                 {chunks.map((chunk, idx) => (
                   <div key={idx} className="flex items-center space-x-2">
-                    <span className="text-[11px] text-zinc-500 font-mono w-4">{idx + 1}.</span>
+                    <span className="text-[11px] text-stone-500 font-mono w-4">{idx + 1}.</span>
                     <input
                       type="time"
                       value={chunk.start}
                       onChange={(e) => handleUpdateChunk(idx, 'start', e.target.value)}
-                      className="bg-[#1c1c1f] border border-[#2e2e33] text-zinc-200 text-xs rounded px-2 py-1 outline-none font-mono"
+                      className="bg-[rgb(var(--sx-card))] border border-[rgb(var(--sx-border-2))] text-stone-200 text-xs rounded px-2 py-1 outline-none font-mono"
                     />
-                    <span className="text-zinc-500 text-xs">to</span>
+                    <span className="text-stone-500 text-xs">to</span>
                     <input
                       type="time"
                       value={chunk.end}
                       onChange={(e) => handleUpdateChunk(idx, 'end', e.target.value)}
-                      className="bg-[#1c1c1f] border border-[#2e2e33] text-zinc-200 text-xs rounded px-2 py-1 outline-none font-mono"
+                      className="bg-[rgb(var(--sx-card))] border border-[rgb(var(--sx-border-2))] text-stone-200 text-xs rounded px-2 py-1 outline-none font-mono"
                     />
                     {chunks.length > 1 && (
                       <button
                         type="button"
                         onClick={() => handleRemoveChunk(idx)}
-                        className="p-1 text-zinc-500 hover:text-rose-400 transition-colors"
+                        className="p-1 text-stone-500 hover:text-rose-400 transition-colors"
                       >
                         <Trash2 size={13} />
                       </button>
@@ -273,7 +274,7 @@ export const PlanMyDayModal: React.FC<PlanMyDayModalProps> = ({
                 <button
                   type="button"
                   onClick={() => generatePlan(chunks)}
-                  className="px-3 py-1 bg-violet-600 hover:bg-violet-500 text-white text-xs font-medium rounded-lg transition-colors"
+                  className="px-3 py-1 bg-amber-600 hover:bg-amber-500 text-white text-xs font-medium rounded-lg transition-colors"
                 >
                   Apply & Re-Plan
                 </button>
@@ -286,16 +287,16 @@ export const PlanMyDayModal: React.FC<PlanMyDayModalProps> = ({
         <div className="flex-1 overflow-y-auto p-6">
           {loading ? (
             <div className="py-16 flex flex-col items-center justify-center space-y-3">
-              <Loader2 size={32} className="animate-spin text-violet-400" />
-              <p className="text-sm text-zinc-400">Scheduling tasks into your active intervals...</p>
+              <Loader2 size={32} className="animate-spin text-amber-400" />
+              <p className="text-sm text-stone-400">Scheduling tasks into your active intervals...</p>
             </div>
           ) : error ? (
             <div className="py-12 text-center">
               <AlertTriangle size={32} className="text-amber-400 mx-auto mb-3" />
-              <p className="text-sm text-zinc-400">{error}</p>
+              <p className="text-sm text-stone-400">{error}</p>
               <button
                 onClick={() => generatePlan()}
-                className="mt-4 px-4 py-2 bg-violet-600 hover:bg-violet-500 text-white text-sm rounded-xl transition-colors"
+                className="mt-4 px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white text-sm rounded-xl transition-colors"
               >
                 Try Again
               </button>
@@ -310,15 +311,15 @@ export const PlanMyDayModal: React.FC<PlanMyDayModalProps> = ({
               )}
 
               {/* Summary */}
-              <div className="flex items-center justify-between text-xs text-zinc-400 pb-1">
+              <div className="flex items-center justify-between text-xs text-stone-400 pb-1">
                 <span>{plan.summary}</span>
-                <span className="font-mono text-zinc-300 font-medium">
+                <span className="font-mono text-stone-300 font-medium">
                   {formatMins(plan.total_planned_minutes)} planned / {formatMins(plan.available_minutes)} available
                 </span>
               </div>
 
               {/* Timeline */}
-              <div className="space-y-2 relative pl-6 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-0.5 before:bg-[#2e2e33]">
+              <div className="space-y-2 relative pl-6 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-0.5 before:bg-[rgb(var(--sx-border-2))]">
                 {plan.items.map((item, i) => (
                   <PlanItem key={i} item={item} onStartTask={onStartTask} />
                 ))}
@@ -330,27 +331,27 @@ export const PlanMyDayModal: React.FC<PlanMyDayModalProps> = ({
         {/* Footer */}
         {plan && (
           <div
-            className="px-6 py-4 bg-[#141416] flex items-center justify-between"
-            style={{ borderTop: '1px solid #2e2e33' }}
+            className="px-6 py-4 bg-[rgb(var(--sx-surface))] flex items-center justify-between"
+            style={{ borderTop: '1px solid rgb(var(--sx-border-2))' }}
           >
             <button
               onClick={() => generatePlan()}
               disabled={loading}
-              className="px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-200 transition-colors flex items-center space-x-1"
+              className="px-3 py-1.5 text-xs text-stone-400 hover:text-stone-200 transition-colors flex items-center space-x-1"
             >
               <span>↻ Re-plan</span>
             </button>
             <div className="space-x-2">
               <button
                 onClick={onClose}
-                className="px-4 py-2 text-xs text-zinc-300 hover:text-white bg-[#252528] rounded-xl transition-colors"
+                className="px-4 py-2 text-xs text-stone-300 hover:text-white bg-[rgb(var(--sx-hover))] rounded-xl transition-colors"
               >
                 Dismiss
               </button>
               <button
                 onClick={handleApply}
                 className="px-4 py-2 text-xs font-semibold text-white rounded-xl shadow-lg transition-all"
-                style={{ background: 'linear-gradient(135deg, #8b5cf6, #ec4899)' }}
+                style={{ background: 'linear-gradient(135deg, rgb(var(--am-600)), var(--brand-deep))' }}
               >
                 Apply Schedule
               </button>
@@ -366,39 +367,39 @@ const PlanItem: React.FC<{ item: PlannerItem; onStartTask: (id: number) => void 
   if (item.type === 'break') {
     return (
       <div className="flex items-center space-x-3 py-1.5">
-        <div className="absolute left-[-14px] w-6 h-6 rounded-full bg-[#1c1c1f] border-2 border-[#2e2e33] flex items-center justify-center">
-          <Coffee size={10} className="text-zinc-400" />
+        <div className="absolute left-[-14px] w-6 h-6 rounded-full bg-[rgb(var(--sx-card))] border-2 border-[rgb(var(--sx-border-2))] flex items-center justify-center">
+          <Coffee size={10} className="text-stone-400" />
         </div>
-        <span className="text-xs text-zinc-500 font-mono w-12">{item.time}</span>
-        <span className="text-xs text-zinc-400 italic">Break · {item.duration_minutes}m</span>
+        <span className="text-xs text-stone-500 font-mono w-12">{item.time}</span>
+        <span className="text-xs text-stone-400 italic">Break · {item.duration_minutes}m</span>
       </div>
     );
   }
 
   return (
     <div className="flex items-center space-x-3 py-2 group">
-      <div className="absolute left-[-14px] w-6 h-6 rounded-full bg-violet-600/30 border-2 border-violet-500/50 flex items-center justify-center">
-        <CheckCircle2 size={10} className="text-violet-400" />
+      <div className="absolute left-[-14px] w-6 h-6 rounded-full bg-amber-600/30 border-2 border-amber-500/50 flex items-center justify-center">
+        <CheckCircle2 size={10} className="text-amber-400" />
       </div>
-      <span className="text-xs text-zinc-300 font-mono w-12 flex-shrink-0">{item.time}</span>
+      <span className="text-xs text-stone-300 font-mono w-12 flex-shrink-0">{item.time}</span>
       <div
         className="flex-1 flex items-center justify-between p-2.5 rounded-xl transition-colors"
-        style={{ background: '#1c1c1f', border: '1px solid #2e2e33' }}
+        style={{ background: 'rgb(var(--sx-card))', border: '1px solid rgb(var(--sx-border-2))' }}
       >
         <div>
-          <span className="text-sm font-medium text-zinc-200">{item.task_title}</span>
+          <span className="text-sm font-medium text-stone-200">{item.task_title}</span>
           {item.note && (
-            <p className="text-[11px] text-zinc-400 mt-0.5">
+            <p className="text-[11px] text-stone-400 mt-0.5">
               {item.note}
             </p>
           )}
         </div>
         <div className="flex items-center space-x-2.5">
-          <span className="text-xs text-zinc-400 font-mono">~{item.duration_minutes}m</span>
+          <span className="text-xs text-stone-400 font-mono">~{item.duration_minutes}m</span>
           {item.task_id && (
             <button
               onClick={() => onStartTask(item.task_id!)}
-              className="opacity-0 group-hover:opacity-100 px-2.5 py-1 bg-violet-600/25 hover:bg-violet-600/40 text-violet-300 rounded-lg text-xs font-medium transition-all"
+              className="opacity-0 group-hover:opacity-100 px-2.5 py-1 bg-amber-600/25 hover:bg-amber-600/40 text-amber-300 rounded-lg text-xs font-medium transition-all"
             >
               Start
             </button>

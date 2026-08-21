@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Sparkles, Plus, CheckCircle2, X, Loader2, Eye } from 'lucide-react';
-import { DecomposeResult, DecomposeSubtask } from '../types';
+import { DecomposeResult } from '../types';
 import { api } from '../services/api';
 
 interface DecomposeBannerProps {
@@ -12,8 +12,8 @@ interface DecomposeBannerProps {
 
 export const DecomposeBanner: React.FC<DecomposeBannerProps> = ({
   taskId,
-  taskTitle,
-  existingSubtaskCount,
+  taskTitle: _taskTitle,
+  existingSubtaskCount: _existingSubtaskCount,
   onSubtasksAdded,
 }) => {
   const [result, setResult] = useState<DecomposeResult | null>(null);
@@ -73,7 +73,7 @@ export const DecomposeBanner: React.FC<DecomposeBannerProps> = ({
         <button
           onClick={handleDecompose}
           disabled={loading}
-          className="flex items-center space-x-1.5 px-3 py-1.5 bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 rounded-lg text-xs font-medium border border-indigo-500/30 transition-colors disabled:opacity-50"
+          className="flex items-center space-x-1.5 px-3 py-1.5 bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 rounded-lg text-xs font-medium border border-amber-500/30 transition-colors disabled:opacity-50"
         >
           {loading ? (
             <Loader2 size={13} className="animate-spin" />
@@ -85,19 +85,19 @@ export const DecomposeBanner: React.FC<DecomposeBannerProps> = ({
       )}
 
       {result && (
-        <div className="p-3 bg-indigo-950/30 border border-indigo-700/40 rounded-lg space-y-3">
+        <div className="p-3 bg-amber-950/30 border border-amber-700/40 rounded-lg space-y-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2 text-xs font-semibold text-indigo-200">
-              <Sparkles size={14} className="text-indigo-400" />
+            <div className="flex items-center space-x-2 text-xs font-semibold text-amber-200">
+              <Sparkles size={14} className="text-amber-400" />
               <span>✦ AI suggests {result.subtasks.length} subtasks</span>
             </div>
-            <button onClick={handleDismiss} className="p-1 text-slate-400 hover:text-slate-200">
+            <button onClick={handleDismiss} className="p-1 text-stone-400 hover:text-stone-200">
               <X size={14} />
             </button>
           </div>
 
           {result.reasoning && (
-            <p className="text-[11px] text-slate-400 italic">{result.reasoning}</p>
+            <p className="text-[11px] text-stone-400 italic">{result.reasoning}</p>
           )}
 
           {!showReview ? (
@@ -105,19 +105,19 @@ export const DecomposeBanner: React.FC<DecomposeBannerProps> = ({
               <button
                 onClick={handleAddAll}
                 disabled={applying}
-                className="flex items-center space-x-1 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-medium"
+                className="flex items-center space-x-1 px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-medium"
               >
                 {applying ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />}
                 <span>Add All ({result.subtasks.length})</span>
               </button>
               <button
                 onClick={() => setShowReview(true)}
-                className="flex items-center space-x-1 px-3 py-1.5 bg-[#212433] hover:bg-[#2c3044] text-slate-200 rounded-lg text-xs border border-[#262a3c]"
+                className="flex items-center space-x-1 px-3 py-1.5 bg-[rgb(var(--sx-chip))] hover:bg-[rgb(var(--sx-border-2))] text-stone-200 rounded-lg text-xs border border-[rgb(var(--sx-border))]"
               >
                 <Eye size={12} />
                 <span>Review</span>
               </button>
-              <button onClick={handleDismiss} className="px-2 py-1 text-xs text-slate-400 hover:text-slate-200">
+              <button onClick={handleDismiss} className="px-2 py-1 text-xs text-stone-400 hover:text-stone-200">
                 Dismiss
               </button>
             </div>
@@ -126,17 +126,17 @@ export const DecomposeBanner: React.FC<DecomposeBannerProps> = ({
               {result.subtasks.map((st, i) => (
                 <label
                   key={i}
-                  className="flex items-center space-x-2 p-2 bg-[#181a24] rounded-lg border border-[#262a3c] cursor-pointer text-xs"
+                  className="flex items-center space-x-2 p-2 bg-[rgb(var(--sx-header))] rounded-lg border border-[rgb(var(--sx-border))] cursor-pointer text-xs"
                 >
                   <input
                     type="checkbox"
                     checked={selected.has(i)}
                     onChange={() => toggleSelect(i)}
-                    className="rounded border-slate-500 bg-[#12141c] text-indigo-500 focus:ring-indigo-500"
+                    className="rounded border-stone-500 bg-[rgb(var(--sx-modal))] text-amber-500 focus:ring-amber-500"
                   />
-                  <span className="text-slate-200 flex-1">{st.title}</span>
+                  <span className="text-stone-200 flex-1">{st.title}</span>
                   {st.estimated_minutes && (
-                    <span className="text-[10px] text-slate-400 font-mono">~{st.estimated_minutes}m</span>
+                    <span className="text-[10px] text-stone-400 font-mono">~{st.estimated_minutes}m</span>
                   )}
                 </label>
               ))}
@@ -144,12 +144,12 @@ export const DecomposeBanner: React.FC<DecomposeBannerProps> = ({
                 <button
                   onClick={handleAddAll}
                   disabled={applying || selected.size === 0}
-                  className="flex items-center space-x-1 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-medium disabled:opacity-50"
+                  className="flex items-center space-x-1 px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-medium disabled:opacity-50"
                 >
                   {applying ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />}
                   <span>Add Selected ({selected.size})</span>
                 </button>
-                <button onClick={handleDismiss} className="px-2 py-1 text-xs text-slate-400 hover:text-slate-200">
+                <button onClick={handleDismiss} className="px-2 py-1 text-xs text-stone-400 hover:text-stone-200">
                   Cancel
                 </button>
               </div>

@@ -42,7 +42,7 @@ const ProgressRing: React.FC<{ percent: number; size?: number; strokeWidth?: num
         cy={size / 2}
         r={radius}
         fill="none"
-        stroke="#252528"
+        stroke="rgb(var(--sx-hover))"
         strokeWidth={strokeWidth}
       />
       <circle
@@ -62,8 +62,8 @@ const ProgressRing: React.FC<{ percent: number; size?: number; strokeWidth?: num
       />
       <defs>
         <linearGradient id="progressGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#10b981" />
-          <stop offset="100%" stopColor="#06b6d4" />
+          <stop offset="0%" style={{ stopColor: 'var(--success)' }} />
+          <stop offset="100%" style={{ stopColor: 'var(--cyan)' }} />
         </linearGradient>
       </defs>
     </svg>
@@ -72,16 +72,14 @@ const ProgressRing: React.FC<{ percent: number; size?: number; strokeWidth?: num
 
 export const TodayView: React.FC<TodayViewProps> = ({
   tasks,
-  projects,
+  projects: _projects,
   onSelectTask,
   onToggleComplete,
   onOpenQuickAdd,
   onOpenPlanDay,
 }) => {
   const [selectedDate, setSelectedDate] = useState(todayNPT());
-  const [showPlanDay, setShowPlanDay] = useState(false);
   const [burstTrigger, setBurstTrigger] = useState(false);
-  const [lastCompletedTask, setLastCompletedTask] = useState<string | null>(null);
   const [celebratingTaskIds, setCelebratingTaskIds] = useState<Set<number>>(new Set());
   const streak = useStreak(tasks);
   const burstTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -98,7 +96,6 @@ export const TodayView: React.FC<TodayViewProps> = ({
       // Trigger burst & celebrate
       setBurstTrigger(false);
       requestAnimationFrame(() => setBurstTrigger(true));
-      setLastCompletedTask(task.title);
       setCelebratingTaskIds(prev => new Set(prev).add(task.id));
       if (burstTimeoutRef.current) clearTimeout(burstTimeoutRef.current);
       burstTimeoutRef.current = setTimeout(() => {
@@ -118,7 +115,6 @@ export const TodayView: React.FC<TodayViewProps> = ({
     return taskDate === selectedDate;
   });
 
-  const todayTasks = dateFilteredTasks.filter(t => t.status !== 'done' || t.completed_at);
   const doneTasks = dateFilteredTasks.filter(t => t.status === 'done');
   const importantTasks = dateFilteredTasks.filter(t => (t.priority === 'urgent' || t.priority === 'high') && t.status !== 'done');
   
@@ -150,9 +146,9 @@ export const TodayView: React.FC<TodayViewProps> = ({
 
   const priorityColor = (priority: string) => {
     switch (priority) {
-      case 'urgent': return { bg: 'rgba(244, 63, 94, 0.12)', border: 'rgba(244, 63, 94, 0.35)', text: '#fb7185' };
-      case 'high': return { bg: 'rgba(245, 158, 11, 0.12)', border: 'rgba(245, 158, 11, 0.35)', text: '#fbbf24' };
-      default: return { bg: 'rgba(82, 82, 91, 0.2)', border: '#3a3a40', text: '#71717a' };
+      case 'urgent': return { bg: 'rgba(244, 63, 94, 0.12)', border: 'rgba(244, 63, 94, 0.35)', text: 'var(--rose)' };
+      case 'high': return { bg: 'rgba(207, 164, 95, 0.12)', border: 'rgba(207, 164, 95, 0.35)', text: 'var(--gold)' };
+      default: return { bg: 'rgba(82, 82, 91, 0.2)', border: 'rgb(var(--sx-border-3))', text: 'rgb(var(--st-500))' };
     }
   };
 
@@ -167,22 +163,22 @@ export const TodayView: React.FC<TodayViewProps> = ({
       {/* Header Greeting & Summary */}
       <div
         className="flex flex-col md:flex-row md:items-end justify-between pb-5 gap-4"
-        style={{ borderBottom: '1px solid #2e2e33' }}
+        style={{ borderBottom: '1px solid rgb(var(--sx-border-2))' }}
       >
         <div>
           <div className="flex items-center space-x-3">
-            <span className="text-sm font-mono font-semibold uppercase tracking-wider" style={{ color: '#8b5cf6' }}>
+            <span className="text-sm font-mono font-semibold uppercase tracking-wider" style={{ color: 'rgb(var(--am-600))' }}>
               {formatDateLabel(selectedDate)} Dashboard
             </span>
             {selectedDate === todayNPT() && streak > 0 && (
               <StreakBadge streak={streak} compact />
             )}
           </div>
-          <h1 className="text-3xl lg:text-4xl font-bold text-white tracking-tight mt-1">
+          <h1 className="text-3xl lg:text-4xl font-bold text-stone-100 tracking-tight mt-1">
             {selectedDate === todayNPT() ? getGreeting() : formatDateLabel(selectedDate)}
           </h1>
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm mt-2" style={{ color: '#71717a' }}>
-            <span style={{ color: '#a78bfa' }} className="font-medium flex items-center space-x-1">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm mt-2" style={{ color: 'rgb(var(--st-500))' }}>
+            <span style={{ color: 'rgb(var(--am-400))' }} className="font-medium flex items-center space-x-1">
               <Zap size={13} />
               <span>{importantTasks.length} important</span>
             </span>
@@ -202,40 +198,40 @@ export const TodayView: React.FC<TodayViewProps> = ({
             onClick={onOpenQuickAdd}
             className="flex items-center space-x-2 px-4 py-2.5 text-white rounded-xl text-sm font-semibold transition-all shadow-lg"
             style={{
-              background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
-              boxShadow: '0 4px 15px rgba(139, 92, 246, 0.35)',
+              background: 'linear-gradient(135deg, rgb(var(--am-600)), rgb(var(--am-700)))',
+              boxShadow: '0 4px 15px rgba(171, 118, 49, 0.35)',
             }}
             onMouseEnter={e => {
-              (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 25px rgba(139, 92, 246, 0.55)';
+              (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 25px rgba(171, 118, 49, 0.55)';
               (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)';
             }}
             onMouseLeave={e => {
-              (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 15px rgba(139, 92, 246, 0.35)';
+              (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 15px rgba(171, 118, 49, 0.35)';
               (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
             }}
           >
             <Plus size={17} />
             <span>Quick Capture</span>
-            <kbd className="kbd-badge text-[10px] bg-violet-700/60 text-violet-200 border-violet-500/40">N</kbd>
+            <kbd className="kbd-badge text-[10px] bg-amber-700/60 text-amber-200 border-amber-500/40">N</kbd>
           </button>
           <button
-            onClick={onOpenPlanDay || (() => setShowPlanDay(true))}
+            onClick={onOpenPlanDay}
             className="flex items-center space-x-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all"
             style={{
-              background: '#1c1c1f',
-              border: '1px solid #2e2e33',
-              color: '#d4d4d8',
+              background: 'rgb(var(--sx-card))',
+              border: '1px solid rgb(var(--sx-border-2))',
+              color: 'rgb(var(--st-300))',
             }}
             onMouseEnter={e => {
-              (e.currentTarget as HTMLElement).style.borderColor = '#3a3a40';
-              (e.currentTarget as HTMLElement).style.background = '#252528';
+              (e.currentTarget as HTMLElement).style.borderColor = 'rgb(var(--sx-border-3))';
+              (e.currentTarget as HTMLElement).style.background = 'rgb(var(--sx-hover))';
             }}
             onMouseLeave={e => {
-              (e.currentTarget as HTMLElement).style.borderColor = '#2e2e33';
-              (e.currentTarget as HTMLElement).style.background = '#1c1c1f';
+              (e.currentTarget as HTMLElement).style.borderColor = 'rgb(var(--sx-border-2))';
+              (e.currentTarget as HTMLElement).style.background = 'rgb(var(--sx-card))';
             }}
           >
-            <CalendarClock size={17} style={{ color: '#8b5cf6' }} />
+            <CalendarClock size={17} style={{ color: 'rgb(var(--am-600))' }} />
             <span>Plan My Day</span>
             <kbd className="kbd-badge text-[10px]">P</kbd>
           </button>
@@ -249,10 +245,13 @@ export const TodayView: React.FC<TodayViewProps> = ({
             const task = tasks.find(t => t.id === id);
             if (task) onSelectTask(task);
           }} />
-          <AISuggestionsCard onSelectTask={(id) => {
-            const task = tasks.find(t => t.id === id);
-            if (task) onSelectTask(task);
-          }} />
+          <AISuggestionsCard
+            onSelectTask={(id) => {
+              const task = tasks.find(t => t.id === id);
+              if (task) onSelectTask(task);
+            }}
+            onOpenPlanner={onOpenPlanDay}
+          />
         </div>
       )}
 
@@ -261,9 +260,9 @@ export const TodayView: React.FC<TodayViewProps> = ({
         <button
           onClick={goToPrevDay}
           className="p-2 rounded-xl transition-all"
-          style={{ background: '#1c1c1f', border: '1px solid #2e2e33', color: '#71717a' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#d4d4d8'; (e.currentTarget as HTMLElement).style.borderColor = '#3a3a40'; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#71717a'; (e.currentTarget as HTMLElement).style.borderColor = '#2e2e33'; }}
+          style={{ background: 'rgb(var(--sx-card))', border: '1px solid rgb(var(--sx-border-2))', color: 'rgb(var(--st-500))' }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'rgb(var(--st-300))'; (e.currentTarget as HTMLElement).style.borderColor = 'rgb(var(--sx-border-3))'; }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgb(var(--st-500))'; (e.currentTarget as HTMLElement).style.borderColor = 'rgb(var(--sx-border-2))'; }}
           title="Previous day"
         >
           <ChevronLeft size={18} />
@@ -271,7 +270,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
 
         <div
           className="flex items-center space-x-1 p-1 rounded-xl"
-          style={{ background: '#141416', border: '1px solid #2e2e33' }}
+          style={{ background: 'rgb(var(--sx-surface))', border: '1px solid rgb(var(--sx-border-2))' }}
         >
           {datePresets.map(preset => (
             <button
@@ -281,14 +280,14 @@ export const TodayView: React.FC<TodayViewProps> = ({
               style={
                 selectedDate === preset.date
                   ? {
-                      background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+                      background: 'linear-gradient(135deg, rgb(var(--am-600)), rgb(var(--am-700)))',
                       color: '#fff',
-                      boxShadow: '0 2px 10px rgba(139, 92, 246, 0.4)',
+                      boxShadow: '0 2px 10px rgba(171, 118, 49, 0.4)',
                     }
-                  : { color: '#71717a' }
+                  : { color: 'rgb(var(--st-500))' }
               }
-              onMouseEnter={e => { if (selectedDate !== preset.date) { (e.currentTarget as HTMLElement).style.color = '#d4d4d8'; (e.currentTarget as HTMLElement).style.background = '#252528'; } }}
-              onMouseLeave={e => { if (selectedDate !== preset.date) { (e.currentTarget as HTMLElement).style.color = '#71717a'; (e.currentTarget as HTMLElement).style.background = ''; } }}
+              onMouseEnter={e => { if (selectedDate !== preset.date) { (e.currentTarget as HTMLElement).style.color = 'rgb(var(--st-300))'; (e.currentTarget as HTMLElement).style.background = 'rgb(var(--sx-hover))'; } }}
+              onMouseLeave={e => { if (selectedDate !== preset.date) { (e.currentTarget as HTMLElement).style.color = 'rgb(var(--st-500))'; (e.currentTarget as HTMLElement).style.background = ''; } }}
             >
               {preset.label}
             </button>
@@ -298,15 +297,15 @@ export const TodayView: React.FC<TodayViewProps> = ({
         <button
           onClick={goToNextDay}
           className="p-2 rounded-xl transition-all"
-          style={{ background: '#1c1c1f', border: '1px solid #2e2e33', color: '#71717a' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#d4d4d8'; (e.currentTarget as HTMLElement).style.borderColor = '#3a3a40'; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#71717a'; (e.currentTarget as HTMLElement).style.borderColor = '#2e2e33'; }}
+          style={{ background: 'rgb(var(--sx-card))', border: '1px solid rgb(var(--sx-border-2))', color: 'rgb(var(--st-500))' }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'rgb(var(--st-300))'; (e.currentTarget as HTMLElement).style.borderColor = 'rgb(var(--sx-border-3))'; }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgb(var(--st-500))'; (e.currentTarget as HTMLElement).style.borderColor = 'rgb(var(--sx-border-2))'; }}
           title="Next day"
         >
           <ChevronRight size={18} />
         </button>
 
-        <span className="text-sm font-mono ml-2 hidden sm:block" style={{ color: '#52525b' }}>
+        <span className="text-sm font-mono ml-2 hidden sm:block" style={{ color: 'rgb(var(--st-600))' }}>
           {selectedDate}
         </span>
       </div>
@@ -316,32 +315,32 @@ export const TodayView: React.FC<TodayViewProps> = ({
         {/* Workload card */}
         <div
           className="p-5 rounded-2xl card-hover space-y-2"
-          style={{ background: '#141416', border: '1px solid #2e2e33' }}
+          style={{ background: 'rgb(var(--sx-surface))', border: '1px solid rgb(var(--sx-border-2))' }}
         >
-          <div className="flex items-center justify-between" style={{ color: '#71717a' }}>
+          <div className="flex items-center justify-between" style={{ color: 'rgb(var(--st-500))' }}>
             <span className="text-sm">Day's Workload</span>
-            <Clock size={16} style={{ color: '#8b5cf6' }} />
+            <Clock size={16} style={{ color: 'rgb(var(--am-600))' }} />
           </div>
-          <div className="text-3xl font-bold text-white">
-            {dateFilteredTasks.filter(t => t.status !== 'done').length} <span className="text-sm font-normal" style={{ color: '#71717a' }}>tasks</span>
+          <div className="text-3xl font-bold text-stone-100">
+            {dateFilteredTasks.filter(t => t.status !== 'done').length} <span className="text-sm font-normal" style={{ color: 'rgb(var(--st-500))' }}>tasks</span>
           </div>
-          <p className="text-xs font-mono" style={{ color: '#71717a' }}>~{hoursPlanned}h {minsPlanned}m estimated</p>
+          <p className="text-xs font-mono" style={{ color: 'rgb(var(--st-500))' }}>~{hoursPlanned}h {minsPlanned}m estimated</p>
         </div>
 
         {/* Progress card with ring */}
         <div
           className="p-5 rounded-2xl card-hover"
-          style={{ background: '#141416', border: '1px solid #2e2e33' }}
+          style={{ background: 'rgb(var(--sx-surface))', border: '1px solid rgb(var(--sx-border-2))' }}
         >
-          <div className="flex items-center justify-between mb-2" style={{ color: '#71717a' }}>
+          <div className="flex items-center justify-between mb-2" style={{ color: 'rgb(var(--st-500))' }}>
             <span className="text-sm">Execution Progress</span>
-            <TrendingUp size={16} style={{ color: '#10b981' }} />
+            <TrendingUp size={16} style={{ color: 'var(--success)' }} />
           </div>
           <div className="flex items-center space-x-4">
             <ProgressRing percent={completionRate} size={60} strokeWidth={5} />
             <div>
-              <div className="text-2xl font-bold text-white">{completionRate}%</div>
-              <div className="text-xs" style={{ color: '#71717a' }}>{doneTasks.length} / {dateFilteredTasks.length} done</div>
+              <div className="text-2xl font-bold text-stone-100">{completionRate}%</div>
+              <div className="text-xs" style={{ color: 'rgb(var(--st-500))' }}>{doneTasks.length} / {dateFilteredTasks.length} done</div>
             </div>
           </div>
         </div>
@@ -350,31 +349,31 @@ export const TodayView: React.FC<TodayViewProps> = ({
         <div
           className="p-5 rounded-2xl card-hover space-y-2"
           style={{
-            background: streak > 0 ? 'linear-gradient(135deg, rgba(249, 115, 22, 0.08), rgba(239, 68, 68, 0.06))' : '#141416',
-            border: streak > 0 ? '1px solid rgba(249, 115, 22, 0.25)' : '1px solid #2e2e33',
+            background: streak > 0 ? 'linear-gradient(135deg, rgba(201, 106, 38, 0.08), rgba(239, 68, 68, 0.06))' : 'rgb(var(--sx-surface))',
+            border: streak > 0 ? '1px solid rgba(201, 106, 38, 0.25)' : '1px solid rgb(var(--sx-border-2))',
           }}
         >
           <div className="flex items-center justify-between">
-            <span className="text-sm" style={{ color: '#71717a' }}>
+            <span className="text-sm" style={{ color: 'rgb(var(--st-500))' }}>
               {streak > 0 ? 'Streak & Focus' : 'High Priority Focus'}
             </span>
             {streak > 0 ? (
-              <span className="text-lg" style={{ filter: 'drop-shadow(0 0 8px rgba(249, 115, 22, 0.7))' }}>🔥</span>
+              <span className="text-lg" style={{ filter: 'drop-shadow(0 0 8px rgba(201, 106, 38, 0.7))' }}>🔥</span>
             ) : (
-              <Zap size={16} style={{ color: '#f59e0b' }} />
+              <Zap size={16} style={{ color: 'rgb(var(--am-400))' }} />
             )}
           </div>
           {streak > 0 ? (
             <div>
               <div className="text-3xl font-bold text-gradient-streak">{streak}</div>
-              <p className="text-xs" style={{ color: '#a16207' }}>day streak · {importantTasks.length} urgent items</p>
+              <p className="text-xs" style={{ color: 'var(--gold-deep)' }}>day streak · {importantTasks.length} urgent items</p>
             </div>
           ) : (
             <div>
-              <div className="text-3xl font-bold text-white">
-                {importantTasks.length} <span className="text-sm font-normal" style={{ color: '#71717a' }}>items</span>
+              <div className="text-3xl font-bold text-stone-100">
+                {importantTasks.length} <span className="text-sm font-normal" style={{ color: 'rgb(var(--st-500))' }}>items</span>
               </div>
-              <p className="text-xs" style={{ color: '#71717a' }}>Requires attention {formatDateLabel(selectedDate).toLowerCase()}</p>
+              <p className="text-xs" style={{ color: 'rgb(var(--st-500))' }}>Requires attention {formatDateLabel(selectedDate).toLowerCase()}</p>
             </div>
           )}
         </div>
@@ -384,14 +383,14 @@ export const TodayView: React.FC<TodayViewProps> = ({
       {importantTasks.length > 0 && (
         <div
           className="p-5 rounded-2xl space-y-3"
-          style={{ background: '#141416', border: '1px solid rgba(245, 158, 11, 0.25)' }}
+          style={{ background: 'rgb(var(--sx-surface))', border: '1px solid rgba(207, 164, 95, 0.25)' }}
         >
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2 text-sm font-semibold" style={{ color: '#fbbf24' }}>
+            <div className="flex items-center space-x-2 text-sm font-semibold" style={{ color: 'var(--gold)' }}>
               <Zap size={15} />
               <span className="uppercase tracking-wider">High Priority & Deadlines</span>
             </div>
-            <span className="text-xs" style={{ color: '#71717a' }}>{importantTasks.length} tasks</span>
+            <span className="text-xs" style={{ color: 'rgb(var(--st-500))' }}>{importantTasks.length} tasks</span>
           </div>
 
           <div className="space-y-2">
@@ -402,9 +401,9 @@ export const TodayView: React.FC<TodayViewProps> = ({
                   key={task.id}
                   onClick={() => onSelectTask(task)}
                   className="flex items-center justify-between p-4 rounded-xl cursor-pointer group card-hover"
-                  style={{ background: '#1c1c1f', border: '1px solid #2e2e33' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#3a3a40'; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#2e2e33'; }}
+                  style={{ background: 'rgb(var(--sx-card))', border: '1px solid rgb(var(--sx-border-2))' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgb(var(--sx-border-3))'; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgb(var(--sx-border-2))'; }}
                 >
                   <div className="flex items-center space-x-3 truncate">
                     <div onClick={e => e.stopPropagation()}>
@@ -413,13 +412,13 @@ export const TodayView: React.FC<TodayViewProps> = ({
                         onClick={(e) => { e.stopPropagation(); handleToggleComplete(task); }}
                       />
                     </div>
-                    <span className="text-sm font-medium text-white truncate">
+                    <span className="text-sm font-medium text-stone-100 truncate">
                       {task.title}
                     </span>
                     {task.project && (
                       <span
                         className="text-xs px-2.5 py-1 rounded-lg hidden sm:inline"
-                        style={{ background: 'rgba(139, 92, 246, 0.15)', color: '#a78bfa', border: '1px solid rgba(139, 92, 246, 0.25)' }}
+                        style={{ background: 'rgba(171, 118, 49, 0.15)', color: 'rgb(var(--am-400))', border: '1px solid rgba(171, 118, 49, 0.25)' }}
                       >
                         {task.project.name}
                       </span>
@@ -428,18 +427,18 @@ export const TodayView: React.FC<TodayViewProps> = ({
 
                   <div className="flex items-center space-x-3 text-sm flex-shrink-0">
                     {task.due_date && (
-                      <span className="flex items-center space-x-1 text-xs" style={{ color: '#fbbf24' }}>
+                      <span className="flex items-center space-x-1 text-xs" style={{ color: 'var(--gold)' }}>
                         <Calendar size={12} />
                         <span>{formatDateNPT(task.due_date, { month: 'short', day: 'numeric' })}</span>
                       </span>
                     )}
                     {task.spent_minutes && task.spent_minutes > 0 && task.estimated_minutes && task.status !== 'done' ? (
-                      <span className="flex items-center space-x-1 px-2 py-0.5 rounded text-xs font-mono" style={{ background: 'rgba(139, 92, 246, 0.15)', color: '#c084fc', border: '1px solid rgba(139, 92, 246, 0.3)' }}>
+                      <span className="flex items-center space-x-1 px-2 py-0.5 rounded text-xs font-mono" style={{ background: 'rgba(171, 118, 49, 0.15)', color: 'rgb(var(--am-400))', border: '1px solid rgba(171, 118, 49, 0.3)' }}>
                         <span>{task.spent_minutes}/{task.estimated_minutes}m</span>
-                        <span className="text-violet-300 font-semibold">({Math.round((task.spent_minutes / task.estimated_minutes) * 100)}%)</span>
+                        <span className="text-amber-300 font-semibold">({Math.round((task.spent_minutes / task.estimated_minutes) * 100)}%)</span>
                       </span>
                     ) : task.estimated_minutes ? (
-                      <span className="text-xs" style={{ color: '#71717a' }}>~{task.estimated_minutes}m</span>
+                      <span className="text-xs" style={{ color: 'rgb(var(--st-500))' }}>~{task.estimated_minutes}m</span>
                     ) : null}
                     <span
                       className="text-xs uppercase font-mono px-2 py-1 rounded-lg"
@@ -459,21 +458,21 @@ export const TodayView: React.FC<TodayViewProps> = ({
       {dateFilteredTasks.length === 0 && (
         <div
           className="p-12 rounded-2xl text-center"
-          style={{ background: '#141416', border: '1px solid #2e2e33' }}
+          style={{ background: 'rgb(var(--sx-surface))', border: '1px solid rgb(var(--sx-border-2))' }}
         >
           <div
             className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
-            style={{ background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.2)' }}
+            style={{ background: 'rgba(171, 118, 49, 0.1)', border: '1px solid rgba(171, 118, 49, 0.2)' }}
           >
-            <Calendar size={28} style={{ color: '#8b5cf6' }} />
+            <Calendar size={28} style={{ color: 'rgb(var(--am-600))' }} />
           </div>
-          <p className="text-base" style={{ color: '#71717a' }}>No tasks scheduled for {formatDateLabel(selectedDate).toLowerCase()}</p>
+          <p className="text-base" style={{ color: 'rgb(var(--st-500))' }}>No tasks scheduled for {formatDateLabel(selectedDate).toLowerCase()}</p>
           <button
             onClick={onOpenQuickAdd}
             className="mt-4 text-sm font-medium transition-colors"
-            style={{ color: '#8b5cf6' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#a78bfa'; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#8b5cf6'; }}
+            style={{ color: 'rgb(var(--am-600))' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'rgb(var(--am-400))'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgb(var(--am-600))'; }}
           >
             + Quick Capture a task
           </button>
@@ -484,10 +483,10 @@ export const TodayView: React.FC<TodayViewProps> = ({
       {dateFilteredTasks.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-semibold uppercase tracking-wider" style={{ color: '#d4d4d8' }}>
+            <h2 className="text-base font-semibold uppercase tracking-wider" style={{ color: 'rgb(var(--st-300))' }}>
               All {formatDateLabel(selectedDate)} Tasks
             </h2>
-            <span className="text-sm" style={{ color: '#71717a' }}>{dateFilteredTasks.length} total</span>
+            <span className="text-sm" style={{ color: 'rgb(var(--st-500))' }}>{dateFilteredTasks.length} total</span>
           </div>
 
           <div className="space-y-1.5">
@@ -501,20 +500,20 @@ export const TodayView: React.FC<TodayViewProps> = ({
                   onClick={() => onSelectTask(task)}
                   className={`flex items-center justify-between p-4 rounded-xl cursor-pointer group transition-all duration-200 ${isCelebrating ? 'celebrate' : ''}`}
                   style={{
-                    background: isDone ? '#0d0d0f' : '#141416',
-                    border: `1px solid ${isDone ? '#1c1c1f' : '#2e2e33'}`,
+                    background: isDone ? 'rgb(var(--sx-bg))' : 'rgb(var(--sx-surface))',
+                    border: `1px solid ${isDone ? 'rgb(var(--sx-card))' : 'rgb(var(--sx-border-2))'}`,
                     opacity: isDone ? 0.55 : 1,
                   }}
                   onMouseEnter={e => {
                     if (!isDone) {
-                      (e.currentTarget as HTMLElement).style.borderColor = '#3a3a40';
-                      (e.currentTarget as HTMLElement).style.background = '#1c1c1f';
+                      (e.currentTarget as HTMLElement).style.borderColor = 'rgb(var(--sx-border-3))';
+                      (e.currentTarget as HTMLElement).style.background = 'rgb(var(--sx-card))';
                     }
                   }}
                   onMouseLeave={e => {
                     if (!isDone) {
-                      (e.currentTarget as HTMLElement).style.borderColor = '#2e2e33';
-                      (e.currentTarget as HTMLElement).style.background = '#141416';
+                      (e.currentTarget as HTMLElement).style.borderColor = 'rgb(var(--sx-border-2))';
+                      (e.currentTarget as HTMLElement).style.background = 'rgb(var(--sx-surface))';
                     }
                   }}
                 >
@@ -526,14 +525,14 @@ export const TodayView: React.FC<TodayViewProps> = ({
                       />
                     </div>
                     <span
-                      className={`text-sm font-medium truncate ${isDone ? 'line-through' : 'text-white'}`}
-                      style={{ color: isDone ? '#52525b' : undefined }}
+                      className={`text-sm font-medium truncate ${isDone ? 'line-through' : 'text-stone-100'}`}
+                      style={{ color: isDone ? 'rgb(var(--st-600))' : undefined }}
                     >
                       {task.title}
                     </span>
                     <span
                       className="text-xs px-2 py-0.5 rounded-md font-mono hidden sm:inline"
-                      style={{ background: '#252528', color: '#71717a' }}
+                      style={{ background: 'rgb(var(--sx-hover))', color: 'rgb(var(--st-500))' }}
                     >
                       {task.category}
                     </span>
@@ -541,17 +540,17 @@ export const TodayView: React.FC<TodayViewProps> = ({
 
                   <div className="flex items-center space-x-3 text-sm flex-shrink-0">
                     {task.subtasks?.length > 0 && (
-                      <span className="text-xs hidden sm:inline" style={{ color: '#71717a' }}>
+                      <span className="text-xs hidden sm:inline" style={{ color: 'rgb(var(--st-500))' }}>
                         {task.subtasks.filter(s => s.is_completed).length}/{task.subtasks.length} subtasks
                       </span>
                     )}
                     {task.spent_minutes && task.spent_minutes > 0 && task.estimated_minutes && !isDone ? (
-                      <span className="flex items-center space-x-1 px-2 py-0.5 rounded text-xs font-mono" style={{ background: 'rgba(139, 92, 246, 0.15)', color: '#c084fc', border: '1px solid rgba(139, 92, 246, 0.3)' }}>
+                      <span className="flex items-center space-x-1 px-2 py-0.5 rounded text-xs font-mono" style={{ background: 'rgba(171, 118, 49, 0.15)', color: 'rgb(var(--am-400))', border: '1px solid rgba(171, 118, 49, 0.3)' }}>
                         <span>{task.spent_minutes}/{task.estimated_minutes}m</span>
-                        <span className="text-violet-300 font-semibold">({Math.round((task.spent_minutes / task.estimated_minutes) * 100)}%)</span>
+                        <span className="text-amber-300 font-semibold">({Math.round((task.spent_minutes / task.estimated_minutes) * 100)}%)</span>
                       </span>
                     ) : task.estimated_minutes ? (
-                      <span className="text-xs" style={{ color: '#71717a' }}>~{task.estimated_minutes}m</span>
+                      <span className="text-xs" style={{ color: 'rgb(var(--st-500))' }}>~{task.estimated_minutes}m</span>
                     ) : null}
                     <span
                       className="text-xs uppercase font-mono px-2 py-1 rounded-lg"

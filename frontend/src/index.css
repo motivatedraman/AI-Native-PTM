@@ -2,65 +2,180 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Theme variables ─────────────────────────────────────────────
+   Surfaces, borders (--sx) and text scales (--st, --am) are RGB
+   triplets so Tailwind opacity modifiers keep working:
+     rgb(var(--sx-card))  ·  rgb(var(--sx-card) / 0.6)
+   Dark is the default; html.light flips every role to Paper mode. */
 @layer base {
   :root {
-    --bg-main: #0d0d0f;
-    --bg-surface: #141416;
-    --bg-card: #1c1c1f;
-    --border-color: #2e2e33;
-    --text-main: #f8fafc;
-    --text-muted: #a1a1aa;
-    --primary: #8b5cf6;
-    --primary-glow: rgba(139, 92, 246, 0.3);
+    color-scheme: dark;
+
+    /* surfaces */
+    --sx-bg: 26 23 21;        /* #1a1715 page */
+    --sx-modal: 33 29 26;     /* #211d1a modals */
+    --sx-surface: 35 31 28;   /* #231f1c panels */
+    --sx-header: 40 35 32;    /* #282320 headers */
+    --sx-card: 43 38 34;      /* #2b2622 cards */
+    --sx-raised: 48 42 37;    /* #302a25 raised */
+    --sx-chip: 51 45 39;      /* #332d27 chips */
+    --sx-hover: 56 49 43;     /* #38312b hover */
+
+    /* borders */
+    --sx-border: 59 52 45;    /* #3b342d */
+    --sx-border-2: 63 56 49;  /* #3f3831 */
+    --sx-border-3: 74 66 57;  /* #4a4239 */
+    --sx-border-4: 74 65 57;  /* #4a4139 */
+
+    /* stone text scale (dark values = light grays) */
+    --st-100: 245 245 244;
+    --st-200: 231 229 228;
+    --st-300: 214 211 209;
+    --st-400: 168 162 158;
+    --st-500: 120 113 108;
+    --st-600: 87 83 78;
+    --st-700: 68 64 60;
+
+    /* brass accent scale (--am-*) */
+    --am-200: 232 213 181;
+    --am-300: 220 192 143;
+    --am-400: 207 164 95;
+    --am-500: 189 138 65;
+    --am-600: 171 118 49;
+    --am-700: 141 95 40;
+    --am-800: 111 74 32;
+    --am-900: 86 57 27;
+    --am-950: 69 46 24;
+
+    --accent-text: 207 164 95;
+    --grain-opacity: 0.025;
+
+    /* accent brights — chips, priority text, gradients */
+    --brand-deep: #a5642a;
+    --gold: #fbbf24;
+    --gold-deep: #a16207;
+    --rose: #fb7185;
+    --emerald-bright: #34d399;
+    --cyan: #06b6d4;
+    --cyan-bright: #22d3ee;
+
+    --bg-main: rgb(var(--sx-bg));
+    --bg-surface: rgb(var(--sx-surface));
+    --bg-card: rgb(var(--sx-card));
+    --border-color: rgb(var(--sx-border-2));
+    --text-main: rgb(var(--st-200));
+    --text-muted: rgb(var(--st-400));
+    --primary: #ab7631;
+    --primary-glow: rgba(171, 118, 49, 0.22);
     --success: #10b981;
-    --success-glow: rgba(16, 185, 129, 0.3);
-    --streak: #f97316;
-    --streak-glow: rgba(249, 115, 22, 0.3);
+    --success-glow: rgba(16, 185, 129, 0.25);
+    --streak: #c96a26;
+    --streak-glow: rgba(201, 106, 38, 0.28);
+  }
+
+  html.light {
+    color-scheme: light;
+
+    /* warm parchment — softer than cream, less glare, cards still pop */
+    --sx-bg: 239 232 218;      /* #efe8da page */
+    --sx-modal: 250 246 236;   /* #faf6ec modals */
+    --sx-surface: 247 242 230; /* #f7f2e6 panels */
+    --sx-header: 235 228 211;  /* #ebe4d3 headers */
+    --sx-card: 255 253 247;    /* #fffdf7 warm white cards */
+    --sx-raised: 238 231 214;  /* #eee7d6 raised */
+    --sx-chip: 232 224 204;    /* #e8e0cc chips */
+    --sx-hover: 226 217 194;   /* #e2d9c2 hover */
+
+    --sx-border: 220 209 185;  /* #dcd1b9 */
+    --sx-border-2: 209 197 168;/* #d1c5a8 */
+    --sx-border-3: 190 176 145;/* #beb091 */
+    --sx-border-4: 178 163 130;/* #b2a382 */
+
+    /* ink-flipped text scale — kept dark enough for AA contrast on parchment */
+    --st-100: 41 37 36;        /* #292524 warm ink */
+    --st-200: 58 53 47;        /* #3a352f */
+    --st-300: 77 71 62;        /* #4d473e */
+    --st-400: 96 89 79;        /* #60594f */
+    --st-500: 109 102 91;      /* #6d665b */
+    --st-600: 141 132 117;     /* #8d8475 */
+    --st-700: 170 160 140;     /* #aaa08c */
+
+    /* brass darkens for contrast on cream; tint bgs go pale */
+    --am-200: 236 217 180;
+    --am-300: 146 106 44;
+    --am-400: 141 101 39;
+    --am-500: 171 118 49;
+    --am-600: 156 105 38;
+    --am-700: 138 96 42;
+    --am-800: 111 74 32;
+    --am-900: 86 57 27;
+    --am-950: 247 236 214;     /* pale amber wash for banner bgs */
+
+    --accent-text: 141 101 39;
+    --grain-opacity: 0.04;
+
+    /* accent brights — darkened for contrast on parchment */
+    --brand-deep: #8f5c28;
+    --gold: #b45309;
+    --gold-deep: #854d0e;
+    --rose: #e11d48;
+    --emerald-bright: #059669;
+    --cyan: #0e7490;
+    --cyan-bright: #0e7490;
   }
 
   body {
-    background-color: var(--bg-main);
-    color: var(--text-main);
+    background-color: rgb(var(--sx-bg));
+    color: rgb(var(--st-200));
     font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+
+  /* Subtle paper grain — keeps large flat areas from feeling sterile */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: var(--grain-opacity);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 }
 
-/* Beautiful scrollbars */
+/* Scrollbars — matte, quiet */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #8b5cf6, #6d28d9);
-  border-radius: 10px;
+  background: rgb(var(--sx-border-3));
+  border-radius: 8px;
+  border: 2px solid rgb(var(--sx-bg));
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #a78bfa, #8b5cf6);
+  background: rgb(var(--st-500));
 }
 
-/* Glass panel */
+/* Panel — solid and matte, no glass blur */
 .glass-panel {
-  background: rgba(20, 20, 22, 0.88);
-  backdrop-filter: blur(16px);
-  border: 1px solid #2e2e33;
+  background: rgb(var(--sx-surface) / 0.97);
+  border: 1px solid rgb(var(--sx-border-2));
 }
 
-/* Gradient text */
+/* Accent text — solid warm brass instead of gradient */
 .text-gradient-primary {
-  background: linear-gradient(135deg, #a78bfa, #ec4899);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: rgb(var(--accent-text));
 }
 
 .text-gradient-streak {
-  background: linear-gradient(135deg, #f97316, #ef4444);
+  background: linear-gradient(135deg, #c96a26, #ef4444);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -68,7 +183,7 @@
 
 /* Glow effects */
 .glow-primary {
-  box-shadow: 0 0 20px var(--primary-glow), 0 0 40px rgba(139, 92, 246, 0.1);
+  box-shadow: 0 0 20px var(--primary-glow), 0 0 40px rgba(171, 118, 49, 0.1);
 }
 
 .glow-success {
@@ -76,7 +191,7 @@
 }
 
 .glow-streak {
-  box-shadow: 0 0 20px var(--streak-glow), 0 0 40px rgba(249, 115, 22, 0.1);
+  box-shadow: 0 0 20px var(--streak-glow), 0 0 40px rgba(201, 106, 38, 0.1);
 }
 
 /* kbd badge */
@@ -88,9 +203,9 @@
   font-size: 0.7rem;
   font-family: monospace;
   font-weight: 600;
-  color: #a1a1aa;
-  background-color: #252528;
-  border: 1px solid #3a3a40;
+  color: #a8a29e;
+  background-color: #38312b;
+  border: 1px solid #4a4239;
   border-radius: 0.25rem;
   box-shadow: 0 1px 0 rgba(0,0,0,0.5);
 }
@@ -107,7 +222,7 @@
 
 /* Shimmer effect for loading */
 .shimmer-bg {
-  background: linear-gradient(90deg, #1c1c1f 0%, #252528 50%, #1c1c1f 100%);
+  background: linear-gradient(90deg, #2b2622 0%, #38312b 50%, #2b2622 100%);
   background-size: 200% 100%;
   animation: shimmer 1.5s linear infinite;
 }
@@ -119,17 +234,16 @@
   transition: stroke-dashoffset 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-/* Sidebar gradient active state */
+/* Sidebar active state — warm, quiet */
 .sidebar-active-glow {
-  background: linear-gradient(90deg, rgba(139, 92, 246, 0.15), rgba(139, 92, 246, 0.05));
-  border-right: 2px solid #8b5cf6;
-  box-shadow: inset 0 0 20px rgba(139, 92, 246, 0.05);
+  background: linear-gradient(90deg, rgba(171, 118, 49, 0.12), rgba(171, 118, 49, 0.03));
+  border-right: 2px solid #ab7631;
 }
 
 /* Streak fire badge */
 .streak-badge {
-  background: linear-gradient(135deg, rgba(249, 115, 22, 0.2), rgba(239, 68, 68, 0.2));
-  border: 1px solid rgba(249, 115, 22, 0.4);
+  background: linear-gradient(135deg, rgba(201, 106, 38, 0.2), rgba(239, 68, 68, 0.2));
+  border: 1px solid rgba(201, 106, 38, 0.4);
   animation: streak-pulse 2s ease-in-out infinite;
 }
 
@@ -139,7 +253,7 @@
 }
 .card-hover:hover {
   transform: translateY(-1px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(139, 92, 246, 0.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 0 1px #3f3831;
 }
 
 /* Celebrate animation */

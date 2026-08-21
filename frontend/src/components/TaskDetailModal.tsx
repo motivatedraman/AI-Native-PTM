@@ -8,8 +8,6 @@ import {
   Calendar, 
   Sparkles, 
   Plus, 
-  FolderKanban, 
-  Tag as TagIcon,
   CheckSquare,
   History,
   Loader2
@@ -36,26 +34,24 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   onTaskUpdated,
   onTaskDeleted,
   projects,
-  tags,
+  tags: _tags,
 }) => {
-  if (!isOpen || !task) return null;
+  const [title, setTitle] = useState(task?.title ?? '');
+  const [description, setDescription] = useState(task?.description || '');
+  const [status, setStatus] = useState(task?.status ?? 'inbox');
+  const [priority, setPriority] = useState(task?.priority ?? 'medium');
+  const [category, setCategory] = useState(task?.category ?? 'Personal');
+  const [projectId, setProjectId] = useState<number | undefined>(task?.project_id || undefined);
+  const [estimatedMinutes, setEstimatedMinutes] = useState<number | undefined>(task?.estimated_minutes || undefined);
+  const [spentMinutes, setSpentMinutes] = useState<number>(task?.spent_minutes || 0);
+  const [dueDate, setDueDate] = useState<string>(task?.due_date ? utcToNPTInput(task.due_date) : '');
 
-  const [title, setTitle] = useState(task.title);
-  const [description, setDescription] = useState(task.description || '');
-  const [status, setStatus] = useState(task.status);
-  const [priority, setPriority] = useState(task.priority);
-  const [category, setCategory] = useState(task.category);
-  const [projectId, setProjectId] = useState<number | undefined>(task.project_id || undefined);
-  const [estimatedMinutes, setEstimatedMinutes] = useState<number | undefined>(task.estimated_minutes || undefined);
-  const [spentMinutes, setSpentMinutes] = useState<number>(task.spent_minutes || 0);
-  const [dueDate, setDueDate] = useState<string>(task.due_date ? utcToNPTInput(task.due_date) : '');
-  
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
-  const [isSuggestingSubtasks, setIsSuggestingSubtasks] = useState(false);
   const [aiSuggestions, setAiSuggestions] = useState<any | null>(null);
   const [isEnriching, setIsEnriching] = useState(false);
 
   useEffect(() => {
+    if (!isOpen || !task) return;
     setTitle(task.title);
     setDescription(task.description || '');
     setStatus(task.status);
@@ -66,7 +62,9 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
     setSpentMinutes(task.spent_minutes || 0);
     setDueDate(task.due_date ? utcToNPTInput(task.due_date) : '');
     setAiSuggestions(null);
-  }, [task]);
+  }, [task, isOpen]);
+
+  if (!isOpen || !task) return null;
 
   const handleLogTime = async (additionalMins: number) => {
     try {
@@ -188,7 +186,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
       for (const stTitle of aiSuggestions.subtasks) {
         try {
           await api.addSubtask(task.id, stTitle);
-        } catch (e) {}
+        } catch {}
       }
     }
 
@@ -207,10 +205,10 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-      <div className="w-full max-w-2xl bg-[#12141c] border border-[#262a3c] rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="w-full max-w-2xl bg-[rgb(var(--sx-modal))] border border-[rgb(var(--sx-border))] rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#262a3c]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[rgb(var(--sx-border))]">
           <div className="flex items-center space-x-3">
             <button
               onClick={() => {
@@ -218,7 +216,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                 setStatus(nextStatus);
                 api.updateTask(task.id, { status: nextStatus }).then(onTaskUpdated);
               }}
-              className="text-slate-400 hover:text-emerald-400 transition-colors"
+              className="text-stone-400 hover:text-emerald-400 transition-colors"
             >
               {status === 'done' ? (
                 <CheckCircle2 size={20} className="text-emerald-400" />
@@ -226,7 +224,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                 <Circle size={20} />
               )}
             </button>
-            <span className="text-xs font-mono uppercase px-2 py-0.5 rounded bg-[#181a24] border border-[#262a3c] text-slate-300">
+            <span className="text-xs font-mono uppercase px-2 py-0.5 rounded bg-[rgb(var(--sx-header))] border border-[rgb(var(--sx-border))] text-stone-300">
               {category}
             </span>
           </div>
@@ -235,7 +233,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
             <button
               onClick={handleEnrichWithAI}
               disabled={isEnriching}
-              className="flex items-center space-x-1 px-2.5 py-1 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 text-xs font-medium transition-colors"
+              className="flex items-center space-x-1 px-2.5 py-1 rounded-lg bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 border border-amber-500/30 text-xs font-medium transition-colors"
               title="Get AI Suggestions"
             >
               {isEnriching ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />}
@@ -250,7 +248,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
             </button>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-[#212433] transition-colors"
+              className="p-1.5 rounded-lg text-stone-400 hover:text-stone-200 hover:bg-[rgb(var(--sx-chip))] transition-colors"
             >
               <X size={18} />
             </button>
@@ -262,28 +260,28 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
           
           {/* AI Suggestion Banner if enriched */}
           {aiSuggestions && (
-            <div className="p-3.5 bg-indigo-950/40 border border-indigo-700/50 rounded-lg text-xs space-y-2">
-              <div className="flex items-center justify-between text-indigo-200 font-semibold">
+            <div className="p-3.5 bg-amber-950/40 border border-amber-700/50 rounded-lg text-xs space-y-2">
+              <div className="flex items-center justify-between text-amber-200 font-semibold">
                 <span className="flex items-center space-x-1.5">
-                  <Sparkles size={14} className="text-indigo-400" />
+                  <Sparkles size={14} className="text-amber-400" />
                   <span>AI Suggestions</span>
                 </span>
                 <div className="space-x-2">
                   <button
                     onClick={applyAISuggestions}
-                    className="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded font-medium"
+                    className="px-2.5 py-1 bg-amber-600 hover:bg-amber-500 text-white rounded font-medium"
                   >
                     Apply All
                   </button>
                   <button
                     onClick={() => setAiSuggestions(null)}
-                    className="px-2 py-1 text-slate-400 hover:text-slate-200"
+                    className="px-2 py-1 text-stone-400 hover:text-stone-200"
                   >
                     Dismiss
                   </button>
                 </div>
               </div>
-              <div className="text-slate-300 text-[11px] space-y-1">
+              <div className="text-stone-300 text-[11px] space-y-1">
                 <p>• Category: <strong>{aiSuggestions.category}</strong> · Priority: <strong>{aiSuggestions.priority}</strong> · Duration: <strong>~{aiSuggestions.estimated_minutes}m</strong></p>
                 {aiSuggestions.subtasks?.length > 0 && (
                   <p>• Subtasks: {aiSuggestions.subtasks.join(', ')}</p>
@@ -300,22 +298,22 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
               onChange={(e) => setTitle(e.target.value)}
               onBlur={handleSave}
               placeholder="Task title..."
-              className="w-full text-lg font-semibold bg-transparent text-slate-100 focus:outline-none border-b border-transparent focus:border-indigo-500 pb-1"
+              className="w-full text-lg font-semibold bg-transparent text-stone-100 focus:outline-none border-b border-transparent focus:border-amber-500 pb-1"
             />
           </div>
 
           {/* Metadata Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
             {/* Status */}
-            <div className="p-2.5 rounded-lg bg-[#181a24] border border-[#262a3c]">
-              <label className="text-slate-400 block mb-1 font-medium">Status</label>
+            <div className="p-2.5 rounded-lg bg-[rgb(var(--sx-header))] border border-[rgb(var(--sx-border))]">
+              <label className="text-stone-400 block mb-1 font-medium">Status</label>
               <select
                 value={status}
                 onChange={(e) => {
                   setStatus(e.target.value as any);
                   api.updateTask(task.id, { status: e.target.value as any }).then(onTaskUpdated);
                 }}
-                className="w-full bg-[#12141c] border border-[#262a3c] rounded p-1.5 text-slate-200 focus:outline-none"
+                className="w-full bg-[rgb(var(--sx-modal))] border border-[rgb(var(--sx-border))] rounded p-1.5 text-stone-200 focus:outline-none"
               >
                 <option value="inbox">Inbox</option>
                 <option value="planned">Planned</option>
@@ -325,15 +323,15 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
             </div>
 
             {/* Priority */}
-            <div className="p-2.5 rounded-lg bg-[#181a24] border border-[#262a3c]">
-              <label className="text-slate-400 block mb-1 font-medium">Priority</label>
+            <div className="p-2.5 rounded-lg bg-[rgb(var(--sx-header))] border border-[rgb(var(--sx-border))]">
+              <label className="text-stone-400 block mb-1 font-medium">Priority</label>
               <select
                 value={priority}
                 onChange={(e) => {
                   setPriority(e.target.value as any);
                   api.updateTask(task.id, { priority: e.target.value as any }).then(onTaskUpdated);
                 }}
-                className="w-full bg-[#12141c] border border-[#262a3c] rounded p-1.5 text-slate-200 focus:outline-none"
+                className="w-full bg-[rgb(var(--sx-modal))] border border-[rgb(var(--sx-border))] rounded p-1.5 text-stone-200 focus:outline-none"
               >
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>
@@ -343,15 +341,15 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
             </div>
 
             {/* Category */}
-            <div className="p-2.5 rounded-lg bg-[#181a24] border border-[#262a3c]">
-              <label className="text-slate-400 block mb-1 font-medium">Category</label>
+            <div className="p-2.5 rounded-lg bg-[rgb(var(--sx-header))] border border-[rgb(var(--sx-border))]">
+              <label className="text-stone-400 block mb-1 font-medium">Category</label>
               <select
                 value={category}
                 onChange={(e) => {
                   setCategory(e.target.value);
                   api.updateTask(task.id, { category: e.target.value }).then(onTaskUpdated);
                 }}
-                className="w-full bg-[#12141c] border border-[#262a3c] rounded p-1.5 text-slate-200 focus:outline-none"
+                className="w-full bg-[rgb(var(--sx-modal))] border border-[rgb(var(--sx-border))] rounded p-1.5 text-stone-200 focus:outline-none"
               >
                 <option value="Personal">Personal</option>
                 <option value="University">University</option>
@@ -362,8 +360,8 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
             </div>
 
             {/* Project */}
-            <div className="p-2.5 rounded-lg bg-[#181a24] border border-[#262a3c]">
-              <label className="text-slate-400 block mb-1 font-medium">Project</label>
+            <div className="p-2.5 rounded-lg bg-[rgb(var(--sx-header))] border border-[rgb(var(--sx-border))]">
+              <label className="text-stone-400 block mb-1 font-medium">Project</label>
               <select
                 value={projectId || ''}
                 onChange={(e) => {
@@ -371,7 +369,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                   setProjectId(val);
                   api.updateTask(task.id, { project_id: val || null }).then(onTaskUpdated);
                 }}
-                className="w-full bg-[#12141c] border border-[#262a3c] rounded p-1.5 text-slate-200 focus:outline-none"
+                className="w-full bg-[rgb(var(--sx-modal))] border border-[rgb(var(--sx-border))] rounded p-1.5 text-stone-200 focus:outline-none"
               >
                 <option value="">None</option>
                 {projects.map((p) => (
@@ -385,11 +383,11 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
 
           {/* Dates and Time */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-            <div className="p-2.5 rounded-lg bg-[#181a24] border border-[#262a3c] flex items-center space-x-2">
-              <Calendar size={15} className="text-slate-400" />
+            <div className="p-2.5 rounded-lg bg-[rgb(var(--sx-header))] border border-[rgb(var(--sx-border))] flex items-center space-x-2">
+              <Calendar size={15} className="text-stone-400" />
               <div className="flex-1">
                 <div className="flex items-center justify-between">
-                  <label className="text-slate-400 block text-[10px] uppercase">Due Date (NPT)</label>
+                  <label className="text-stone-400 block text-[10px] uppercase">Due Date (NPT)</label>
                   {dueDate && (
                     <button
                       type="button"
@@ -404,49 +402,49 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                   type="datetime-local"
                   value={dueDate}
                   onChange={(e) => handleDueDateChange(e.target.value)}
-                  className="w-full bg-transparent text-slate-200 focus:outline-none text-xs cursor-pointer"
+                  className="w-full bg-transparent text-stone-200 focus:outline-none text-xs cursor-pointer"
                 />
               </div>
             </div>
 
-            <div className="p-2.5 rounded-lg bg-[#181a24] border border-[#262a3c] flex items-center space-x-2">
-              <Clock size={15} className="text-slate-400" />
+            <div className="p-2.5 rounded-lg bg-[rgb(var(--sx-header))] border border-[rgb(var(--sx-border))] flex items-center space-x-2">
+              <Clock size={15} className="text-stone-400" />
               <div className="flex-1">
-                <label className="text-slate-400 block text-[10px] uppercase">Estimated Duration (mins)</label>
+                <label className="text-stone-400 block text-[10px] uppercase">Estimated Duration (mins)</label>
                 <input
                   type="number"
                   value={estimatedMinutes || ''}
                   onChange={(e) => setEstimatedMinutes(e.target.value ? Number(e.target.value) : undefined)}
                   onBlur={handleSave}
                   placeholder="e.g. 60"
-                  className="w-full bg-transparent text-slate-200 focus:outline-none text-xs"
+                  className="w-full bg-transparent text-stone-200 focus:outline-none text-xs"
                 />
               </div>
             </div>
           </div>
 
           {/* Time Tracking & Partial Progress */}
-          <div className="p-3.5 rounded-xl space-y-3 bg-[#181a24] border border-[#262a3c]">
+          <div className="p-3.5 rounded-xl space-y-3 bg-[rgb(var(--sx-header))] border border-[rgb(var(--sx-border))]">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <Clock size={14} className="text-violet-400" />
-                <span className="text-xs font-semibold text-zinc-200">Time Logged & Progress</span>
+                <Clock size={14} className="text-amber-400" />
+                <span className="text-xs font-semibold text-stone-200">Time Logged & Progress</span>
               </div>
-              <span className="text-xs font-mono font-medium text-violet-300">
+              <span className="text-xs font-mono font-medium text-amber-300">
                 {spentMinutes}m / {estimatedMinutes || 0}m {estimatedMinutes ? `(${Math.min(100, Math.round((spentMinutes / estimatedMinutes) * 100))}%)` : ''}
               </span>
             </div>
 
             {/* Visual Progress Bar */}
             {estimatedMinutes && estimatedMinutes > 0 ? (
-              <div className="w-full bg-[#12141c] rounded-full h-2 overflow-hidden border border-[#262a3c]">
+              <div className="w-full bg-[rgb(var(--sx-modal))] rounded-full h-2 overflow-hidden border border-[rgb(var(--sx-border))]">
                 <div
                   className="h-full rounded-full transition-all duration-300"
                   style={{
                     width: `${Math.min(100, (spentMinutes / estimatedMinutes) * 100)}%`,
                     background: spentMinutes >= estimatedMinutes
-                      ? 'linear-gradient(90deg, #10b981, #34d399)'
-                      : 'linear-gradient(90deg, #8b5cf6, #ec4899)',
+                      ? 'linear-gradient(90deg, var(--success), var(--emerald-bright))'
+                      : 'linear-gradient(90deg, rgb(var(--am-600)), var(--brand-deep))',
                   }}
                 />
               </div>
@@ -454,14 +452,14 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
 
             {/* Quick Log Buttons */}
             <div className="flex items-center justify-between pt-1">
-              <span className="text-[11px] text-slate-400">Log time spent:</span>
+              <span className="text-[11px] text-stone-400">Log time spent:</span>
               <div className="flex items-center space-x-1.5">
                 {[15, 30, 60, 120].map((mins) => (
                   <button
                     key={mins}
                     type="button"
                     onClick={() => handleLogTime(mins)}
-                    className="px-2.5 py-1 rounded-lg text-[11px] font-medium text-slate-300 bg-[#212433] hover:bg-violet-600 hover:text-white border border-[#3a3f54] transition-colors"
+                    className="px-2.5 py-1 rounded-lg text-[11px] font-medium text-stone-300 bg-[rgb(var(--sx-chip))] hover:bg-amber-600 hover:text-white border border-[rgb(var(--sx-border-4))] transition-colors"
                   >
                     +{mins >= 60 ? `${mins / 60}h` : `${mins}m`}
                   </button>
@@ -472,14 +470,14 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
 
           {/* Description */}
           <div>
-            <label className="block text-xs font-semibold text-slate-400 mb-1.5">Description & Notes</label>
+            <label className="block text-xs font-semibold text-stone-400 mb-1.5">Description & Notes</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               onBlur={handleSave}
               rows={3}
               placeholder="Add details, notes, or execution steps..."
-              className="w-full bg-[#181a24] border border-[#262a3c] rounded-lg p-3 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+              className="w-full bg-[rgb(var(--sx-header))] border border-[rgb(var(--sx-border))] rounded-lg p-3 text-xs text-stone-200 placeholder-stone-500 focus:outline-none focus:border-amber-500"
             />
           </div>
 
@@ -502,7 +500,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
           {/* Subtasks Checklist */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-xs font-semibold text-slate-400 flex items-center space-x-1.5">
+              <label className="text-xs font-semibold text-stone-400 flex items-center space-x-1.5">
                 <CheckSquare size={14} />
                 <span>Subtasks ({task.subtasks.filter(s => s.is_completed).length}/{task.subtasks.length})</span>
               </label>
@@ -512,7 +510,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
               {task.subtasks.map((st) => (
                 <div
                   key={st.id}
-                  className="flex items-center justify-between p-2 rounded-lg bg-[#181a24] border border-[#262a3c]/70 text-xs group"
+                  className="flex items-center justify-between p-2 rounded-lg bg-[rgb(var(--sx-header))] border border-[rgb(var(--sx-border)/0.7)] text-xs group"
                 >
                   <button
                     onClick={() => handleToggleSubtask(st)}
@@ -521,15 +519,15 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                     {st.is_completed ? (
                       <CheckCircle2 size={15} className="text-emerald-400 flex-shrink-0" />
                     ) : (
-                      <Circle size={15} className="text-slate-500 flex-shrink-0" />
+                      <Circle size={15} className="text-stone-500 flex-shrink-0" />
                     )}
-                    <span className={st.is_completed ? 'line-through text-slate-500' : 'text-slate-200'}>
+                    <span className={st.is_completed ? 'line-through text-stone-500' : 'text-stone-200'}>
                       {st.title}
                     </span>
                   </button>
                   <button
                     onClick={() => handleDeleteSubtask(st.id)}
-                    className="opacity-0 group-hover:opacity-100 p-1 text-slate-500 hover:text-rose-400 transition-opacity"
+                    className="opacity-0 group-hover:opacity-100 p-1 text-stone-500 hover:text-rose-400 transition-opacity"
                   >
                     <X size={13} />
                   </button>
@@ -543,12 +541,12 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                   value={newSubtaskTitle}
                   onChange={(e) => setNewSubtaskTitle(e.target.value)}
                   placeholder="Add a subtask and press Enter..."
-                  className="flex-1 bg-[#181a24] border border-[#262a3c] rounded-lg px-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                  className="flex-1 bg-[rgb(var(--sx-header))] border border-[rgb(var(--sx-border))] rounded-lg px-3 py-1.5 text-xs text-stone-200 placeholder-stone-500 focus:outline-none focus:border-amber-500"
                 />
                 <button
                   type="submit"
                   disabled={!newSubtaskTitle.trim()}
-                  className="p-2 bg-[#212433] hover:bg-[#2c3044] text-slate-200 rounded-lg text-xs disabled:opacity-50"
+                  className="p-2 bg-[rgb(var(--sx-chip))] hover:bg-[rgb(var(--sx-border-2))] text-stone-200 rounded-lg text-xs disabled:opacity-50"
                 >
                   <Plus size={14} />
                 </button>
@@ -558,16 +556,16 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
 
           {/* Activity Logs History */}
           {task.activities && task.activities.length > 0 && (
-            <div className="pt-4 border-t border-[#262a3c]">
-              <label className="text-xs font-semibold text-slate-400 flex items-center space-x-1.5 mb-2">
+            <div className="pt-4 border-t border-[rgb(var(--sx-border))]">
+              <label className="text-xs font-semibold text-stone-400 flex items-center space-x-1.5 mb-2">
                 <History size={14} />
                 <span>Audit History</span>
               </label>
               <div className="space-y-1.5 max-h-36 overflow-y-auto pr-2 text-[11px]">
                 {task.activities.map((act) => (
-                  <div key={act.id} className="flex items-center justify-between text-slate-400 py-1 border-b border-[#262a3c]/40">
+                  <div key={act.id} className="flex items-center justify-between text-stone-400 py-1 border-b border-[rgb(var(--sx-border)/0.4)]">
                     <span>{act.description}</span>
-                    <span className="font-mono text-[10px] text-slate-400">
+                    <span className="font-mono text-[10px] text-stone-400">
                       {formatTimeNPT(act.created_at, { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
@@ -579,11 +577,11 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3 border-t border-[#262a3c] bg-[#181a24]/50 flex items-center justify-between text-xs text-slate-400">
+        <div className="px-6 py-3 border-t border-[rgb(var(--sx-border))] bg-[rgb(var(--sx-header)/0.5)] flex items-center justify-between text-xs text-stone-400">
           <span>Created: {formatDateNPT(task.created_at)}</span>
           <button
             onClick={onClose}
-            className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-medium"
+            className="px-4 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-medium"
           >
             Done
           </button>
