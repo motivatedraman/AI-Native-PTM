@@ -89,7 +89,27 @@ def create_tables():
         TaskDependency, DailyReflection, UserSettings, AISuggestion
     )
     Base.metadata.create_all(bind=engine)
+
+    # SQLite migration: add missing columns that create_all won't add
+    from sqlalchemy import text, inspect
+    if str(engine.url).startswith("sqlite"):
+        with engine.connect() as conn:
+            inspector = inspect(engine)
+            existing_cols = {c["name"] for c in inspector.get_columns("user_settings")}
+            migrations = [
+                ("daily_chunks", "JSON"),
+            ]
+            for col_name, col_type in migrations:
+                if col_name not in existing_cols:
+                    conn.execute(text(f"ALTER TABLE user_settings ADD COLUMN {col_name} {col_type}"))
+                    conn.commit()
+                    print(f"[Startup] Added missing column: user_settings.{col_name}")
+
     print("[Startup] Database tables ensured.")
+    # Debug: confirm AI config on startup
+    from backend.app.config import settings as _cfg
+    _key = _cfg.get_ai_api_key()
+    print(f"[Startup] AI provider={_cfg.AI_PROVIDER}, model={_cfg.get_ai_model()}, key={'set (' + str(len(_key)) + ' chars)' if _key else 'MISSING'}")
 
 @app.get("/api/health")
 def health_check():
