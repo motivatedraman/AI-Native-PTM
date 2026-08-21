@@ -17,6 +17,7 @@ import { Task, Project, Tag, ActiveView, AIStatus } from './types';
 import { api } from './services/api';
 import { Menu } from 'lucide-react';
 import { useStreak } from './utils/useStreak';
+import { todayNPT, dateStrNPT } from './utils/time';
 
 
 export const App: React.FC = () => {
@@ -213,10 +214,11 @@ export const App: React.FC = () => {
     return <LoginScreen onLoginSuccess={handleLoginSuccess} />;
   }
 
+  const todayStr = todayNPT();
   const taskCounts = {
-    today: tasks.filter(t => t.status !== 'done').length,
+    today: tasks.filter(t => t.status !== 'done' && dateStrNPT(t.due_date) === todayStr).length,
     inbox: tasks.filter(t => t.status === 'inbox').length,
-    university: tasks.filter(t => t.category.toLowerCase() === 'university' && t.status !== 'done').length,
+    university: tasks.filter(t => t.category?.toLowerCase() === 'university' && t.status !== 'done').length,
   };
 
   return (

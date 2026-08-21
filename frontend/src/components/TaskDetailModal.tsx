@@ -78,6 +78,17 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
     }
   };
 
+  const handleDueDateChange = async (newVal: string) => {
+    setDueDate(newVal);
+    try {
+      const isoDate = newVal ? new Date(newVal).toISOString() : null;
+      const updated = await api.updateTask(task.id, { due_date: isoDate });
+      onTaskUpdated(updated);
+    } catch (err) {
+      console.error("Failed to update due date:", err);
+    }
+  };
+
   const handleSave = async () => {
     try {
       const updated = await api.updateTask(task.id, {
@@ -377,14 +388,23 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
             <div className="p-2.5 rounded-lg bg-[#181a24] border border-[#262a3c] flex items-center space-x-2">
               <Calendar size={15} className="text-slate-400" />
               <div className="flex-1">
-                <label className="text-slate-400 block text-[10px] uppercase">Due Date</label>
+                <div className="flex items-center justify-between">
+                  <label className="text-slate-400 block text-[10px] uppercase">Due Date</label>
+                  {dueDate && (
+                    <button
+                      type="button"
+                      onClick={() => handleDueDateChange('')}
+                      className="text-[10px] text-rose-400 hover:text-rose-300 font-medium"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
                 <input
                   type="datetime-local"
                   value={dueDate}
-                  min={new Date().toISOString().slice(0, 16)}
-                  onChange={(e) => setDueDate(e.target.value)}
-                  onBlur={handleSave}
-                  className="w-full bg-transparent text-slate-200 focus:outline-none text-xs"
+                  onChange={(e) => handleDueDateChange(e.target.value)}
+                  className="w-full bg-transparent text-slate-200 focus:outline-none text-xs cursor-pointer"
                 />
               </div>
             </div>

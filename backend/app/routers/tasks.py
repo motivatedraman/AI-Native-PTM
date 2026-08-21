@@ -48,9 +48,6 @@ def get_tasks(
 
 @router.post("", response_model=TaskResponse, status_code=status.HTTP_201_CREATED)
 def create_task(task_in: TaskCreate, db: Session = Depends(get_db)):
-    if task_in.due_date and task_in.due_date < datetime.utcnow() - timedelta(minutes=5):
-        raise HTTPException(status_code=400, detail="Due date cannot be set in the past")
-
     task = Task(
         title=task_in.title,
         description=task_in.description,
@@ -160,10 +157,6 @@ def update_task(task_id: int, task_update: TaskUpdate, db: Session = Depends(get
 
     old_status = task.status
     update_data = task_update.model_dump(exclude_unset=True)
-
-    if "due_date" in update_data and update_data["due_date"]:
-        if update_data["due_date"] < datetime.utcnow() - timedelta(minutes=5):
-            raise HTTPException(status_code=400, detail="Due date cannot be set in the past")
 
     # Handle tag_ids specially
     if "tag_ids" in update_data:
