@@ -48,3 +48,15 @@ yarn-error.log*
 .DS_Store
 *.swp
 *.swo
+
+# Logs
+*.log
+backend.log
+frontend.log
+
+# Non-deployment Documentation & Notes
+instruction*.md
+completion*.md
+errorlog*.md
+errorlogrender.md
+

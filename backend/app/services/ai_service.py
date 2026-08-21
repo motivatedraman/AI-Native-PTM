@@ -51,19 +51,30 @@ class RateLimiter:
 
 class AIService:
     def __init__(self):
-        self.provider = settings.AI_PROVIDER.lower()
-        self.api_key = settings.get_ai_api_key()
-        self.model = settings.get_ai_model()
-        # Rate limiter: 20 RPM gives headroom under the 30 RPM free tier of flash-lite
+        # Rate limiter: 20 RPM gives headroom under the free tier
         self.rate_limiter = RateLimiter(max_rpm=20)
         self._last_error: Optional[str] = None
         self._consecutive_failures = 0
 
+    @property
+    def provider(self) -> str:
+        return settings.get_ai_provider()
+
+    @property
+    def api_key(self) -> str:
+        return settings.get_ai_api_key()
+
+    @property
+    def model(self) -> str:
+        return settings.get_ai_model()
+
     def _refresh_key(self):
-        self.api_key = settings.get_ai_api_key()
+        # Properties dynamically read from settings, no-op for backward compat
+        pass
 
     def get_status(self) -> AIStatusResponse:
-        is_configured = bool(self.api_key and len(self.api_key) > 5)
+        key = self.api_key
+        is_configured = bool(key and len(key) > 5)
         healthy = self._consecutive_failures < 3
         msg = "AI Engine active with structured heuristic fallback"
         if is_configured:
@@ -85,7 +96,8 @@ class AIService:
     # ─────────────────────────────────────────────
     async def _call_ai(self, prompt: str, expect_json: bool = True) -> Optional[Any]:
         """Call the AI provider with rate limiting and async wait on throttle. Returns parsed JSON or raw text."""
-        if not self.api_key or len(self.api_key) < 5:
+        key = self.api_key
+        if not key or len(key) < 5:
             return None
 
         # If rate limited, wait for the window to clear instead of silently dropping
@@ -111,13 +123,18 @@ class AIService:
         return None
 
     async def _call_gemini(self, prompt: str, expect_json: bool) -> Optional[Any]:
-        """Call Gemini using the official google-genai SDK with retry on 429."""
+        """Call Gemini using the official google-genai SDK with retry and candidate model fallback."""
         if _genai is None:
             self._last_error = "google-genai package not installed"
             print("[AIService] google-genai not installed, falling back to heuristic")
             return None
 
-        client = _genai.Client(api_key=self.api_key)
+        key = self.api_key
+        if not key or len(key) < 5:
+            self._last_error = "API key not configured"
+            return None
+
+        client = _genai.Client(api_key=key)
 
         config: Dict[str, Any] = {
             "temperature": 0.4,
@@ -126,49 +143,70 @@ class AIService:
         if expect_json:
             config["response_mime_type"] = "application/json"
 
-        max_retries = 3
-        for attempt in range(1, max_retries + 1):
-            try:
-                response = await client.aio.models.generate_content(
-                    model=self.model,
-                    contents=prompt,
-                    config=config,
-                )
-                # Only count this as a used slot after a successful call
-                self.rate_limiter.record()
-                self._consecutive_failures = 0
-                self._last_error = None
+        # Candidate models to try: configured model first, then fallback models
+        candidate_models = [self.model]
+        for fb in ["gemini-3.5-flash-lite", "gemini-3.6-flash"]:
+            if fb not in candidate_models:
+                candidate_models.append(fb)
 
-                text = response.text
-                if expect_json:
-                    return json.loads(text)
-                return text
+        max_retries = 2
+        last_exception = None
 
-            except Exception as e:
-                err_str = str(e).lower()
-                # Detect 429 / quota exhausted from Gemini SDK
-                is_rate_error = (
-                    "429" in err_str
-                    or "resource_exhausted" in err_str
-                    or "quota" in err_str
-                    or "rate" in err_str
-                )
-                if is_rate_error and attempt < max_retries:
-                    backoff = 15 * attempt  # 15s, 30s, ...
-                    print(f"[AIService] Gemini 429 on attempt {attempt}/{max_retries}, retrying in {backoff}s")
-                    self._last_error = f"Rate limited by Gemini (attempt {attempt}), retrying"
-                    await asyncio.sleep(backoff)
-                    continue
-                # Non-retryable or last attempt
-                self._consecutive_failures += 1
-                self._last_error = str(e)
-                raise
+        for model_name in candidate_models:
+            for attempt in range(1, max_retries + 1):
+                try:
+                    response = await client.aio.models.generate_content(
+                        model=model_name,
+                        contents=prompt,
+                        config=config,
+                    )
+                    self.rate_limiter.record()
+                    self._consecutive_failures = 0
+                    self._last_error = None
+
+                    text = response.text
+                    if expect_json:
+                        clean_text = text.strip()
+                        if clean_text.startswith("```"):
+                            clean_text = re.sub(r"^```[a-zA-Z]*\n?", "", clean_text)
+                            clean_text = re.sub(r"\n?```$", "", clean_text).strip()
+                        return json.loads(clean_text)
+                    return text
+
+                except Exception as e:
+                    last_exception = e
+                    err_str = str(e).lower()
+                    if "not found" in err_str or "404" in err_str or "no longer available" in err_str:
+                        print(f"[AIService] Model '{model_name}' unavailable ({e}), trying fallback...")
+                        break
+
+                    is_rate_error = (
+                        "429" in err_str
+                        or "resource_exhausted" in err_str
+                        or "quota" in err_str
+                    )
+                    if is_rate_error and attempt < max_retries:
+                        backoff = 5 * attempt
+                        print(f"[AIService] Gemini 429 on attempt {attempt}/{max_retries}, retrying in {backoff}s")
+                        self._last_error = f"Rate limited by Gemini (attempt {attempt}), retrying"
+                        await asyncio.sleep(backoff)
+                        continue
+                    break
+
+        self._consecutive_failures += 1
+        self._last_error = str(last_exception) if last_exception else "AI call failed"
+        print(f"[AIService] Gemini call failed: {self._last_error}")
+        return None
 
     async def _call_openai(self, prompt: str, expect_json: bool) -> Optional[Any]:
-        """Call OpenAI via raw HTTP (unchanged)."""
+        """Call OpenAI via raw HTTP."""
+        key = self.api_key
+        if not key or len(key) < 5:
+            return None
+
         async with httpx.AsyncClient(timeout=30.0) as client:
             url = "https://api.openai.com/v1/chat/completions"
-            headers = {"Authorization": f"Bearer {self.api_key}"}
+            headers = {"Authorization": f"Bearer {key}"}
             messages = [{"role": "user", "content": prompt}]
             payload: Dict[str, Any] = {
                 "model": self.model or "gpt-4o-mini",
@@ -191,7 +229,11 @@ class AIService:
                 data = res.json()
                 text_content = data["choices"][0]["message"]["content"]
                 if expect_json:
-                    return json.loads(text_content)
+                    clean_text = text_content.strip()
+                    if clean_text.startswith("```"):
+                        clean_text = re.sub(r"^```[a-zA-Z]*\n?", "", clean_text)
+                        clean_text = re.sub(r"\n?```$", "", clean_text).strip()
+                    return json.loads(clean_text)
                 return text_content
             else:
                 self._consecutive_failures += 1
@@ -467,12 +509,10 @@ class AIService:
 
     async def parse_task(self, text: str, force_ai: bool = False) -> AITaskParseResult:
         """Parse natural language task entry.
-        Uses enhanced heuristics by default for instant zero-token extraction.
-        Uses AI only when explicitly requested (force_ai=True) or when heuristic has low confidence."""
+        Uses AI when configured; falls back gracefully to high-precision heuristics."""
         heuristic = self._heuristic_parse(text)
 
-        # Use AI only when explicitly requested to preserve free credits for heavy tasks (Planner, Decomposition, Chat, etc.)
-        if force_ai and self.api_key and len(self.api_key) > 5:
+        if self.api_key and len(self.api_key) > 5:
             now_npt = datetime.now(NPT)
             prompt = f"""You are an intelligent task parsing assistant. Convert the user's natural language task input into structured JSON.
 Current datetime (Nepal Time / UTC+5:45): {now_npt.strftime("%Y-%m-%d %H:%M")}
@@ -492,11 +532,34 @@ Return ONLY valid JSON matching this schema:
     "reasoning": "brief explanation"
 }}"""
             result = await self._call_ai(prompt)
-            if result:
+            if result and isinstance(result, dict) and "title" in result:
                 try:
-                    return AITaskParseResult(**result)
-                except Exception:
-                    pass
+                    due_iso = result.get("due_date_iso")
+                    due_str = None
+                    if due_iso:
+                        try:
+                            dt = datetime.fromisoformat(due_iso.replace("Z", "+00:00"))
+                            due_str = dt.astimezone(NPT).strftime("%Y-%m-%d %H:%M")
+                        except Exception:
+                            due_str = heuristic.due_date_str
+                    else:
+                        due_str = heuristic.due_date_str
+                        due_iso = heuristic.due_date_iso
+
+                    return AITaskParseResult(
+                        title=result.get("title") or heuristic.title,
+                        category=result.get("category") or heuristic.category,
+                        priority=result.get("priority") or heuristic.priority,
+                        due_date_str=due_str,
+                        due_date_iso=due_iso,
+                        estimated_minutes=result.get("estimated_minutes") or heuristic.estimated_minutes,
+                        suggested_project=result.get("suggested_project") or heuristic.suggested_project,
+                        suggested_tags=result.get("suggested_tags") or heuristic.suggested_tags,
+                        confidence=result.get("confidence", 0.95),
+                        reasoning=result.get("reasoning", "AI structured extraction.")
+                    )
+                except Exception as e:
+                    print(f"[AIService] Failed to parse AI result ({e}), using heuristic fallback")
 
         # Return fast, comprehensive heuristic result
         return heuristic

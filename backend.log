@@ -1,6 +1,0 @@
-INFO:     Started server process [1914]
-INFO:     Waiting for application startup.
-[Startup] Database tables ensured.
-INFO:     Application startup complete.
-INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-INFO:     192.168.122.1:34754 - "GET /api/settings HTTP/1.1" 200 OK

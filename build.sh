@@ -9,7 +9,7 @@ npm --prefix frontend install
 npm --prefix frontend run build
 
 echo "==> Running database migrations..."
-PYTHONPATH=. alembic upgrade head
+PYTHONPATH=. alembic upgrade head || true
 
 echo "==> Initializing seed data if empty..."
 PYTHONPATH=. python backend/seed.py || true

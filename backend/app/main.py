@@ -82,7 +82,7 @@ app.include_router(dependencies_router, dependencies=[Depends(get_current_user)]
 
 @app.on_event("startup")
 def create_tables():
-    """Auto-create tables on first run (fallback for when alembic isn't run)."""
+    """Auto-create tables on first run and ensure missing columns exist."""
     # Import all models so Base.metadata knows about them
     from backend.app.models import (
         Project, Tag, Subtask, ActivityLog, Task,
@@ -90,26 +90,42 @@ def create_tables():
     )
     Base.metadata.create_all(bind=engine)
 
-    # SQLite migration: add missing columns that create_all won't add
+    # Universal migration check for missing columns on existing tables
     from sqlalchemy import text, inspect
-    if str(engine.url).startswith("sqlite"):
+    try:
+        inspector = inspect(engine)
+        existing_tables = inspector.get_table_names()
+        is_sqlite = str(engine.url).startswith("sqlite")
+
+        column_migrations = {
+            "tasks": [
+                ("spent_minutes", "INTEGER DEFAULT 0 NOT NULL", "INTEGER DEFAULT 0"),
+            ],
+            "user_settings": [
+                ("daily_chunks", "JSON", "JSON"),
+            ],
+        }
+
         with engine.connect() as conn:
-            inspector = inspect(engine)
-            existing_cols = {c["name"] for c in inspector.get_columns("user_settings")}
-            migrations = [
-                ("daily_chunks", "JSON"),
-            ]
-            for col_name, col_type in migrations:
-                if col_name not in existing_cols:
-                    conn.execute(text(f"ALTER TABLE user_settings ADD COLUMN {col_name} {col_type}"))
-                    conn.commit()
-                    print(f"[Startup] Added missing column: user_settings.{col_name}")
+            for table_name, cols in column_migrations.items():
+                if table_name in existing_tables:
+                    existing_cols = {c["name"] for c in inspector.get_columns(table_name)}
+                    for col_name, sqlite_type, pg_type in cols:
+                        if col_name not in existing_cols:
+                            col_type = sqlite_type if is_sqlite else pg_type
+                            conn.execute(text(f"ALTER TABLE {table_name} ADD COLUMN {col_name} {col_type}"))
+                            conn.commit()
+                            print(f"[Startup] Added missing column: {table_name}.{col_name}")
+    except Exception as ex:
+        print(f"[Startup] Warning during column verification: {ex}")
 
     print("[Startup] Database tables ensured.")
-    # Debug: confirm AI config on startup
+    # Confirm AI config on startup
     from backend.app.config import settings as _cfg
     _key = _cfg.get_ai_api_key()
-    print(f"[Startup] AI provider={_cfg.AI_PROVIDER}, model={_cfg.get_ai_model()}, key={'set (' + str(len(_key)) + ' chars)' if _key else 'MISSING'}")
+    _prov = _cfg.get_ai_provider()
+    _mod = _cfg.get_ai_model()
+    print(f"[Startup] AI provider={_prov}, model={_mod}, key={'set (' + str(len(_key)) + ' chars)' if _key else 'MISSING'}")
 
 @app.get("/api/health")
 def health_check():

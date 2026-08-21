@@ -17,16 +17,6 @@ class Settings(BaseSettings):
     AI_API_KEY: str = ""
     GEMINI_API_KEY: str = ""
     AI_MODEL: str = "gemini-3.5-flash-lite"
-    
-    def get_ai_model(self) -> str:
-        """Get the AI model, with deprecation detection."""
-        model = self.AI_MODEL.strip()
-        # Detect deprecated models and auto-upgrade to the flash-lite for best free-tier rate limits
-        deprecated = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash", "gemini-2.0-flash-lite", "gemini-2.5-flash", "gemini-3.6-flash"]
-        if model in deprecated:
-            print(f"[Config] WARNING: {model} is deprecated/has lower RPM limits. Auto-upgrading to gemini-3.5-flash-lite")
-            return "gemini-3.5-flash-lite"
-        return model
     AVAILABLE_START_HOUR: int = 6
     AVAILABLE_END_HOUR: int = 22
     SECRET_KEY: str = "dev-secret-key-replace-in-production-nexus-os-32chars"
@@ -61,21 +51,41 @@ class Settings(BaseSettings):
         return clean
 
     def get_database_url(self) -> str:
-        url = (os.environ.get("DATABASE_URL") or self.DATABASE_URL).strip()
+        url = (os.environ.get("DATABASE_URL") or self.DATABASE_URL).strip().strip('"').strip("'")
         # Render PostgreSQL URL compatibility (postgres:// -> postgresql://)
         if url.startswith("postgres://"):
             url = url.replace("postgres://", "postgresql://", 1)
         return url
 
+    def get_ai_provider(self) -> str:
+        raw = os.environ.get("AI_PROVIDER") or self.AI_PROVIDER or "gemini"
+        clean = str(raw).strip().strip('"').strip("'").lower()
+        return clean if clean else "gemini"
+
+    def get_ai_model(self) -> str:
+        raw = os.environ.get("AI_MODEL") or self.AI_MODEL or ""
+        clean = str(raw).strip().strip('"').strip("'")
+        if clean:
+            return clean
+        provider = self.get_ai_provider()
+        if provider == "openai":
+            return "gpt-4o-mini"
+        return "gemini-3.5-flash-lite"
+
     def get_ai_api_key(self) -> str:
-        # Prefer AI_API_KEY, fall back to GEMINI_API_KEY or GOOGLE_API_KEY
-        key = os.environ.get("AI_API_KEY", "").strip()
+        provider = self.get_ai_provider()
+        # Check standard and provider-specific environment variables
+        key = os.environ.get("AI_API_KEY", "").strip().strip('"').strip("'")
         if not key:
-            key = os.environ.get("GEMINI_API_KEY", "").strip()
+            key = os.environ.get("GEMINI_API_KEY", "").strip().strip('"').strip("'")
         if not key:
-            key = os.environ.get("GOOGLE_API_KEY", "").strip()
+            key = os.environ.get("GOOGLE_API_KEY", "").strip().strip('"').strip("'")
+        if not key and provider == "openai":
+            key = os.environ.get("OPENAI_API_KEY", "").strip().strip('"').strip("'")
         if not key:
-            key = self.AI_API_KEY.strip()
+            key = self.AI_API_KEY.strip().strip('"').strip("'")
+        if not key and self.GEMINI_API_KEY:
+            key = self.GEMINI_API_KEY.strip().strip('"').strip("'")
         return key
 
     model_config = SettingsConfigDict(
