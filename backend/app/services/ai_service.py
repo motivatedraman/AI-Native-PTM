@@ -139,6 +139,7 @@ class AIService:
         config: Dict[str, Any] = {
             "temperature": 0.4,
             "max_output_tokens": 2048,
+            "automatic_function_calling": {"disable": True},
         }
         if expect_json:
             config["response_mime_type"] = "application/json"
