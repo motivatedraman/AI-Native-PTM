@@ -105,12 +105,22 @@ export const App: React.FC = () => {
     if (!currentUser) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      const key = e.key.toLowerCase();
+
+      // Escape closes any open modal even when focus is inside an
+      // input/textarea (e.g. the AI assistant chat box).
+      if (key === 'escape') {
+        setIsQuickAddOpen(false);
+        setIsCommandPaletteOpen(false);
+        setIsPlanDayOpen(false);
+        setIsAIAssistantOpen(false);
+        return;
+      }
+
       const target = e.target as HTMLElement;
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
         return;
       }
-
-      const key = e.key.toLowerCase();
 
       if (key === 'n' && !e.metaKey && !e.ctrlKey) {
         e.preventDefault();
@@ -133,11 +143,6 @@ export const App: React.FC = () => {
       } else if (key === '/' || ((e.metaKey || e.ctrlKey) && key === 'k')) {
         e.preventDefault();
         setIsCommandPaletteOpen(true);
-      } else if (key === 'escape') {
-        setIsQuickAddOpen(false);
-        setIsCommandPaletteOpen(false);
-        setIsPlanDayOpen(false);
-        setIsAIAssistantOpen(false);
       }
     };
 

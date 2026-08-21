@@ -18,6 +18,7 @@ from backend.app.schemas import (
 )
 from backend.app.services import ai_service
 from backend.app.services.context_resolver import ContextResolver
+from backend.app.services.npt import day_bounds_utc
 
 router = APIRouter(prefix="/api/ai", tags=["AI Integration"])
 
@@ -239,8 +240,7 @@ async def enhanced_daily_summary(date_str: str, db: Session = Depends(get_db)):
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
 
-    day_start = datetime.combine(day, datetime.min.time())
-    day_end = datetime.combine(day, datetime.max.time())
+    day_start, day_end = day_bounds_utc(day)
 
     completed_tasks = db.query(Task).filter(
         Task.completed_at >= day_start, Task.completed_at <= day_end

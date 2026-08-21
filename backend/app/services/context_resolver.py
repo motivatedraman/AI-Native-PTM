@@ -13,27 +13,10 @@ from sqlalchemy import and_, or_, desc
 from backend.app.models import Task, Project, Tag, ActivityLog, Subtask
 from backend.app.models.task_dependency import TaskDependency
 from backend.app.models.user_settings import UserSettings
-
-NPT = timezone(timedelta(hours=5, minutes=45))
-
-
-def _now_npt() -> datetime:
-    return datetime.now(NPT)
-
-
-def _today_npt() -> date:
-    return _now_npt().date()
-
+from backend.app.services.npt import NPT, now_npt as _now_npt, today_npt as _today_npt, day_bounds_utc as _day_bounds_utc
 
 def _utc_now() -> datetime:
     return datetime.utcnow()
-
-
-def _day_bounds_utc(day: date):
-    """Return (start, end) datetime in UTC for a given NPT date."""
-    start_npt = datetime.combine(day, datetime.min.time(), tzinfo=NPT)
-    end_npt = datetime.combine(day, datetime.max.time(), tzinfo=NPT)
-    return start_npt.astimezone(timezone.utc).replace(tzinfo=None), end_npt.astimezone(timezone.utc).replace(tzinfo=None)
 
 
 def _get_user_settings(db: Session) -> UserSettings:

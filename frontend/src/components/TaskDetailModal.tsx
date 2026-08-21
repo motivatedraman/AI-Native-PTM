@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { Task, Project, Tag, Subtask } from '../types';
 import { api } from '../services/api';
-import { formatTimeNPT, formatDateNPT } from '../utils/time';
+import { formatTimeNPT, formatDateNPT, utcToNPTInput, nptInputToUTC } from '../utils/time';
 import { DecomposeBanner } from './DecomposeBanner';
 
 interface TaskDetailModalProps {
@@ -48,7 +48,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   const [projectId, setProjectId] = useState<number | undefined>(task.project_id || undefined);
   const [estimatedMinutes, setEstimatedMinutes] = useState<number | undefined>(task.estimated_minutes || undefined);
   const [spentMinutes, setSpentMinutes] = useState<number>(task.spent_minutes || 0);
-  const [dueDate, setDueDate] = useState<string>(task.due_date ? task.due_date.slice(0, 16) : '');
+  const [dueDate, setDueDate] = useState<string>(task.due_date ? utcToNPTInput(task.due_date) : '');
   
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const [isSuggestingSubtasks, setIsSuggestingSubtasks] = useState(false);
@@ -64,7 +64,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
     setProjectId(task.project_id || undefined);
     setEstimatedMinutes(task.estimated_minutes || undefined);
     setSpentMinutes(task.spent_minutes || 0);
-    setDueDate(task.due_date ? task.due_date.slice(0, 16) : '');
+    setDueDate(task.due_date ? utcToNPTInput(task.due_date) : '');
     setAiSuggestions(null);
   }, [task]);
 
@@ -81,7 +81,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   const handleDueDateChange = async (newVal: string) => {
     setDueDate(newVal);
     try {
-      const isoDate = newVal ? new Date(newVal).toISOString() : null;
+      const isoDate = newVal ? nptInputToUTC(newVal) : null;
       const updated = await api.updateTask(task.id, { due_date: isoDate });
       onTaskUpdated(updated);
     } catch (err) {
@@ -100,7 +100,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
         project_id: projectId || null,
         estimated_minutes: estimatedMinutes || null,
         spent_minutes: spentMinutes,
-        due_date: dueDate ? new Date(dueDate).toISOString() : null,
+        due_date: dueDate ? nptInputToUTC(dueDate) : null,
       });
       onTaskUpdated(updated);
     } catch (err) {
@@ -389,7 +389,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
               <Calendar size={15} className="text-slate-400" />
               <div className="flex-1">
                 <div className="flex items-center justify-between">
-                  <label className="text-slate-400 block text-[10px] uppercase">Due Date</label>
+                  <label className="text-slate-400 block text-[10px] uppercase">Due Date (NPT)</label>
                   {dueDate && (
                     <button
                       type="button"

@@ -8,6 +8,7 @@ from backend.app.database import get_db
 from backend.app.models import ActivityLog, Task
 from backend.app.schemas import ActivityLogResponse, DailyLogGroup, TaskResponse
 from backend.app.services import ai_service
+from backend.app.services.npt import today_npt, day_bounds_utc
 
 router = APIRouter(prefix="/api", tags=["Activity & Daily Log"])
 
@@ -28,12 +29,11 @@ async def get_daily_log(
         try:
             day = datetime.strptime(target_date, "%Y-%m-%d").date()
         except ValueError:
-            day = datetime.utcnow().date()
+            day = today_npt()
     else:
-        day = datetime.utcnow().date()
+        day = today_npt()
 
-    day_start = datetime.combine(day, datetime.min.time())
-    day_end = datetime.combine(day, datetime.max.time())
+    day_start, day_end = day_bounds_utc(day)
 
     # Completed tasks on this day
     completed_tasks = db.query(Task).filter(

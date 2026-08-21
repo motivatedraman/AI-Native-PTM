@@ -1,5 +1,6 @@
-/** Nepal Standard Time — UTC+5:45 */
+/** Nepal Standard Time — UTC+5:45 (no DST) */
 const TZ = 'Asia/Kathmandu';
+const NPT_OFFSET_MINUTES = 5 * 60 + 45;
 
 /**
  * Parse a datetime string as UTC.
@@ -69,4 +70,39 @@ export function formatDateLabel(dateStr: string): string {
   const yesterday = offsetDateNPT(-1);
   if (dateStr === yesterday) return 'Yesterday';
   return new Date(dateStr + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+/**
+ * Convert a stored UTC ISO datetime to a value for <input type="datetime-local">
+ * showing NPT wall-clock time (YYYY-MM-DDTHH:mm). Independent of browser timezone.
+ */
+export function utcToNPTInput(iso: string): string {
+  const formatted = new Intl.DateTimeFormat('sv-SE', {
+    timeZone: TZ,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).format(asUTC(iso));
+  return formatted.replace(' ', 'T');
+}
+
+/**
+ * Convert a datetime-local input value (interpreted as NPT wall clock)
+ * to a naive UTC ISO string for the backend (YYYY-MM-DDTHH:MM:SS).
+ * Returns null for empty/invalid input.
+ */
+export function nptInputToUTC(value: string): string | null {
+  const m = value.match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/);
+  if (!m) return null;
+  const utcMs = Date.UTC(
+    Number(m[1]),
+    Number(m[2]) - 1,
+    Number(m[3]),
+    Number(m[4]),
+    Number(m[5])
+  ) - NPT_OFFSET_MINUTES * 60000;
+  return new Date(utcMs).toISOString().slice(0, 19);
 }

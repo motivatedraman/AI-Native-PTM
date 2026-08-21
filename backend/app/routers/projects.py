@@ -95,6 +95,12 @@ def delete_project(project_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Project not found")
 
     name = project.name
+
+    # Unlink tasks instead of deleting them (matches the UI promise:
+    # "Tasks will be unlinked but not deleted"). Bulk update bypasses the
+    # delete-orphan cascade on Project.tasks.
+    db.query(Task).filter(Task.project_id == project_id).update({"project_id": None}, synchronize_session=False)
+
     db.delete(project)
     db.commit()
     log_activity(db, action_type="project_deleted", description=f"Deleted project '{name}'")

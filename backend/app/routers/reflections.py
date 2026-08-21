@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from backend.app.database import get_db
 from backend.app.models.daily_reflection import DailyReflection
 from backend.app.schemas import DailyReflectionRequest, DailyReflectionResponse
+from backend.app.services.npt import today_npt
 
 router = APIRouter(prefix="/api/reflections", tags=["Daily Reflections"])
 
@@ -32,7 +33,7 @@ def get_reflections(
 
 @router.get("/today", response_model=Optional[DailyReflectionResponse])
 def get_today_reflection(db: Session = Depends(get_db)):
-    today = date.today()
+    today = today_npt()
     r = db.query(DailyReflection).filter(DailyReflection.reflection_date == today).first()
     if not r:
         return None
@@ -47,7 +48,7 @@ def get_today_reflection(db: Session = Depends(get_db)):
 
 @router.post("", response_model=DailyReflectionResponse)
 def save_reflection(payload: DailyReflectionRequest, db: Session = Depends(get_db)):
-    today = date.today()
+    today = today_npt()
     existing = db.query(DailyReflection).filter(DailyReflection.reflection_date == today).first()
 
     if existing:
