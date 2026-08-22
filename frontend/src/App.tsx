@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { ThemeToggle } from './components/ThemeToggle';
 import { LoginScreen } from './components/LoginScreen';
@@ -7,6 +7,8 @@ import { TaskDetailModal } from './components/TaskDetailModal';
 import { CommandPalette } from './components/CommandPalette';
 import { PlanMyDayModal } from './components/PlanMyDayModal';
 import { AIAssistantPanel } from './components/AIAssistantPanel';
+import { FocusModeOverlay } from './components/FocusModeOverlay';
+import { StartFocusModal } from './components/StartFocusModal';
 import { TodayView } from './views/TodayView';
 import { InboxView } from './views/InboxView';
 import { KanbanView } from './views/KanbanView';
@@ -14,11 +16,12 @@ import { UniversityView } from './views/UniversityView';
 import { ProjectsView } from './views/ProjectsView';
 import { DailyLogView } from './views/DailyLogView';
 import { WeeklyReviewView } from './views/WeeklyReviewView';
-import { Task, Project, Tag, ActiveView, AIStatus } from './types';
+import { Task, Project, Tag, ActiveView, AIStatus, FocusFinishedResult, FocusSession } from './types';
 import { api } from './services/api';
 import { Menu } from 'lucide-react';
 import { useStreak } from './utils/useStreak';
 import { todayNPT, dateStrNPT } from './utils/time';
+import { useFocusTimer } from './hooks/useFocusTimer';
 
 
 export const App: React.FC = () => {
@@ -40,9 +43,45 @@ export const App: React.FC = () => {
   const [isAIAssistantOpen, setIsAIAssistantOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  
+
+  // Focus Timer
+  const [focusTargetTask, setFocusTargetTask] = useState<Task | null>(null);
+  const focusActiveRef = useRef(false);
+
   // Computed streak from completed tasks
   const streak = useStreak(tasks);
+
+  const handleFocusFinished = async (result: FocusFinishedResult) => {
+    if (result.sessionId) {
+      try {
+        const ended = await api.endFocusSession(result.sessionId, {
+          actual_minutes: result.actualMinutes,
+          status: result.status,
+          break_taken: result.breakTaken,
+        });
+        if (ended.task) handleTaskUpdated(ended.task);
+        return;
+      } catch (err) {
+        console.error('Failed to end focus session on server:', err);
+      }
+    }
+    if (result.taskId && result.actualMinutes > 0) {
+      try {
+        const updated = await api.logTaskTime(result.taskId, result.actualMinutes);
+        handleTaskUpdated(updated);
+      } catch (err) {
+        console.error('Failed to log focus time:', err);
+      }
+    }
+  };
+
+  const focus = useFocusTimer({
+    onStarted: (session: FocusSession) => {
+      if (session.task) handleTaskUpdated(session.task);
+    },
+    onFinished: handleFocusFinished,
+  });
+  focusActiveRef.current = focus.isActive;
 
   // Check auth session
   useEffect(() => {
@@ -107,6 +146,9 @@ export const App: React.FC = () => {
 
     const handleKeyDown = (e: KeyboardEvent) => {
       const key = e.key.toLowerCase();
+
+      // Focus mode owns the screen: no app shortcuts while a timer runs
+      if (focusActiveRef.current) return;
 
       // Escape closes any open modal even when focus is inside an
       // input/textarea (e.g. the AI assistant chat box).
@@ -285,6 +327,7 @@ export const App: React.FC = () => {
                 onToggleComplete={handleToggleComplete}
                 onOpenQuickAdd={() => setIsQuickAddOpen(true)}
                 onOpenPlanDay={() => setIsPlanDayOpen(true)}
+                onStartFocus={setFocusTargetTask}
               />
             )}
 
@@ -306,6 +349,7 @@ export const App: React.FC = () => {
                 onSelectTask={handleSelectTask}
                 onTaskUpdated={handleTaskUpdated}
                 onOpenQuickAdd={() => setIsQuickAddOpen(true)}
+                onStartFocus={setFocusTargetTask}
               />
             )}
 
@@ -361,6 +405,22 @@ export const App: React.FC = () => {
         onTaskDeleted={handleTaskDeleted}
         projects={projects}
         tags={tags}
+        onStartFocus={(task) => {
+          setIsDetailOpen(false);
+          setFocusTargetTask(task);
+        }}
+      />
+
+      {/* Focus Session duration picker */}
+      <StartFocusModal
+        task={focusTargetTask}
+        isOpen={focusTargetTask !== null}
+        onClose={() => setFocusTargetTask(null)}
+        onStart={(minutes) => {
+          const target = focusTargetTask;
+          setFocusTargetTask(null);
+          if (target) focus.start(target.id, target.title, minutes);
+        }}
       />
 
       {/* Command Palette ('/' or 'Cmd+K') */}
@@ -395,6 +455,9 @@ export const App: React.FC = () => {
         onClose={() => setIsAIAssistantOpen(false)}
         onStartTask={handleStartTask}
       />
+
+      {/* Focus Mode fullscreen clock — covers everything while a session runs */}
+      <FocusModeOverlay focus={focus} />
 
     </div>
   );

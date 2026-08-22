@@ -400,8 +400,10 @@ class AIService:
             def_h = parsed_hour if parsed_hour is not None else 18
             def_m = parsed_minute if parsed_minute is not None else 0
             due_date_npt = target_date_npt.replace(hour=def_h, minute=def_m, second=0, microsecond=0)
-            if due_date_npt < now_npt:
-                # Target date/time is in the past (e.g. 'at 9am' when now is 1pm) -> advance forward
+            # Only roll forward when an EXPLICIT time was given and is already past
+            # (e.g. 'at 9am' typed at 1pm). Keyword-only dates like 'today' must stay
+            # on the requested day regardless of the current hour.
+            if due_date_npt < now_npt and parsed_hour is not None:
                 due_date_npt = due_date_npt + timedelta(days=1)
             due_date = due_date_npt.astimezone(timezone.utc).replace(tzinfo=None)
         elif parsed_hour is not None:
@@ -516,7 +518,13 @@ class AIService:
         if self.api_key and len(self.api_key) > 5:
             now_npt = datetime.now(NPT)
             prompt = f"""You are an intelligent task parsing assistant. Convert the user's natural language task input into structured JSON.
-Current datetime (Nepal Time / UTC+5:45): {now_npt.strftime("%Y-%m-%d %H:%M")}
+
+Context:
+- Current datetime in Nepal (NPT, UTC+5:45): {now_npt.strftime("%Y-%m-%d (%A) %H:%M")}
+- Resolve every relative date ("today", "tomorrow", "next monday", "in 3 days") strictly against this current datetime.
+- "due_date_iso" is the due moment expressed IN UTC as "YYYY-MM-DDTHH:MM:SS". Nepal time minus 5 hours 45 minutes equals UTC.
+- If the input mentions NO explicit date or time at all, set "due_date_iso" to null. Never invent a deadline.
+- Never output a date other than the one the input implies relative to the current datetime above.
 
 User input: "{text}"
 
@@ -525,7 +533,7 @@ Return ONLY valid JSON matching this schema:
     "title": "Clean, action-oriented task title without date/duration filler words",
     "category": "Personal | University | Work | Project | Other",
     "priority": "low | medium | high | urgent",
-    "due_date_iso": "YYYY-MM-DDTHH:MM:SS (in UTC) or null",
+    "due_date_iso": "YYYY-MM-DDTHH:MM:SS in UTC, or null",
     "estimated_minutes": integer or null,
     "suggested_project": "Name of project if mentioned or null",
     "suggested_tags": ["Tag1", "Tag2"],
@@ -535,17 +543,22 @@ Return ONLY valid JSON matching this schema:
             result = await self._call_ai(prompt)
             if result and isinstance(result, dict) and "title" in result:
                 try:
-                    due_iso = result.get("due_date_iso")
-                    due_str = None
-                    if due_iso:
-                        try:
-                            dt = datetime.fromisoformat(due_iso.replace("Z", "+00:00"))
-                            due_str = dt.astimezone(NPT).strftime("%Y-%m-%d %H:%M")
-                        except Exception:
-                            due_str = heuristic.due_date_str
-                    else:
-                        due_str = heuristic.due_date_str
+                    # Deterministic guard: the heuristic regexes resolve common
+                    # relative dates ("today", "tomorrow", weekdays...) reliably,
+                    # while LLM date arithmetic is error-prone. When the heuristic
+                    # found a date it always wins; the AI only fills the gaps.
+                    if heuristic.due_date_iso:
                         due_iso = heuristic.due_date_iso
+                        due_str = heuristic.due_date_str
+                    else:
+                        due_dt = self._parse_ai_iso(result.get("due_date_iso"))
+                        if due_dt:
+                            due_utc = due_dt.astimezone(timezone.utc).replace(tzinfo=None)
+                            due_iso = due_utc.isoformat()
+                            due_str = due_dt.astimezone(NPT).strftime("%Y-%m-%d %H:%M")
+                        else:
+                            due_iso = None
+                            due_str = None
 
                     return AITaskParseResult(
                         title=result.get("title") or heuristic.title,
@@ -564,6 +577,20 @@ Return ONLY valid JSON matching this schema:
 
         # Return fast, comprehensive heuristic result
         return heuristic
+
+    @staticmethod
+    def _parse_ai_iso(value: Any) -> Optional[datetime]:
+        """Parse an AI-provided datetime string into an aware datetime.
+        Naive strings are treated as UTC (the prompt asks for UTC)."""
+        if not value or not isinstance(value, str):
+            return None
+        try:
+            dt = datetime.fromisoformat(value.strip().replace("Z", "+00:00"))
+        except Exception:
+            return None
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return dt
 
     async def enrich_task(self, title: str, description: Optional[str] = None) -> AITaskEnrichResponse:
         combined = f"{title}. {description or ''}"
@@ -1293,12 +1320,21 @@ Rules:
                     "action": {"type": "view_project", "project_id": p.get("id")}
                 })
 
-        # Floating tasks reminder
-        if floating:
+        # Floating tasks reminders — one actionable suggestion per task
+        # (clicking opens that task's edit view, same as overdue warnings)
+        for t in floating[:3]:
             suggestions.append({
                 "type": "daily_tip",
-                "title": f"📋 {len(floating)} tasks have no deadline",
-                "description": "Consider scheduling them to avoid forgetting",
+                "title": f"📌 \"{t['title']}\" has no deadline",
+                "description": "Schedule it so it doesn't slip through",
+                "task_id": t["id"],
+                "action": {"type": "schedule", "task_id": t["id"]}
+            })
+        if len(floating) > 3:
+            suggestions.append({
+                "type": "daily_tip",
+                "title": f"📋 {len(floating) - 3} more tasks have no deadline",
+                "description": "Open the planner to schedule them in bulk",
                 "action": {"type": "review_floating"}
             })
 

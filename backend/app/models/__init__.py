@@ -7,8 +7,10 @@ from backend.app.models.task_dependency import TaskDependency
 from backend.app.models.daily_reflection import DailyReflection
 from backend.app.models.user_settings import UserSettings
 from backend.app.models.ai_suggestion import AISuggestion
+from backend.app.models.focus_session import FocusSession
 
 __all__ = [
     "Project", "Tag", "task_tags", "Subtask", "ActivityLog", "Task",
-    "TaskDependency", "DailyReflection", "UserSettings", "AISuggestion"
+    "TaskDependency", "DailyReflection", "UserSettings", "AISuggestion",
+    "FocusSession"
 ]

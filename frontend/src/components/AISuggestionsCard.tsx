@@ -35,17 +35,25 @@ export const AISuggestionsCard: React.FC<AISuggestionsCardProps> = ({ onSelectTa
 
   /** A suggestion is actionable if we have a handler for its shape. */
   const hasAction = (s: AISuggestion): boolean =>
-    !!s.task_id ||
+    !!getTaskId(s) ||
     s.action?.type === 'review_floating' ||
     s.action?.type === 'plan_day';
 
+  const getTaskId = (s: AISuggestion): number | undefined => {
+    if (typeof s.task_id === 'number') return s.task_id;
+    const fromAction = s.action?.task_id;
+    return typeof fromAction === 'number' ? fromAction : undefined;
+  };
+
   const handleApply = (suggestion: AISuggestion) => {
     const idx = suggestions.indexOf(suggestion);
-    if (suggestion.task_id) {
-      onSelectTask(suggestion.task_id);
+    const taskId = getTaskId(suggestion);
+    if (taskId) {
+      // Specific task → always open its edit view (never the planner)
+      onSelectTask(taskId);
       handleDismiss(idx);
     } else if (suggestion.action?.type === 'review_floating' || suggestion.action?.type === 'plan_day') {
-      // Aggregate suggestion (e.g. "N tasks have no deadline") → open the planner
+      // Aggregate overflow (e.g. "N more tasks have no deadline") → planner
       onOpenPlanner?.();
       handleDismiss(idx);
     }
@@ -98,7 +106,8 @@ export const AISuggestionsCard: React.FC<AISuggestionsCardProps> = ({ onSelectTa
         {visibleSuggestions.slice(0, 4).map((s, i) => (
           <div
             key={i}
-            className="flex items-center justify-between p-3 rounded-xl group transition-all"
+            onClick={() => hasAction(s) && handleApply(s)}
+            className={`flex items-center justify-between p-3 rounded-xl group transition-all ${hasAction(s) ? 'cursor-pointer hover:border-[rgb(var(--sx-border-3))]' : ''}`}
             style={{ background: 'rgb(var(--sx-card))', border: '1px solid rgb(var(--sx-border-2))' }}
           >
             <div className="flex-1 min-w-0">
@@ -110,17 +119,23 @@ export const AISuggestionsCard: React.FC<AISuggestionsCardProps> = ({ onSelectTa
             <div className="flex items-center space-x-1.5 flex-shrink-0 ml-2">
               {hasAction(s) && (
                 <button
-                  onClick={() => handleApply(s)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleApply(s);
+                  }}
                   className="px-2.5 py-1 text-[10px] font-medium rounded-lg text-white transition-all"
                   style={{
                     background: 'linear-gradient(135deg, rgb(var(--am-600)), rgb(var(--am-700)))',
                   }}
                 >
-                  View
+                  {getTaskId(s) ? 'Open' : 'View'}
                 </button>
               )}
               <button
-                onClick={() => handleDismiss(suggestions.indexOf(s))}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDismiss(suggestions.indexOf(s));
+                }}
                 className="p-1 text-stone-500 hover:text-stone-300 transition-colors"
               >
                 <X size={12} />

@@ -1,4 +1,42 @@
 import { AIParseResult, TaskPriority } from '../types';
+import { formatDateLabel, formatTimeNPT } from './time';
+
+/** Nepal Standard Time — UTC+5:45 (no DST) */
+const NPT_TZ = 'Asia/Kathmandu';
+const NPT_OFFSET_MINUTES = 5 * 60 + 45;
+
+interface DayParts { y: number; mo: number; da: number }
+
+function nptNow(): DayParts & { hh: number; mi: number } {
+  const s = new Intl.DateTimeFormat('sv-SE', {
+    timeZone: NPT_TZ,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).format(new Date());
+  const [datePart, timePart] = s.split(' ');
+  const [y, mo, da] = datePart.split('-').map(Number);
+  const [hh, mi] = timePart.split(':').map(Number);
+  return { y, mo, da, hh, mi };
+}
+
+function addDays(day: DayParts, days: number): DayParts {
+  const d = new Date(Date.UTC(day.y, day.mo - 1, day.da) + days * 86400000);
+  return { y: d.getUTCFullYear(), mo: d.getUTCMonth() + 1, da: d.getUTCDate() };
+}
+
+/** Convert an NPT wall-clock moment to a UTC ISO instant (matches backend storage). */
+function nptWallToUtcMs(day: DayParts, hh: number, mi: number): number {
+  return Date.UTC(day.y, day.mo - 1, day.da, hh, mi) - NPT_OFFSET_MINUTES * 60000;
+}
+
+function dayKey(day: DayParts): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${day.y}-${pad(day.mo)}-${pad(day.da)}`;
+}
 
 /**
  * High-speed, zero-API client-side heuristic parser for natural language tasks.
@@ -96,42 +134,35 @@ export function parseTaskLocally(text: string): AIParseResult {
     }
   }
 
-  // 5. Date extraction
-  const now = new Date();
-  let targetDate: Date | null = null;
+  // 5. Date extraction (computed in NPT so the preview matches the server exactly)
+  const nowNpt = nptNow();
+  let dayOffset: number | null = null;
 
   if (lower.includes('today')) {
-    targetDate = new Date(now);
+    dayOffset = 0;
   } else if (lower.includes('tomorrow') || lower.includes('tmrw')) {
-    targetDate = new Date(now);
-    targetDate.setDate(targetDate.getDate() + 1);
+    dayOffset = 1;
   } else if (lower.includes('day after tomorrow')) {
-    targetDate = new Date(now);
-    targetDate.setDate(targetDate.getDate() + 2);
+    dayOffset = 2;
   } else if (lower.includes('in 2 days') || lower.includes('in two days')) {
-    targetDate = new Date(now);
-    targetDate.setDate(targetDate.getDate() + 2);
+    dayOffset = 2;
   } else if (lower.includes('in 3 days') || lower.includes('in three days')) {
-    targetDate = new Date(now);
-    targetDate.setDate(targetDate.getDate() + 3);
+    dayOffset = 3;
   } else if (lower.includes('in 4 days')) {
-    targetDate = new Date(now);
-    targetDate.setDate(targetDate.getDate() + 4);
+    dayOffset = 4;
   } else if (lower.includes('in a week') || lower.includes('in 1 week') || lower.includes('next week')) {
-    targetDate = new Date(now);
-    targetDate.setDate(targetDate.getDate() + 7);
+    dayOffset = 7;
   } else {
     const weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     for (let i = 0; i < weekdays.length; i++) {
       const wday = weekdays[i];
       const re = new RegExp(`\\b(?:next|this|on|by|before|due)?\\s*${wday}\\b`, 'i');
       if (re.test(lower)) {
-        const currWday = now.getDay();
+        const currWday = new Date(Date.UTC(nowNpt.y, nowNpt.mo - 1, nowNpt.da)).getUTCDay();
         let daysAhead = (i - currWday + 7) % 7;
         if (lower.includes('next ' + wday)) daysAhead += 7;
         else if (daysAhead === 0 && !lower.includes('this ')) daysAhead = 7;
-        targetDate = new Date(now);
-        targetDate.setDate(targetDate.getDate() + daysAhead);
+        dayOffset = daysAhead;
         break;
       }
     }
@@ -139,23 +170,25 @@ export function parseTaskLocally(text: string): AIParseResult {
 
   let dueDateIso: string | null = null;
   let dueDateStr: string | null = null;
+  const h = parsedHour !== null ? parsedHour : 18;
+  const m = parsedMinute !== null ? parsedMinute : 0;
 
-  if (targetDate) {
-    const h = parsedHour !== null ? parsedHour : 18;
-    const m = parsedMinute !== null ? parsedMinute : 0;
-    targetDate.setHours(h, m, 0, 0);
-    if (targetDate < now) {
-      targetDate.setDate(targetDate.getDate() + 1);
+  if (dayOffset !== null) {
+    let targetDay = addDays(nowNpt, dayOffset);
+    // Roll forward only when an EXPLICIT time was given and is already past
+    // (mirrors backend rule; keyword-only dates like 'today' stay put)
+    if (parsedHour !== null && nptWallToUtcMs(targetDay, h, m) <= Date.now()) {
+      targetDay = addDays(targetDay, 1);
     }
-    dueDateIso = targetDate.toISOString();
-    dueDateStr = `${targetDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} at ${targetDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+    dueDateIso = new Date(nptWallToUtcMs(targetDay, h, m)).toISOString();
+    dueDateStr = `${formatDateLabel(dayKey(targetDay))} at ${formatTimeNPT(dueDateIso)}`;
   } else if (parsedHour !== null) {
-    const d = new Date(now);
-    d.setHours(parsedHour, parsedMinute || 0, 0, 0);
-    const isTomorrow = d < now;
-    if (isTomorrow) d.setDate(d.getDate() + 1);
-    dueDateIso = d.toISOString();
-    dueDateStr = `${isTomorrow ? 'Tomorrow' : 'Today'} at ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+    let targetDay: DayParts = { y: nowNpt.y, mo: nowNpt.mo, da: nowNpt.da };
+    if (nptWallToUtcMs(targetDay, h, m) <= Date.now()) {
+      targetDay = addDays(targetDay, 1);
+    }
+    dueDateIso = new Date(nptWallToUtcMs(targetDay, h, m)).toISOString();
+    dueDateStr = `${formatDateLabel(dayKey(targetDay))} at ${formatTimeNPT(dueDateIso)}`;
   }
 
   // 6. Category & Project inference

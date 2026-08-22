@@ -1,4 +1,4 @@
-import { Task, Project, Tag, Subtask, ActivityLog, DailyLogGroup, AIParseResult, AIStatus, DecomposeResult, PlannerResult, WhatNowResult, NLSearchResult, WeeklyReviewResult, ProjectSummaryResult, ChatResult, AISuggestion, DailyReflection, UserSettings, TaskDependency } from '../types';
+import { Task, Project, Tag, Subtask, ActivityLog, DailyLogGroup, AIParseResult, AIStatus, DecomposeResult, PlannerResult, WhatNowResult, NLSearchResult, WeeklyReviewResult, ProjectSummaryResult, ChatResult, AISuggestion, DailyReflection, UserSettings, TaskDependency, FocusSession } from '../types';
 
 const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
@@ -304,5 +304,32 @@ export const api = {
   async removeTaskDependency(taskId: number, dependencyId: number): Promise<void> {
     const res = await fetch(`${API_BASE}/tasks/${taskId}/dependencies/${dependencyId}`, { method: 'DELETE', headers: getHeaders() });
     if (!res.ok) throw new Error('Failed to remove dependency');
+  },
+
+  // ─── Focus Timer ─────────────────────────
+  async startFocusSession(taskId: number | null, plannedMinutes: number): Promise<FocusSession> {
+    const res = await fetch(`${API_BASE}/focus/sessions`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ task_id: taskId, planned_minutes: plannedMinutes }),
+    });
+    if (!res.ok) throw new Error('Failed to start focus session');
+    return res.json();
+  },
+
+  async endFocusSession(sessionId: number, data: { actual_minutes: number; status: 'completed' | 'abandoned'; break_taken: boolean }): Promise<FocusSession> {
+    const res = await fetch(`${API_BASE}/focus/sessions/${sessionId}`, {
+      method: 'PATCH',
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error('Failed to end focus session');
+    return res.json();
+  },
+
+  async getFocusSessions(limit: number = 50): Promise<FocusSession[]> {
+    const res = await fetch(`${API_BASE}/focus/sessions?limit=${limit}`, { headers: getHeaders() });
+    if (!res.ok) throw new Error('Failed to fetch focus sessions');
+    return res.json();
   },
 };

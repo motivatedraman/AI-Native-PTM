@@ -8,6 +8,7 @@ import {
   ChevronRight,
   CalendarClock,
   Zap,
+  Timer,
 } from 'lucide-react';
 import { Task, Project } from '../types';
 import { currentHourNPT, formatDateNPT, todayNPT, offsetDateNPT, dateStrNPT, formatDateLabel } from '../utils/time';
@@ -23,6 +24,7 @@ interface TodayViewProps {
   onToggleComplete: (task: Task) => void;
   onOpenQuickAdd: () => void;
   onOpenPlanDay?: () => void;
+  onStartFocus?: (task: Task) => void;
 }
 
 // Circular progress ring component
@@ -77,6 +79,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
   onToggleComplete,
   onOpenQuickAdd,
   onOpenPlanDay,
+  onStartFocus,
 }) => {
   const [selectedDate, setSelectedDate] = useState(todayNPT());
   const [burstTrigger, setBurstTrigger] = useState(false);
@@ -426,6 +429,17 @@ export const TodayView: React.FC<TodayViewProps> = ({
                   </div>
 
                   <div className="flex items-center space-x-3 text-sm flex-shrink-0">
+                    {onStartFocus && task.status !== 'done' && (
+                      <button
+                        onClick={e => { e.stopPropagation(); onStartFocus(task); }}
+                        className="opacity-0 group-hover:opacity-100 flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium transition-all"
+                        style={{ background: 'rgba(20, 184, 166, 0.12)', color: '#5eead4', border: '1px solid rgba(20, 184, 166, 0.3)' }}
+                        title="Start focus timer"
+                      >
+                        <Timer size={11} />
+                        Focus
+                      </button>
+                    )}
                     {task.due_date && (
                       <span className="flex items-center space-x-1 text-xs" style={{ color: 'var(--gold)' }}>
                         <Calendar size={12} />
@@ -539,6 +553,17 @@ export const TodayView: React.FC<TodayViewProps> = ({
                   </div>
 
                   <div className="flex items-center space-x-3 text-sm flex-shrink-0">
+                    {onStartFocus && !isDone && (
+                      <button
+                        onClick={e => { e.stopPropagation(); onStartFocus(task); }}
+                        className="opacity-0 group-hover:opacity-100 flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium transition-all"
+                        style={{ background: 'rgba(20, 184, 166, 0.12)', color: '#5eead4', border: '1px solid rgba(20, 184, 166, 0.3)' }}
+                        title="Start focus timer"
+                      >
+                        <Timer size={11} />
+                        Focus
+                      </button>
+                    )}
                     {task.subtasks?.length > 0 && (
                       <span className="text-xs hidden sm:inline" style={{ color: 'rgb(var(--st-500))' }}>
                         {task.subtasks.filter(s => s.is_completed).length}/{task.subtasks.length} subtasks

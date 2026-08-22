@@ -10,7 +10,8 @@ import {
   Plus, 
   CheckSquare,
   History,
-  Loader2
+  Loader2,
+  Timer
 } from 'lucide-react';
 import { Task, Project, Tag, Subtask } from '../types';
 import { api } from '../services/api';
@@ -25,6 +26,7 @@ interface TaskDetailModalProps {
   onTaskDeleted: (id: number) => void;
   projects: Project[];
   tags: Tag[];
+  onStartFocus?: (task: Task) => void;
 }
 
 export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
@@ -35,6 +37,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   onTaskDeleted,
   projects,
   tags: _tags,
+  onStartFocus,
 }) => {
   const [title, setTitle] = useState(task?.title ?? '');
   const [description, setDescription] = useState(task?.description || '');
@@ -230,6 +233,16 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
           </div>
 
           <div className="flex items-center space-x-2">
+            {onStartFocus && task.status !== 'done' && (
+              <button
+                onClick={() => onStartFocus(task)}
+                className="flex items-center space-x-1 px-2.5 py-1 rounded-lg bg-teal-600/20 hover:bg-teal-600/30 text-teal-300 border border-teal-500/30 text-xs font-medium transition-colors"
+                title="Start a focus timer for this task"
+              >
+                <Timer size={13} />
+                <span>Focus</span>
+              </button>
+            )}
             <button
               onClick={handleEnrichWithAI}
               disabled={isEnriching}

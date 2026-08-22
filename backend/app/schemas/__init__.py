@@ -1,4 +1,5 @@
 from backend.app.schemas.project import ProjectCreate, ProjectUpdate, ProjectResponse
+from backend.app.schemas.focus import FocusSessionCreate, FocusSessionUpdate, FocusSessionResponse
 from backend.app.schemas.tag import TagCreate, TagResponse
 from backend.app.schemas.subtask import SubtaskCreate, SubtaskUpdate, SubtaskResponse
 from backend.app.schemas.activity import ActivityLogResponse, DailyLogGroup

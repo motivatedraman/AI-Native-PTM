@@ -215,3 +215,31 @@ export interface TaskDependency {
   depends_on_id: number;
   depends_on_title?: string | null;
 }
+
+// ─── Focus Timer ────────────────────────────
+
+export type FocusSessionStatus = 'active' | 'completed' | 'abandoned';
+
+export interface FocusSession {
+  id: number;
+  task_id?: number | null;
+  planned_minutes: number;
+  actual_minutes?: number | null;
+  status: FocusSessionStatus;
+  break_taken: boolean;
+  started_at: string;
+  ended_at?: string | null;
+  task?: Task | null;
+}
+
+export type FocusPhase = 'running' | 'paused' | 'break' | 'finished';
+
+export interface FocusFinishedResult {
+  sessionId: number | null;
+  taskId: number | null;
+  taskTitle: string;
+  plannedMinutes: number;
+  actualMinutes: number;
+  status: 'completed' | 'abandoned';
+  breakTaken: boolean;
+}

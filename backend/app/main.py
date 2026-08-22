@@ -28,6 +28,7 @@ from backend.app.routers import (
 from backend.app.routers.settings import router as settings_router
 from backend.app.routers.reflections import router as reflections_router
 from backend.app.routers.dependencies import router as dependencies_router
+from backend.app.routers.focus import router as focus_router
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -79,6 +80,7 @@ app.include_router(ai_router, dependencies=[Depends(get_current_user)])
 app.include_router(settings_router, dependencies=[Depends(get_current_user)])
 app.include_router(reflections_router, dependencies=[Depends(get_current_user)])
 app.include_router(dependencies_router, dependencies=[Depends(get_current_user)])
+app.include_router(focus_router, dependencies=[Depends(get_current_user)])
 
 @app.on_event("startup")
 def create_tables():
@@ -86,7 +88,8 @@ def create_tables():
     # Import all models so Base.metadata knows about them
     from backend.app.models import (
         Project, Tag, Subtask, ActivityLog, Task,
-        TaskDependency, DailyReflection, UserSettings, AISuggestion
+        TaskDependency, DailyReflection, UserSettings, AISuggestion,
+        FocusSession
     )
     Base.metadata.create_all(bind=engine)
 

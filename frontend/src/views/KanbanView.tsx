@@ -3,7 +3,10 @@ import {
   Plus, 
   Calendar, 
   Clock, 
-  CheckSquare
+  CheckSquare,
+  Timer,
+  Search,
+  X
 } from 'lucide-react';
 import { Task, TaskStatus, Project } from '../types';
 import { api } from '../services/api';
@@ -15,16 +18,38 @@ interface KanbanViewProps {
   onSelectTask: (task: Task) => void;
   onTaskUpdated: (task: Task) => void;
   onOpenQuickAdd: () => void;
+  onStartFocus?: (task: Task) => void;
+}
+
+const COLUMN_CAP = 12;
+const DONE_WINDOW_DAYS = 7;
+
+function completedTs(task: Task): number {
+  if (!task.completed_at) return 0;
+  const iso = task.completed_at.endsWith('Z') || /[+-]\d{2}:?\d{2}$/.test(task.completed_at)
+    ? task.completed_at
+    : `${task.completed_at}Z`;
+  return new Date(iso).getTime();
+}
+
+function isRecentDone(task: Task): boolean {
+  if (!task.completed_at) return true;
+  return Date.now() - completedTs(task) < DONE_WINDOW_DAYS * 86400000;
 }
 
 export const KanbanView: React.FC<KanbanViewProps> = ({
   tasks,
-  projects: _projects,
+  projects,
   onSelectTask,
   onTaskUpdated,
   onOpenQuickAdd,
+  onStartFocus,
 }) => {
   const [draggedTaskId, setDraggedTaskId] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [projectFilter, setProjectFilter] = useState<number | ''>('');
+  const [showAllDone, setShowAllDone] = useState(false);
+  const [expandedCols, setExpandedCols] = useState<Set<TaskStatus>>(new Set());
 
   const columns: { id: TaskStatus; label: string; color: string }[] = [
     { id: 'inbox', label: 'Inbox', color: 'border-stone-600' },
@@ -67,6 +92,26 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
     }
   };
 
+  const matchesFilters = (task: Task): boolean => {
+    if (projectFilter !== '' && task.project_id !== projectFilter) return false;
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return true;
+    return (
+      task.title.toLowerCase().includes(q) ||
+      task.category?.toLowerCase().includes(q) ||
+      (task.project?.name || '').toLowerCase().includes(q)
+    );
+  };
+
+  const toggleExpanded = (colId: TaskStatus) => {
+    setExpandedCols(prev => {
+      const next = new Set(prev);
+      if (next.has(colId)) next.delete(colId);
+      else next.add(colId);
+      return next;
+    });
+  };
+
   return (
     <div className="h-full flex flex-col space-y-4 animate-in fade-in duration-200">
       
@@ -89,10 +134,51 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
         </button>
       </div>
 
+      {/* Filter bar */}
+      <div className="flex items-center gap-2 flex-wrap flex-shrink-0">
+        <div className="relative flex-1 min-w-[180px] max-w-xs">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-500 pointer-events-none" />
+          <input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search cards…"
+            className="w-full pl-8 pr-8 py-2 text-xs rounded-lg bg-[rgb(var(--sx-modal))] border border-[rgb(var(--sx-border))] text-stone-200 placeholder-stone-500 focus:outline-none focus:border-amber-600"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-stone-500 hover:text-stone-300"
+              title="Clear search"
+            >
+              <X size={13} />
+            </button>
+          )}
+        </div>
+        <select
+          value={projectFilter}
+          onChange={(e) => setProjectFilter(e.target.value === '' ? '' : Number(e.target.value))}
+          className="py-2 px-2.5 text-xs rounded-lg bg-[rgb(var(--sx-modal))] border border-[rgb(var(--sx-border))] text-stone-300 focus:outline-none focus:border-amber-600"
+        >
+          <option value="">All projects</option>
+          {projects.map(p => (
+            <option key={p.id} value={p.id}>{p.name}</option>
+          ))}
+        </select>
+      </div>
+
       {/* Kanban Board Grid - scrollable on mobile */}
       <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4 min-h-[550px] overflow-x-auto pb-4">
         {columns.map(col => {
-          const colTasks = tasks.filter(t => t.status === col.id);
+          const allInCol = tasks.filter(t => t.status === col.id && matchesFilters(t));
+          const olderDoneHidden = col.id === 'done' && !showAllDone
+            ? allInCol.filter(t => !isRecentDone(t)).length
+            : 0;
+          const colTasks = col.id === 'done' && !showAllDone
+            ? allInCol.filter(isRecentDone).sort((a, b) => completedTs(b) - completedTs(a))
+            : allInCol;
+          const expanded = expandedCols.has(col.id);
+          const shownTasks = expanded ? colTasks : colTasks.slice(0, COLUMN_CAP);
+          const cappedHidden = colTasks.length - shownTasks.length;
           return (
             <div
               key={col.id}
@@ -109,13 +195,13 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
                   </span>
                 </div>
                 <span className="px-2.5 py-1 text-xs font-mono rounded bg-[rgb(var(--sx-raised))] text-stone-400">
-                  {colTasks.length}
+                  {colTasks.length}{olderDoneHidden > 0 ? ` +${olderDoneHidden}` : ''}
                 </span>
               </div>
 
               {/* Tasks List / Drop Zone */}
               <div className="flex-1 p-3 space-y-3 overflow-y-auto min-h-[200px]">
-                {colTasks.map(task => (
+                {shownTasks.map(task => (
                   <div
                     key={task.id}
                     draggable
@@ -192,17 +278,63 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
                         </span>
                       ) : <span />}
 
-                      {task.estimated_minutes && (!task.spent_minutes || task.spent_minutes === 0 || task.status === 'done') && (
-                        <span className="flex items-center space-x-1 font-mono">
-                          <Clock size={12} />
-                          <span>~{task.estimated_minutes}m</span>
-                        </span>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {onStartFocus && task.status !== 'done' && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onStartFocus(task);
+                            }}
+                            className="opacity-0 group-hover:opacity-100 flex items-center gap-1 px-2 py-0.5 rounded-md bg-teal-600/20 border border-teal-500/30 text-teal-300 hover:bg-teal-600/40 transition-all"
+                            title="Start focus timer"
+                          >
+                            <Timer size={11} />
+                            <span className="text-[10px] font-medium">Focus</span>
+                          </button>
+                        )}
+                        {task.estimated_minutes && (!task.spent_minutes || task.spent_minutes === 0 || task.status === 'done') && (
+                          <span className="flex items-center space-x-1 font-mono">
+                            <Clock size={12} />
+                            <span>~{task.estimated_minutes}m</span>
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                   </div>
                 ))}
               </div>
+
+              {/* Expanders for long columns / old done tasks */}
+              {(cappedHidden > 0 || olderDoneHidden > 0 || (expanded && colTasks.length > COLUMN_CAP)) && (
+                <div className="px-3 pb-3 space-y-1.5 flex-shrink-0">
+                  {cappedHidden > 0 && (
+                    <button
+                      onClick={() => toggleExpanded(col.id)}
+                      className="w-full py-1.5 text-[11px] font-medium text-stone-400 hover:text-stone-100 bg-[rgb(var(--sx-header))] hover:bg-[rgb(var(--sx-chip))] border border-[rgb(var(--sx-border))] rounded-lg transition-colors"
+                    >
+                      Show {cappedHidden} more…
+                    </button>
+                  )}
+                  {expanded && colTasks.length > COLUMN_CAP && (
+                    <button
+                      onClick={() => toggleExpanded(col.id)}
+                      className="w-full py-1 text-[11px] font-medium text-stone-500 hover:text-stone-300 transition-colors"
+                    >
+                      Show less
+                    </button>
+                  )}
+                  {olderDoneHidden > 0 && (
+                    <button
+                      onClick={() => setShowAllDone(true)}
+                      className="w-full py-1.5 text-[11px] font-medium text-emerald-400/80 hover:text-emerald-300 bg-emerald-950/20 hover:bg-emerald-950/40 border border-dashed border-emerald-500/30 rounded-lg transition-colors"
+                      title={`Completed more than ${DONE_WINDOW_DAYS} days ago`}
+                    >
+                      Show {olderDoneHidden} older done task{olderDoneHidden === 1 ? '' : 's'}
+                    </button>
+                  )}
+                </div>
+              )}
 
             </div>
           );
