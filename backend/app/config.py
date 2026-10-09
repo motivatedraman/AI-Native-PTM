@@ -57,6 +57,33 @@ class Settings(BaseSettings):
             url = url.replace("postgres://", "postgresql://", 1)
         return url
 
+    def get_engine_url(self) -> str:
+        """The URL actually handed to create_engine(), fully normalized.
+
+        Single source of truth on purpose. This normalisation used to live
+        in database.py only, so alembic built its own engine from the raw
+        URL and every migration died with
+        "ModuleNotFoundError: No module named 'psycopg'".
+        """
+        url = self.get_database_url()
+
+        if not url.startswith(("sqlite", "postgresql")):
+            return url
+
+        if url.startswith("sqlite"):
+            return url
+
+        # Hosted Postgres (Neon, Supabase, Render) rejects plaintext.
+        if "sslmode" not in url:
+            url = url + ("&" if "?" in url else "?") + "sslmode=require"
+
+        # SQLAlchemy 2 resolves a bare postgresql:// to psycopg3, but this
+        # project installs psycopg2-binary. Pin it or the import explodes.
+        if url.startswith("postgresql://"):
+            url = url.replace("postgresql://", "postgresql+psycopg2://", 1)
+
+        return url
+
     def get_ai_provider(self) -> str:
         raw = os.environ.get("AI_PROVIDER") or self.AI_PROVIDER or "gemini"
         clean = str(raw).strip().strip('"').strip("'").lower()

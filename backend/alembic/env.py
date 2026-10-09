@@ -22,7 +22,7 @@ if config.config_file_name is not None:
 target_metadata = Base.metadata
 
 def run_migrations_offline() -> None:
-    url = settings.get_database_url()
+    url = settings.get_engine_url()
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -35,7 +35,9 @@ def run_migrations_offline() -> None:
 
 def run_migrations_online() -> None:
     configuration = config.get_section(config.config_ini_section) or {}
-    configuration["sqlalchemy.url"] = settings.get_database_url()
+    # get_engine_url(), not get_database_url(): the raw URL resolves to the
+    # psycopg3 driver, which this project does not install.
+    configuration["sqlalchemy.url"] = settings.get_engine_url()
     
     connectable = engine_from_config(
         configuration,
