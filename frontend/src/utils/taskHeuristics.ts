@@ -1,7 +1,7 @@
 import { AIParseResult, TaskPriority } from '../types';
 import { formatDateLabel, formatTimeNPT } from './time';
 
-/** Nepal Standard Time — UTC+5:45 (no DST) */
+/** Nepal Standard Time. UTC+5:45 (no DST) */
 const NPT_TZ = 'Asia/Kathmandu';
 const NPT_OFFSET_MINUTES = 5 * 60 + 45;
 

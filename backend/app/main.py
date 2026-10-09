@@ -33,7 +33,7 @@ from backend.app.routers.quote import router as quote_router
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    description="AI-Native Personal Task Manager API — Unified execution system with single-user authentication.",
+    description="AI-Native Personal Task Manager API. Unified execution system with single-user authentication.",
     version="1.0.0"
 )
 
@@ -125,6 +125,16 @@ def create_tables():
         print(f"[Startup] Warning during column verification: {ex}")
 
     print("[Startup] Database tables ensured.")
+
+    # Surface the dialect on every boot. If this says sqlite on a host with
+    # an ephemeral filesystem, data is lost on the next deploy.
+    _url = str(engine.url)
+    if _url.startswith("sqlite"):
+        print("[Startup] WARNING: DATABASE_URL is sqlite. On Render free (or any"
+              " ephemeral filesystem) every deploy wipes the database."
+              " Use a hosted Postgres URL instead.")
+    else:
+        print(f"[Startup] Database: {_url.split('@')[-1] if '@' in _url else 'postgres'} (persistent)")
     # Confirm AI config on startup
     from backend.app.config import settings as _cfg
     _key = _cfg.get_ai_api_key()

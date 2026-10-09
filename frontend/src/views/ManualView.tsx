@@ -13,15 +13,17 @@ interface ManualViewProps {
 /* Every binding listed here is implemented in App.tsx's keydown handler.
    Kept in one table so the two can't drift apart. */
 const SHORTCUTS: Array<{ keys: string[]; label: string }> = [
-  { keys: ['N'], label: 'Capture a task — focuses the inline field on Today, opens the full capture elsewhere' },
+  { keys: ['N'], label: 'Capture a task. Focuses the inline field on Today, opens the full capture elsewhere.' },
+  { keys: ['⌘', 'N'], label: 'Full capture, from anywhere.' },
   { keys: ['A'], label: 'AI assistant: chat, recommendations, suggestions' },
   { keys: ['P'], label: 'Plan my day' },
   { keys: ['/'], label: 'Command palette and search' },
-  { keys: ['⌘', 'K'], label: 'Command palette (same thing)' },
   { keys: ['T'], label: 'Go to Today' },
+  { keys: ['I'], label: 'Go to Inbox' },
   { keys: ['K'], label: 'Go to Kanban' },
   { keys: ['D'], label: 'Go to Daily Log' },
-  { keys: ['M'], label: 'Open this manual' },
+  { keys: ['W'], label: 'Go to Weekly Review' },
+  { keys: ['M'], label: 'Open or close this manual' },
   { keys: ['Esc'], label: 'Close whatever is open' },
 ];
 
@@ -107,20 +109,20 @@ export const ManualView: React.FC<ManualViewProps> = ({
         </h2>
         <ul className="space-y-2">
           <li className="text-sm" style={{ color: 'rgb(var(--st-400))' }}>
-            <span style={{ color: 'rgb(var(--st-600))' }}>Shortcuts are suspended while a focus timer runs</span> —
+            <span style={{ color: 'rgb(var(--st-600))' }}>Shortcuts are suspended while a focus timer runs</span>.
             so a keypress can't interrupt a session by accident.
           </li>
           <li className="text-sm" style={{ color: 'rgb(var(--st-400))' }}>
-            <span style={{ color: 'rgb(var(--st-600))' }}>Shortcuts don't fire inside text inputs</span> —
+            <span style={{ color: 'rgb(var(--st-600))' }}>Shortcuts don't fire inside text inputs</span>.
             typing a title with a "k" in it won't navigate away.
           </li>
           <li className="text-sm" style={{ color: 'rgb(var(--st-400))' }}>
-            <span style={{ color: 'rgb(var(--st-600))' }}>Captured text is parsed by the AI</span> — dates,
+            <span style={{ color: 'rgb(var(--st-600))' }}>Captured text is parsed by the AI</span> - dates,
             durations and categories get filled in where it can infer them. The inline field on Today skips
             that, because "today" is already the intent.
           </li>
           <li className="text-sm" style={{ color: 'rgb(var(--st-400))' }}>
-            <span style={{ color: 'rgb(var(--st-600))' }}>AI needs a working model</span> — if a call fails the
+            <span style={{ color: 'rgb(var(--st-600))' }}>AI needs a working model</span> - if a call fails the
             app falls back to heuristics rather than erroring.
           </li>
         </ul>

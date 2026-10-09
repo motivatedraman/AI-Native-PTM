@@ -100,7 +100,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             style={{ borderBottom: '1px solid rgb(var(--sx-border-2))' }}
           >
             {isCollapsed ? (
-              /* Collapsed: logo only — click to expand */
+              /* Collapsed: logo only, click to expand */
               <button
                 onClick={() => setIsCollapsed(false)}
                 className="w-8 h-8 rounded-xl flex items-center justify-center text-white font-bold text-sm flex-shrink-0 cursor-pointer hover:scale-105 transition-transform"
@@ -146,7 +146,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             )}
           </div>
 
-          {/* One primary action. Search stays on / and Cmd+K — a second
+          {/* One primary action. Search stays on /, a second
               stacked button competed with the nav for the same attention. */}
           <div className="p-3">
             <button

@@ -1,5 +1,5 @@
 """
-Context Resolver — Gathers only relevant data for AI queries.
+Context Resolver. Gathers only relevant data for AI queries.
 
 Instead of dumping the entire database to the AI, this service retrieves
 only the information needed for each specific type of query.

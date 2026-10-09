@@ -108,7 +108,7 @@ export const StartFocusModal: React.FC<StartFocusModalProps> = ({ task, isOpen, 
         {/* Footer */}
         <div className="px-6 py-3.5 border-t border-[rgb(var(--sx-border))] bg-[rgb(var(--sx-header)/0.5)] flex items-center justify-between">
           <span className="text-[11px] font-mono text-stone-500">
-            {isValid ? `${minutes} minute${minutes === 1 ? '' : 's'} of deep work` : 'Enter 1–600 minutes'}
+            {isValid ? `${minutes} minute${minutes === 1 ? '' : 's'} of deep work` : 'Enter 1-600 minutes'}
           </span>
           <div className="flex items-center gap-2">
             <button

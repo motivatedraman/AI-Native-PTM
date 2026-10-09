@@ -13,7 +13,7 @@ interface PlanMyDayModalProps {
 
 const PRESETS = [
   { label: 'Full Day Free', icon: Sunrise, chunks: [{ start: '06:00', end: '22:00' }] },
-  { label: '🚫 Busy in Morning (Free 13:00–22:00)', icon: Sun, chunks: [{ start: '13:00', end: '22:00' }] },
+  { label: '🚫 Busy in Morning (Free 13:00-22:00)', icon: Sun, chunks: [{ start: '13:00', end: '22:00' }] },
   { label: '🚫 Busy in Afternoon (Free Morn+Eve)', icon: Layers, chunks: [{ start: '06:00', end: '12:00' }, { start: '18:00', end: '22:00' }] },
   { label: 'Morning Only', icon: Sunrise, chunks: [{ start: '06:00', end: '12:00' }] },
   { label: 'Evening Only', icon: Moon, chunks: [{ start: '18:00', end: '22:00' }] },

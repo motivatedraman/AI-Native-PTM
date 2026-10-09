@@ -27,7 +27,7 @@ export const WeeklyReviewView: React.FC = () => {
 
   return (
     <div className="max-w-3xl space-y-5">
-      {/* Header — no Refresh button; the review fetches on mount */}
+      {/* Header, no Refresh button; the review fetches on mount */}
       <div className="pb-4 border-b border-[rgb(var(--sx-border-2))]">
         <h1 className="text-xl font-semibold text-stone-100">Weekly Review</h1>
         {review && (
@@ -65,7 +65,7 @@ export const WeeklyReviewView: React.FC = () => {
                 <ul className="space-y-1.5">
                   {review.highlights.map((h, i) => (
                     <li key={i} className="flex gap-2 text-sm" style={{ color: 'rgb(var(--st-300))' }}>
-                      <span style={{ color: 'rgb(var(--st-600))' }}>—</span>
+                      <span style={{ color: 'rgb(var(--st-600))' }}>-</span>
                       <span>{h}</span>
                     </li>
                   ))}
@@ -81,7 +81,7 @@ export const WeeklyReviewView: React.FC = () => {
                 <ul className="space-y-1.5">
                   {review.patterns.map((p, i) => (
                     <li key={i} className="flex gap-2 text-sm" style={{ color: 'rgb(var(--st-300))' }}>
-                      <span style={{ color: 'rgb(var(--st-600))' }}>—</span>
+                      <span style={{ color: 'rgb(var(--st-600))' }}>-</span>
                       <span>{p}</span>
                     </li>
                   ))}
@@ -97,7 +97,7 @@ export const WeeklyReviewView: React.FC = () => {
                 <ul className="space-y-1.5">
                   {review.suggestions.map((sg, i) => (
                     <li key={i} className="flex gap-2 text-sm" style={{ color: 'rgb(var(--st-300))' }}>
-                      <span style={{ color: 'rgb(var(--st-600))' }}>—</span>
+                      <span style={{ color: 'rgb(var(--st-600))' }}>-</span>
                       <span>{sg}</span>
                     </li>
                   ))}

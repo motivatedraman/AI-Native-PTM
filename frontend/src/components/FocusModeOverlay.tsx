@@ -129,7 +129,7 @@ export const FocusModeOverlay: React.FC<FocusModeOverlayProps> = ({ focus }) => 
           <div className="flex items-center gap-4 px-5 py-3 rounded-2xl border border-amber-500/30 bg-amber-950/60 backdrop-blur-md shadow-xl">
             <Bell size={18} className="text-amber-300 flex-shrink-0" />
             <span className="text-sm text-amber-100">
-              Halfway there — a 5-minute break keeps the streak alive.
+              Halfway there, a 5-minute break keeps the streak alive.
             </span>
             <div className="flex items-center gap-2">
               <button

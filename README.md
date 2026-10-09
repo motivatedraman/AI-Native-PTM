@@ -12,7 +12,7 @@ The first version of this project was a dashboard. It had seven navigation items
 
 It was also slow, and for a specific reason worth recording: the task list endpoint issued **201 database queries** to render 100 tasks.
 
-Both problems had the same root cause — nothing was ever subtracted. Features accumulated, each one individually reasonable, until the sum stopped serving the user. This document records what was removed and why, because the removals are the actual design.
+Both problems had the same root cause, nothing was ever subtracted. Features accumulated, each one individually reasonable, until the sum stopped serving the user. This document records what was removed and why, because the removals are the actual design.
 
 ---
 
@@ -35,19 +35,19 @@ The AI widgets were **relocated, not deleted**. `WhatNowWidget` and `AISuggestio
 
 **Status badges were removed from rows.** Every task row displayed `PLANNED` / `DOING` / `DONE` in a coloured pill. The list now sorts urgent-first and sinks completed items, so ordering carries that signal instead of a label repeated 100 times.
 
-**Headers were reduced to one line.** Every page repeated the same three-part header — an uppercase eyebrow with an icon, a 3xl heading, and an explanatory paragraph. Fifteen elements saying nothing. All gone.
+**Headers were reduced to one line.** Every page repeated the same three-part header, an uppercase eyebrow with an icon, a 3xl heading, and an explanatory paragraph. Fifteen elements saying nothing. All gone.
 
 **Two features were deleted outright:** the University Hub and the Projects Directory. The *views* went; the data model did not. `project_id` is a real foreign key and `TaskCategory` still contains `'University'`, because existing rows carry those values and narrowing the types would strand them.
 
 ### The colour
 
-The original palette was monochrome. Surfaces, borders, text and accent were all tints of `#ab7631` — one brown at ten volumes. That, more than any layout decision, is what made it read as generic.
+The original palette was monochrome. Surfaces, borders, text and accent were all tints of `#ab7631`, one brown at ten volumes. That, more than any layout decision, is what made it read as generic.
 
-Rebuilt in OKLCH around a cool graphite anchor (hue 250, chroma 0.002–0.016) with a single desaturated slate accent (hue 240, chroma ≤ 0.044). Two independent hues rather than one hue described repeatedly.
+Rebuilt in OKLCH around a cool graphite anchor (hue 250, chroma 0.002-0.016) with a single desaturated slate accent (hue 240, chroma ≤ 0.044). Two independent hues rather than one hue described repeatedly.
 
-The accent was originally gold, then replaced — gold at chroma 0.155 reads as a brand colour. Capping chroma near 0.04 makes it an institutional tint that still signals "interactive" without shouting.
+The accent was originally gold, then replaced, gold at chroma 0.155 reads as a brand colour. Capping chroma near 0.04 makes it an institutional tint that still signals "interactive" without shouting.
 
-Light mode took three passes. The first version topped out at `rgb(254 255 255)` against a `rgb(243 245 248)` page — effectively white on white, with every surface crammed into the top 5% of the lightness range. Surfaces now descend 244 → 197. Darkening the surfaces cost contrast on faint text and control borders, so both deepened to compensate.
+Light mode took three passes. The first version topped out at `rgb(254 255 255)` against a `rgb(243 245 248)` page, effectively white on white, with every surface crammed into the top 5% of the lightness range. Surfaces now descend 244 → 197. Darkening the surfaces cost contrast on faint text and control borders, so both deepened to compensate.
 
 **All 106 text/surface and control-boundary pairs verify against WCAG AA in both modes.** This is checked numerically, not by eye, and the check runs against the built CSS rather than source values.
 
@@ -55,7 +55,7 @@ Light mode took three passes. The first version topped out at `rgb(254 255 255)`
 
 Three fixes, each measured before and after.
 
-**N+1 on the task list — the big one.** `TaskResponse` serializes subtasks, tags and project. SQLAlchemy lazy-loads each one per row, so 100 tasks meant 201 queries.
+**N+1 on the task list, the big one.** `TaskResponse` serializes subtasks, tags and project. SQLAlchemy lazy-loads each one per row, so 100 tasks meant 201 queries.
 
 ```
 100 tasks, list + serialize
@@ -65,7 +65,7 @@ Three fixes, each measured before and after.
 
 Same fix applied to `/api/focus/sessions`, which embeds a full `TaskResponse`.
 
-**N+1 on the project list.** Each project issued two separate `COUNT` queries for its task totals — 17 round-trips for 8 projects. Replaced with one grouped aggregate: 2 queries.
+**N+1 on the project list.** Each project issued two separate `COUNT` queries for its task totals. 17 round-trips for 8 projects. Replaced with one grouped aggregate: 2 queries.
 
 **Client over-fetching.** `handleTaskCreated` refetched all five endpoints after every task creation, discarding the authoritative POST response it already had. Now it applies the response directly. A single user action went from 5 requests to 0.
 
@@ -86,7 +86,7 @@ Tokens are RGB channel triplets rather than `oklch()` for one reason: ~40 call s
 
 **AI never blocks the app.** If a model call fails, the service falls back to heuristics. Task creation cannot fail because a provider is down. API keys stay on the backend.
 
-**Inline capture deliberately bypasses the AI parser.** The Today capture field posts to `/api/tasks` with today's due date rather than `/api/tasks/quick-add`. Quick-add routes through the AI to *guess* a due date — correct for an untriaged inbox dump, wrong here, where "today" is the stated intent and a guessed date would silently misfile the task.
+**Inline capture deliberately bypasses the AI parser.** The Today capture field posts to `/api/tasks` with today's due date rather than `/api/tasks/quick-add`. Quick-add routes through the AI to *guess* a due date, correct for an untriaged inbox dump, wrong here, where "today" is the stated intent and a guessed date would silently misfile the task.
 
 ---
 
@@ -95,7 +95,7 @@ Tokens are RGB channel triplets rather than `oklch()` for one reason: ~40 call s
 ```bash
 # Backend
 cd backend && python3 -m venv .venv && .venv/bin/pip install -r requirements.txt && cd ..
-cp .env.example .env      # then edit it — see below
+cp .env.example .env      # then edit it, see below
 PYTHONPATH=. backend/.venv/bin/alembic upgrade head
 PYTHONPATH=. backend/.venv/bin/python backend/seed.py
 
@@ -113,9 +113,9 @@ If `backend/.venv` fails to create with `ensurepip is not available`, install `p
 
 | Variable | Notes |
 |---|---|
-| `GEMINI_API_KEY` | Google AI Studio. Keys now use the `AQ.` prefix, not `AIza` — that is the current format, not a mistake. |
+| `GEMINI_API_KEY` | Google AI Studio. Keys now use the `AQ.` prefix, not `AIza`, that is the current format, not a mistake. |
 | `AI_MODEL` | `gemini-3.5-flash-lite` works. `gemini-2.0-flash` is retired and returns 404. |
-| `AUTH_PASSWORD` | Empty falls back to a default — set it. |
+| `AUTH_PASSWORD` | Empty falls back to a default, set it. |
 | `CORS_ORIGINS` | Add your host's origin, or the browser will block API calls from a non-localhost UI. |
 | `DATABASE_URL` | `sqlite:///./data/app.db` locally. Relative to process CWD. |
 
@@ -123,16 +123,17 @@ If `backend/.venv` fails to create with `ensurepip is not available`, install `p
 
 ## Keyboard
 
-Press `M` for the in-app manual. It is deliberately unreachable from the UI — no nav item, no palette entry — so it cannot become clutter once you know it.
+Press `M` for the in-app manual. It is deliberately unreachable from the UI, no nav item, no palette entry, so it cannot become clutter once you know it.
 
 | Key | Action |
 |---|---|
 | `N` | Capture. Focuses the inline field on Today, opens the full modal elsewhere. |
+| `Cmd/Ctrl+N` | Full capture, from anywhere |
 | `A` | AI assistant |
 | `P` | Plan my day |
-| `/` or `Cmd/Ctrl+K` | Command palette and search |
-| `T` `K` `D` | Today / Kanban / Daily Log |
-| `M` | Manual |
+| `/` | Command palette and search |
+| `T` `I` `K` `D` `W` | Today / Inbox / Kanban / Daily Log / Weekly Review |
+| `M` | Manual (toggles) |
 | `Esc` | Close anything |
 
 Shortcuts suspend while a focus timer runs, and never fire inside a text input.
@@ -142,20 +143,20 @@ Shortcuts suspend while a focus timer runs, and never fire inside a text input.
 ## Tests
 
 ```bash
-# End-to-end API suite — needs a server on :8001 with an isolated DB
+# End-to-end API suite, needs a server on :8001 with an isolated DB
 rm -f /tmp/nexus_e2e.db
 DATABASE_URL="sqlite:////tmp/nexus_e2e.db" AI_PROVIDER=mock PYTHONPATH=. \
   backend/.venv/bin/uvicorn backend.app.main:app --host 127.0.0.1 --port 8001 &
 PYTHONPATH=. backend/.venv/bin/python backend/seed.py   # the suite asserts on seed data
 backend/.venv/bin/python backend/tests/e2e_tests.py
 
-# Query-count regression — isolated in-memory DB, never touches app data
+# Query-count regression, isolated in-memory DB, never touches app data
 backend/.venv/bin/python backend/tests/perf_test.py
 ```
 
-`e2e_tests.py` — 123 assertions pass, covering auth, task CRUD, timezone round-trips, subtasks, dependencies, projects, tags, quick-add parsing, activity, reflections, settings, and every AI endpoint.
+`e2e_tests.py`. 123 assertions pass, covering auth, task CRUD, timezone round-trips, subtasks, dependencies, projects, tags, quick-add parsing, activity, reflections, settings, and every AI endpoint.
 
-`perf_test.py` — asserts the task list issues ≤5 queries and that the count **does not grow with row count**. Testing the fixed ceiling rather than a wall-clock number is deliberate: the bug was O(n) round-trips, so the property to protect is O(1).
+`perf_test.py`, asserts the task list issues ≤5 queries and that the count **does not grow with row count**. Testing the fixed ceiling rather than a wall-clock number is deliberate: the bug was O(n) round-trips, so the property to protect is O(1).
 
 Frontend: `npm run build && npx tsc -b && npx oxlint src && npm audit`.
 
@@ -163,9 +164,47 @@ Frontend: `npm run build && npx tsc -b && npx oxlint src && npm audit`.
 
 ## Deployment
 
-`render.yaml` and `build.sh` are included. Set `DATABASE_URL`, `AI_PROVIDER`, and `GEMINI_API_KEY`; the build runs migrations and seeds.
+`render.yaml` and `build.sh` are included.
 
-One thing to know if you deploy this: `build.sh` uses `pip install` against a bare environment and does not create a venv. It works on Render's Python image but will fail on a system without `ensurepip`.
+### Your data is disappearing because the filesystem is ephemeral
+
+Render's free web services have an **ephemeral filesystem**. Every deploy, and every spin-down after 15 minutes idle, throws away the container and its contents. Your `sqlite:///./data/app.db` lives in that container, so every deploy starts you from zero. This is not a bug in the app, and no amount of code changes will fix it.
+
+Two facts about the free tier that rule out the obvious workarounds:
+
+- **Persistent disks are not available on free web services.** Render rejects the blueprint with `disks are not supported for free tier services`. This is a paid-plan feature.
+- **Render's own free Postgres expires 30 days after creation.** It is not a durable home for your data.
+
+The fix is an external Postgres database. Your code already supports it; only `DATABASE_URL` changes.
+
+**Neon** is the best fit for free tier: no expiry, 1 GB per project, and it scales to zero after 5 minutes idle then wakes in a few hundred milliseconds. Supabase's free tier also works but pauses projects after a week of low activity, which needs a manual restore.
+
+1. Create a project at [neon.tech](https://neon.tech), take the **pooled** connection string.
+2. Copy your existing tasks across (see below). Do this before changing anything in Render.
+3. In Render, set `DATABASE_URL` to that string under Environment. It is declared `sync: false` in `render.yaml` so the blueprint never overwrites it.
+4. Deploy.
+
+### Migrating your existing tasks
+
+```bash
+# Preview first. Writes nothing.
+backend/.venv/bin/python backend/scripts/migrate_sqlite_to_postgres.py \
+  --target "postgresql://user:pass@host/db?sslmode=require"
+
+# Then copy.
+backend/.venv/bin/python backend/scripts/migrate_sqlite_to_postgres.py \
+  --target "postgresql://user:pass@host/db?sslmode=require" --apply
+```
+
+The script opens your local SQLite file read-only, skips rows whose primary key already exists so it is safe to re-run, and copies parents before children so foreign keys resolve.
+
+After switching, the boot log tells you which database you are on:
+
+```
+[Startup] Database: ep-xxx-pooler/neon.tech/neondb (persistent)
+```
+
+If it ever prints a sqlite warning instead, you are back on an ephemeral filesystem and the next deploy will wipe your data.
 
 ---
 
@@ -173,4 +212,4 @@ One thing to know if you deploy this: `build.sh` uses `pip install` against a ba
 
 The UI was audited with the [Hallmark](https://github.com/nutlope/hallmark) anti-slop skill, which scores existing code against named AI tells and returns a punch list without editing. It found, among others: Inter used as both display and body with no pairing face; a single-hue palette; `shadow-2xl` (24px blur) as the default reach for "modal"; and a decorative `feTurbulence` grain overlay at `z-index: 9999`.
 
-The instinct to keep it installed and run `hallmark audit` before adding UI features is a good one. Most of what made this project feel generic was not a missing feature — it was features that nobody had the nerve to remove.
+The instinct to keep it installed and run `hallmark audit` before adding UI features is a good one. Most of what made this project feel generic was not a missing feature, it was features that nobody had the nerve to remove.

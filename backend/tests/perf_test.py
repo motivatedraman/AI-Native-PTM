@@ -3,7 +3,7 @@ Query-count regression test for the N+1 fixes.
 
 Runs against an isolated in-memory database so it never touches app data.
 Asserts the list endpoints issue a bounded number of queries regardless of
-row count — the property that actually matters, since the old behaviour was
+row count, the property that actually matters, since the old behaviour was
 O(n) round-trips rather than merely "slow".
 
 Run: backend/.venv/bin/python backend/tests/perf_test.py

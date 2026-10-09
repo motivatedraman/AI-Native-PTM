@@ -16,7 +16,7 @@ export function applyTheme(theme: Theme): void {
   try {
     localStorage.setItem(STORAGE_KEY, theme);
   } catch {
-    /* private mode — session-only theme */
+    /* private mode, session-only theme */
   }
 }
 

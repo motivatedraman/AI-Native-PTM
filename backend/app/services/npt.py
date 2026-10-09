@@ -2,7 +2,7 @@
 
 The app stores naive UTC datetimes and treats all user-facing days as
 NPT calendar days. Deployment servers (e.g. Render) run in UTC, so
-server-local dates must never be used for day boundaries — always use
+server-local dates must never be used for day boundaries, always use
 these helpers.
 """
 from datetime import datetime, date, timedelta, timezone

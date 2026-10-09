@@ -1,4 +1,4 @@
-/** Nepal Standard Time — UTC+5:45 (no DST) */
+/** Nepal Standard Time. UTC+5:45 (no DST) */
 const TZ = 'Asia/Kathmandu';
 const NPT_OFFSET_MINUTES = 5 * 60 + 45;
 
@@ -10,14 +10,14 @@ const NPT_OFFSET_MINUTES = 5 * 60 + 45;
  * Appending "Z" forces UTC interpretation.
  */
 function asUTC(iso: string): Date {
-  // Already has a timezone suffix — leave it alone
+  // Already has a timezone suffix, leave it alone
   if (iso.endsWith('Z') || /[+-]\d{2}:?\d{2}$/.test(iso)) {
     return new Date(iso);
   }
   return new Date(iso + 'Z');
 }
 
-/** Current hour (0-23) in NPT — for greeting logic */
+/** Current hour (0-23) in NPT, for greeting logic */
 export function currentHourNPT(): number {
   return parseInt(
     new Date().toLocaleString('en-US', { timeZone: TZ, hour: 'numeric', hour12: false }),
@@ -35,7 +35,7 @@ export function formatDateNPT(
   iso: string | null | undefined,
   opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric', year: 'numeric' }
 ): string {
-  if (!iso) return '—';
+  if (!iso) return ', ';
   return asUTC(iso).toLocaleDateString('en-US', { timeZone: TZ, ...opts });
 }
 
@@ -44,7 +44,7 @@ export function formatTimeNPT(
   iso: string | null | undefined,
   opts: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit' }
 ): string {
-  if (!iso) return '—';
+  if (!iso) return ', ';
   return asUTC(iso).toLocaleTimeString('en-US', { timeZone: TZ, ...opts });
 }
 

@@ -90,7 +90,7 @@
     0 4px 12px -6px rgb(0 0 0 / 0.24);
 
   /* Two-stop gradients only. Desaturated, on the same hue family as
-     the accent — no gold, no purple-to-cyan. */
+     the accent, no gold, no purple-to-cyan. */
   --background-image-gradient-primary: linear-gradient(135deg, #9db2c4, #5b7c99);
   --background-image-gradient-success: linear-gradient(135deg, #2f9e68, #1f6f88);
   --background-image-gradient-streak: linear-gradient(135deg, #5b7c99, #7d6a94);
@@ -129,8 +129,8 @@
      Rebuilt in OKLCH. Neutrals anchor on hue 250 (cool graphite) with
      chroma 0.002-0.016; the single accent is hue 240 at chroma <= 0.044.
 
-     The previous ramp was monochrome — every surface, border and accent
-     was a tint of one brown — which is what made the whole app read as
+     The previous ramp was monochrome, every surface, border and accent
+     was a tint of one brown, which is what made the whole app read as
      generic. A ground and an accent now differ in lightness and carry a
      hint of separation rather than being one hue at ten volumes.
 
@@ -171,7 +171,7 @@
     --st-600: 113 117 122;
     --st-700: 84 88 93;
 
-    /* Accent — desaturated slate, hue 240. Chroma capped at 0.044 so it
+    /* Accent, desaturated slate, hue 240. Chroma capped at 0.044 so it
        reads as an institutional tint rather than a brand colour. */
     --am-200: 204 218 228;
     --am-300: 173 193 207;
@@ -183,7 +183,7 @@
     --am-900: 30 43 52;
     --am-950: 15 23 29;
 
-    /* Accent bright — priority text and chips. */
+    /* Accent bright, priority text and chips. */
     --accent-text: var(--am-300);
 
     /* Semantic aliases consumed via inline `style={ color: 'var(--x)' }`
@@ -273,7 +273,7 @@
   }
 }
 
-/* Scrollbars — matte, quiet */
+/* Scrollbars, matte, quiet */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -290,13 +290,13 @@
   background: rgb(var(--st-500));
 }
 
-/* Panel — solid and matte, no glass blur */
+/* Panel, solid and matte, no glass blur */
 .glass-panel {
   background: rgb(var(--sx-surface) / 0.97);
   border: 1px solid rgb(var(--sx-border-2));
 }
 
-/* Accent text — solid warm brass instead of gradient */
+/* Accent text, solid warm brass instead of gradient */
 .text-gradient-primary {
   color: rgb(var(--accent-text));
 }
@@ -308,7 +308,7 @@
   background-clip: text;
 }
 
-/* Focus glows — a tight ring, not a diffuse bloom. The old 20px/40px
+/* Focus glows, a tight ring, not a diffuse bloom. The old 20px/40px
    double-spread halo on a lighter ground read as a lighting effect. */
 .glow-primary {
   box-shadow: 0 0 0 3px var(--primary-glow);
@@ -322,7 +322,7 @@
   box-shadow: 0 0 20px var(--streak-glow), 0 0 40px rgba(201, 106, 38, 0.1);
 }
 
-/* kbd badge — mono tags the keyboard role, so this is the outlier register */
+/* kbd badge, mono tags the keyboard role, so this is the outlier register */
 .kbd-badge {
   display: inline-flex;
   align-items: center;
@@ -347,7 +347,7 @@
   animation: confetti-piece 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
-/* Shimmer for loading skeletons — tracks the surface ramp, so it works in
+/* Shimmer for loading skeletons, tracks the surface ramp, so it works in
    both modes instead of only on the old dark ground. */
 .shimmer-bg {
   background: linear-gradient(
@@ -367,7 +367,7 @@
   transition: stroke-dashoffset 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-/* Sidebar active state — a warm wash plus a 2px accent rule */
+/* Sidebar active state, a warm wash plus a 2px accent rule */
 .sidebar-active-glow {
   background: linear-gradient(90deg, rgb(var(--am-600) / 0.14), rgb(var(--am-600) / 0.03));
   border-right: 2px solid rgb(var(--am-500));

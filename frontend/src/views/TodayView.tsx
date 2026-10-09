@@ -96,7 +96,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
     setSelectedDate(next.toLocaleDateString('sv-SE'));
   };
 
-  /* One list. Urgent first, then by due date, then by priority — the
+  /* One list. Urgent first, then by due date, then by priority, the
      status badge that used to sit on every row is gone because the
      ordering now carries that signal. */
   const dayTasks = tasks
@@ -136,7 +136,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
         onComplete={() => setBurstTrigger(false)}
       />
 
-      {/* Header — one line, no eyebrow, no explanation */}
+      {/* Header, one line, no eyebrow, no explanation */}
       <div className="flex items-end justify-between gap-4 pb-4" style={{ borderBottom: '1px solid rgb(var(--sx-border-2))' }}>
         <div>
           <h1 className="text-xl font-semibold text-stone-100">
@@ -178,7 +178,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
         </div>
       </div>
 
-      {/* Capture — always present, no modal required */}
+      {/* Capture, always present, no modal required */}
       <form onSubmit={handleCapture} className="relative">
         <input
           ref={captureRef}
@@ -276,7 +276,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
             {quote.text}
             {quote.author && (
               <cite className="not-italic" style={{ color: 'rgb(var(--st-600))' }}>
-                {' '}— {quote.author}
+                {' '}, {quote.author}
               </cite>
             )}
           </blockquote>

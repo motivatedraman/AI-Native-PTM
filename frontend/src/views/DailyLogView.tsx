@@ -50,7 +50,7 @@ export const DailyLogView: React.FC<DailyLogViewProps> = ({ onSelectTask }) => {
   return (
     <div className="max-w-3xl space-y-5">
       
-      {/* Header — the date is the only metadata this page needs */}
+      {/* Header, the date is the only metadata this page needs */}
       <div className="flex items-end justify-between pb-4 border-b border-[rgb(var(--sx-border-2))] gap-4">
         <div>
           <h1 className="text-xl font-semibold text-stone-100">Daily Log</h1>

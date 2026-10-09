@@ -1,6 +1,6 @@
 type ChimeKind = 'complete' | 'break-over' | 'reminder';
 
-/** Tiny WebAudio chime — no audio assets needed. */
+/** Tiny WebAudio chime, no audio assets needed. */
 export function playFocusChime(kind: ChimeKind = 'complete') {
   try {
     const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;

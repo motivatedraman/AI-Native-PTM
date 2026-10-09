@@ -1,12 +1,19 @@
 services:
   - type: web
     name: nexus-task-manager
-    env: python
+    runtime: python
+    plan: free
     buildCommand: "./build.sh"
     startCommand: "python -m uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: /api/health
     envVars:
+      # Set this ONCE in the Render dashboard, never in this file.
+      # A hosted Postgres keeps your tasks across deploys. Render's free web
+      # services have an ephemeral filesystem, so the old
+      # `sqlite:///./data/app.db` value wiped every task on each deploy.
+      # Neon free tier works well: no expiry, 1 GB, wakes automatically.
       - key: DATABASE_URL
-        value: sqlite:///./data/app.db
+        sync: false
       - key: AUTH_USERNAME
         sync: false
       - key: AUTH_PASSWORD
@@ -17,6 +24,8 @@ services:
         value: gemini
       - key: AI_MODEL
         value: gemini-3.5-flash-lite
+      - key: GEMINI_API_KEY
+        sync: false
       - key: AI_API_KEY
         sync: false
       - key: SECRET_KEY

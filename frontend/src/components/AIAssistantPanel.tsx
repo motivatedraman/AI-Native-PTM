@@ -159,7 +159,7 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
           <div ref={messagesEndRef} />
         </div>
 
-        {/* What Should I Do Now — was a large card on Today */}
+        {/* What Should I Do Now, was a large card on Today */}
         <div className="px-4 pb-3">
           <button
             onClick={loadWhatNow}
@@ -204,7 +204,7 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
           )}
         </div>
 
-        {/* AI suggestions — was a card on Today */}
+        {/* AI suggestions, was a card on Today */}
         <div className="px-4 pb-3">
           <button
             onClick={loadSuggestions}
@@ -223,7 +223,7 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
                   <span style={{ color: 'rgb(var(--st-600))' }}>{sg.type}</span>{' '}
                   {sg.title}
                   {sg.description && (
-                    <span style={{ color: 'rgb(var(--st-600))' }}> — {sg.description}</span>
+                    <span style={{ color: 'rgb(var(--st-600))' }}> - {sg.description}</span>
                   )}
                 </li>
               ))}

@@ -80,9 +80,9 @@ class AIService:
         if is_configured:
             msg = f"AI Engine active with {self.provider.capitalize()} ({self.model})"
             if not healthy:
-                msg += f" — temporarily degraded: {self._last_error or 'too many failures'}"
+                msg += f", temporarily degraded: {self._last_error or 'too many failures'}"
             elif not self.rate_limiter.can_proceed():
-                msg += f" — rate limited, {self.rate_limiter.wait_time():.0f}s until next request"
+                msg += f", rate limited, {self.rate_limiter.wait_time():.0f}s until next request"
         return AIStatusResponse(
             is_configured=is_configured,
             provider=self.provider,
@@ -987,7 +987,7 @@ Rules:
             recommendations.append({
                 "task_id": t.get("id"),
                 "task_title": t.get("title"),
-                "reason": "Overdue — needs immediate attention" if overdue else f"Priority: {t.get('priority', 'medium')}",
+                "reason": "Overdue, needs immediate attention" if overdue else f"Priority: {t.get('priority', 'medium')}",
                 "duration_minutes": dur,
                 "urgency": "critical" if overdue else t.get("priority", "medium")
             })
@@ -1320,7 +1320,7 @@ Rules:
                     "action": {"type": "view_project", "project_id": p.get("id")}
                 })
 
-        # Floating tasks reminders — one actionable suggestion per task
+        # Floating tasks reminders, one actionable suggestion per task
         # (clicking opens that task's edit view, same as overdue warnings)
         for t in floating[:3]:
             suggestions.append({

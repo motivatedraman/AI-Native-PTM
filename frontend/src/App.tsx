@@ -180,36 +180,64 @@ export const App: React.FC = () => {
         return;
       }
 
-      if (key === 'n' && !e.metaKey && !e.ctrlKey) {
+      // Plain keys only. A modifier means the browser or the OS owns it.
+      const plain = !e.metaKey && !e.ctrlKey && !e.altKey;
+
+      // Without this the browser opens a new window on Cmd/Ctrl+N.
+      if (key === 'n' && !plain) {
         e.preventDefault();
-        // Today has an always-present capture field; focus it instead of
-        // opening the modal. Cmd+N still opens the full modal.
+        setIsQuickAddOpen(true);
+        return;
+      }
+      if (!plain) return;
+
+      if (key === 'n') {
+        e.preventDefault();
+        // Today has an always-present capture field, so focus it instead of
+        // opening the modal. Cmd/Ctrl+N still opens the full capture.
         if (activeView === 'today') {
           window.dispatchEvent(new Event('nexus:focus-capture'));
         } else {
           setIsQuickAddOpen(true);
         }
-      } else if (key === 'a' && !e.metaKey && !e.ctrlKey) {
-        e.preventDefault();
-        setIsAIAssistantOpen(true);
-      } else if (key === 'p' && !e.metaKey && !e.ctrlKey) {
-        e.preventDefault();
-        setIsPlanDayOpen(true);
-      } else if (key === 't' && !e.metaKey && !e.ctrlKey) {
-        e.preventDefault();
-        setActiveView('today');
-      } else if (key === 'k' && !e.metaKey && !e.ctrlKey) {
-        e.preventDefault();
-        setActiveView('kanban');
-      } else if (key === 'd' && !e.metaKey && !e.ctrlKey) {
-        e.preventDefault();
-        setActiveView('dailylog');
-      } else if (key === 'm' && !e.metaKey && !e.ctrlKey) {
-        e.preventDefault();
-        setActiveView(activeView === 'manual' ? 'today' : 'manual');
-      } else if (key === '/' || ((e.metaKey || e.ctrlKey) && key === 'k')) {
+        return;
+      }
+
+      if (key === '/') {
         e.preventDefault();
         setIsCommandPaletteOpen(true);
+        return;
+      }
+
+      if (key === 'a') {
+        e.preventDefault();
+        setIsAIAssistantOpen(true);
+        return;
+      }
+
+      if (key === 'p') {
+        e.preventDefault();
+        setIsPlanDayOpen(true);
+        return;
+      }
+
+      // The manual toggles, so M returns you where you were.
+      if (key === 'm') {
+        e.preventDefault();
+        setActiveView(activeView === 'manual' ? 'today' : 'manual');
+        return;
+      }
+
+      const NAV_KEYS: Record<string, ActiveView> = {
+        t: 'today',
+        i: 'inbox',
+        k: 'kanban',
+        d: 'dailylog',
+        w: 'weeklyreview',
+      };
+      if (NAV_KEYS[key]) {
+        e.preventDefault();
+        setActiveView(NAV_KEYS[key]);
       }
     };
 
@@ -314,7 +342,7 @@ export const App: React.FC = () => {
 
       {/* Main View Area */}
       <main className="flex-1 flex flex-col h-screen overflow-y-auto p-4 lg:p-6" style={{ background: 'rgb(var(--sx-bg))' }}>
-        {/* Desktop top bar — theme toggle, top right */}
+        {/* Desktop top bar, theme toggle, top right */}
         <div className="hidden lg:flex items-center justify-end mb-2">
           <ThemeToggle />
         </div>
@@ -436,7 +464,7 @@ export const App: React.FC = () => {
         }}
       />
 
-      {/* Command Palette ('/' or 'Cmd+K') */}
+      {/* Command Palette ('/') */}
       <CommandPalette
         isOpen={isCommandPaletteOpen}
         onClose={() => setIsCommandPaletteOpen(false)}
@@ -469,7 +497,7 @@ export const App: React.FC = () => {
         onStartTask={handleStartTask}
       />
 
-      {/* Focus Mode fullscreen clock — covers everything while a session runs */}
+      {/* Focus Mode fullscreen clock, covers everything while a session runs */}
       <FocusModeOverlay focus={focus} />
 
     </div>

@@ -109,7 +109,7 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
   return (
     <div className="h-full flex flex-col space-y-4">
       
-      {/* Header — capture lives in the sidebar and on N */}
+      {/* Header, capture lives in the sidebar and on N */}
       <div className="flex items-end justify-between pb-3 border-b border-[rgb(var(--sx-border-2))] flex-shrink-0">
         <h1 className="text-xl font-semibold text-stone-100">Kanban</h1>
         <span className="text-sm" style={{ color: 'rgb(var(--st-500))' }}>{tasks.length} tasks</span>
