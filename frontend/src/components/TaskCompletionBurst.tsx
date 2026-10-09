@@ -75,7 +75,7 @@ export const TaskCompletionBurst: React.FC<TaskCompletionBurstProps> = ({ trigge
           style={{ animation: 'bounce-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards' }}
         >
           <div
-            className="px-6 py-3 rounded-2xl text-white font-bold text-xl shadow-2xl select-none"
+            className="px-6 py-3 rounded-2xl text-white font-bold text-xl shadow-lift select-none"
             style={{
               background: 'linear-gradient(135deg, rgb(var(--am-600)), var(--brand-deep))',
               boxShadow: '0 0 40px rgba(171, 118, 49, 0.6), 0 0 80px rgba(165, 100, 42, 0.3)',
@@ -240,7 +240,7 @@ export const StreakBadge: React.FC<StreakBadgeProps> = ({ streak, compact = fals
 
   return (
     <div className="flex items-center space-x-2 px-3 py-2 rounded-xl streak-badge">
-      <span className="text-2xl" style={{ filter: 'drop-shadow(0 0 8px rgba(201, 106, 38, 0.8))' }}>🔥</span>
+      <span className="text-2xl" style={{ filter: 'drop-shadow(0 0 6px rgb(var(--streak) / 0.6))' }}>🔥</span>
       <div>
         <div className="text-gradient-streak font-bold text-lg leading-none">{streak}</div>
         <div className="text-[10px] text-orange-300/70 font-medium">day streak</div>

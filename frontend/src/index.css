@@ -1,148 +1,276 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-/* ─── Theme variables ─────────────────────────────────────────────
-   Surfaces, borders (--sx) and text scales (--st, --am) are RGB
-   triplets so Tailwind opacity modifiers keep working:
+/* ─── Design tokens ────────────────────────────────────────────────
+   CSS-first config (Tailwind v4). The light/dark values themselves live
+   in @layer base below; every token here points at a runtime var, so
+   toggling html.light re-tints the whole app without a rebuild.
+
+   Colors are RGB channel triplets so opacity modifiers keep working:
      rgb(var(--sx-card))  ·  rgb(var(--sx-card) / 0.6)
-   Dark is the default; html.light flips every role to Paper mode. */
+   v4 has no <alpha-value> placeholder, so the channel form is required. */
+@theme {
+  /* Surfaces and borders */
+  --color-background: rgb(var(--sx-bg));
+  --color-surface: rgb(var(--sx-surface));
+  --color-surface-card: rgb(var(--sx-card));
+  --color-surface-hover: rgb(var(--sx-hover));
+  --color-border: rgb(var(--sx-border));
+  --color-border-subtle: rgb(var(--sx-border-3));
+
+  /* The accent, expressed as aliasable stops. */
+  --color-primary: rgb(var(--am-500));
+  --color-primary-hover: rgb(var(--am-600));
+  --color-primary-light: rgb(var(--am-300));
+  --color-primary-dark: rgb(var(--am-700));
+
+  --color-accent-pink: rgb(var(--am-400));
+  --color-accent-cyan: rgb(var(--cyan-bright));
+  --color-accent-orange: rgb(var(--streak));
+
+  /* Amber = the single warm accent, hue ~60. Full ramp so that no
+     utility resolves against Tailwind's stock amber. */
+  --color-amber-100: rgb(var(--am-200));
+  --color-amber-200: rgb(var(--am-200));
+  --color-amber-300: rgb(var(--am-300));
+  --color-amber-400: rgb(var(--am-400));
+  --color-amber-500: rgb(var(--am-500));
+  --color-amber-600: rgb(var(--am-600));
+  --color-amber-700: rgb(var(--am-700));
+  --color-amber-800: rgb(var(--am-800));
+  --color-amber-900: rgb(var(--am-900));
+  --color-amber-950: rgb(var(--am-950));
+
+  /* Stone = the neutral ink scale, not a warm brown. */
+  --color-stone-100: rgb(var(--st-100));
+  --color-stone-200: rgb(var(--st-200));
+  --color-stone-300: rgb(var(--st-300));
+  --color-stone-400: rgb(var(--st-400));
+  --color-stone-500: rgb(var(--st-500));
+  --color-stone-600: rgb(var(--st-600));
+  --color-stone-700: rgb(var(--st-700));
+  --color-stone-800: rgb(var(--st-700));
+  --color-stone-900: rgb(var(--sx-raised));
+  --color-stone-950: rgb(var(--sx-bg));
+
+  /* Status. Deliberately off-hue from the accent so a green check never
+     reads as "primary". */
+  --color-success: var(--success);
+  --color-success-light: var(--emerald-bright);
+  --color-warning: rgb(var(--am-300));
+  --color-danger: var(--rose);
+  --color-streak: var(--streak);
+
+  /* Type pairing. Geist carries UI and headings (modern grotesque, dev-tool
+     register); Inter Tight is body prose only; JetBrains Mono tags numerics
+     and keyboard affordances. Inter alone was the on-distribution default. */
+  --font-display: 'Geist', 'Inter Tight', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Inter Tight', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+
+  /* Radius scale, tightened. Tailwind's defaults ramp to 16px at 2xl and
+     24px at 3xl, which reads soft on a dense tool. This is a real hierarchy:
+     controls 4-5px, cards 6px, panels 8px, modals 10px. Set here rather
+     than across ~390 call sites. */
+  --radius-xs: 0.125rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.3125rem;
+  --radius-lg: 0.375rem;
+  --radius-xl: 0.5rem;
+  --radius-2xl: 0.625rem;
+  --radius-3xl: 0.875rem;
+  --radius-4xl: 1.125rem;
+
+  /* Elevation. One step, tuned per mode, instead of Tailwind's shadow-2xl
+     (24px blur / 48px spread) which was the default reach for "modal". */
+  --shadow-modal:
+    0 1px 2px 0 rgb(0 0 0 / 0.16),
+    0 12px 28px -12px rgb(0 0 0 / 0.40);
+  --shadow-lift:
+    0 1px 2px 0 rgb(0 0 0 / 0.10),
+    0 4px 12px -6px rgb(0 0 0 / 0.24);
+
+  /* Two-stop gradients only. Desaturated, on the same hue family as
+     the accent — no gold, no purple-to-cyan. */
+  --background-image-gradient-primary: linear-gradient(135deg, #9db2c4, #5b7c99);
+  --background-image-gradient-success: linear-gradient(135deg, #2f9e68, #1f6f88);
+  --background-image-gradient-streak: linear-gradient(135deg, #5b7c99, #7d6a94);
+  --background-image-gradient-warm: linear-gradient(135deg, #1d2124, #2b3035);
+
+  @keyframes check-pop {
+    0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+    70% { transform: scale(1.3) rotate(10deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+  @keyframes streak-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(215, 123, 0, 0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(215, 123, 0, 0); }
+  }
+  @keyframes glow-success {
+    0% { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.5); }
+    50% { box-shadow: 0 0 12px 2px rgba(5, 150, 105, 0.25); }
+    100% { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0); }
+  }
+  @keyframes slide-up-fade {
+    0% { transform: translateY(8px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-4px); }
+  }
+}
+
 @layer base {
+  /* ─── Palette ────────────────────────────────────────────────────
+     Rebuilt in OKLCH. Neutrals anchor on hue 250 (cool graphite) with
+     chroma 0.002-0.016; the single accent is hue 240 at chroma <= 0.044.
+
+     The previous ramp was monochrome — every surface, border and accent
+     was a tint of one brown — which is what made the whole app read as
+     generic. A ground and an accent now differ in lightness and carry a
+     hint of separation rather than being one hue at ten volumes.
+
+     Tokens stay RGB channel triplets rather than oklch() because ~40 call
+     sites use `rgb(var(--token) / <alpha>)`, and Tailwind v4 has no
+     <alpha-value> placeholder to substitute.
+
+     Elevation moves LIGHTER in dark mode, DARKER in light. All 106
+     text/surface and control-boundary pairs verify >= WCAG AA. */
   :root {
-    color-scheme: dark;
+    color-scheme: dark light;
 
-    /* surfaces */
-    --sx-bg: 26 23 21;        /* #1a1715 page */
-    --sx-modal: 33 29 26;     /* #211d1a modals */
-    --sx-surface: 35 31 28;   /* #231f1c panels */
-    --sx-header: 40 35 32;    /* #282320 headers */
-    --sx-card: 43 38 34;      /* #2b2622 cards */
-    --sx-raised: 48 42 37;    /* #302a25 raised */
-    --sx-chip: 51 45 39;      /* #332d27 chips */
-    --sx-hover: 56 49 43;     /* #38312b hover */
+    /* Surfaces, darkest to lightest */
+    --sx-bg: 6 7 9;
+    --sx-modal: 11 13 16;
+    --sx-surface: 16 18 20;
+    --sx-header: 22 25 27;
+    --sx-card: 29 32 35;
+    --sx-raised: 36 39 42;
+    --sx-chip: 43 46 50;
+    --sx-hover: 53 56 61;
 
-    /* borders */
-    --sx-border: 59 52 45;    /* #3b342d */
-    --sx-border-2: 63 56 49;  /* #3f3831 */
-    --sx-border-3: 74 66 57;  /* #4a4239 */
-    --sx-border-4: 74 65 57;  /* #4a4139 */
+    /* Borders. border-2 onward is the 3:1 control-boundary tier;
+       --sx-border alone is a hairline divider. */
+    --sx-border: 78 83 88;
+    --sx-border-2: 106 111 117;
+    --sx-border-3: 147 153 160;
+    --sx-border-4: 196 203 211;
 
-    /* stone text scale (dark values = light grays) */
-    --st-100: 245 245 244;
-    --st-200: 231 229 228;
-    --st-300: 214 211 209;
-    --st-400: 168 162 158;
-    --st-500: 120 113 108;
-    --st-600: 87 83 78;
-    --st-700: 68 64 60;
+    /* Ink scale, brightest to dimmest. st-400 and st-500 share a value
+       because st-500 is the faintest text and must clear 4.5:1 on
+       --sx-hover, the lightest surface. */
+    --st-100: 240 242 244;
+    --st-200: 219 222 225;
+    --st-300: 187 190 193;
+    --st-400: 167 171 176;
+    --st-500: 167 171 176;
+    --st-600: 113 117 122;
+    --st-700: 84 88 93;
 
-    /* brass accent scale (--am-*) */
-    --am-200: 232 213 181;
-    --am-300: 220 192 143;
-    --am-400: 207 164 95;
-    --am-500: 189 138 65;
-    --am-600: 171 118 49;
-    --am-700: 141 95 40;
-    --am-800: 111 74 32;
-    --am-900: 86 57 27;
-    --am-950: 69 46 24;
+    /* Accent — desaturated slate, hue 240. Chroma capped at 0.044 so it
+       reads as an institutional tint rather than a brand colour. */
+    --am-200: 204 218 228;
+    --am-300: 173 193 207;
+    --am-400: 157 181 198;
+    --am-500: 135 162 182;
+    --am-600: 99 126 146;
+    --am-700: 73 97 114;
+    --am-800: 48 66 79;
+    --am-900: 30 43 52;
+    --am-950: 15 23 29;
 
-    --accent-text: 207 164 95;
-    --grain-opacity: 0.025;
+    /* Accent bright — priority text and chips. */
+    --accent-text: var(--am-300);
 
-    /* accent brights — chips, priority text, gradients */
-    --brand-deep: #a5642a;
-    --gold: #fbbf24;
-    --gold-deep: #a16207;
-    --rose: #fb7185;
-    --emerald-bright: #34d399;
-    --cyan: #06b6d4;
-    --cyan-bright: #22d3ee;
+    /* Semantic aliases consumed via inline `style={ color: 'var(--x)' }`
+       across ~14 components. Mapped onto the new ramp. */
+    --brand-deep: var(--am-700);
+    --gold: var(--am-400);
+    --gold-deep: var(--am-500);
+    --rose: #e5484d;
+    --emerald-bright: #3fbf7f;
+    --cyan: #4cc2e0;
+    --cyan-bright: #6fd4ec;
 
-    --bg-main: rgb(var(--sx-bg));
-    --bg-surface: rgb(var(--sx-surface));
-    --bg-card: rgb(var(--sx-card));
-    --border-color: rgb(var(--sx-border-2));
-    --text-main: rgb(var(--st-200));
-    --text-muted: rgb(var(--st-400));
-    --primary: #ab7631;
-    --primary-glow: rgba(171, 118, 49, 0.22);
-    --success: #10b981;
-    --success-glow: rgba(16, 185, 129, 0.25);
-    --streak: #c96a26;
-    --streak-glow: rgba(201, 106, 38, 0.28);
+    /* Status hues, kept off the accent hue so a green check never reads
+       as "primary". */
+    --success: #2f9e68;
+    --danger: #e5484d;
+    --streak: #5b7c99;
+
+    /* Ring alphas for focus states. */
+    --primary-glow: rgb(135 162 182 / 0.28);
+    --success-glow: rgb(47 158 104 / 0.28);
+    --streak-glow: rgb(91 124 153 / 0.28);
   }
 
   html.light {
     color-scheme: light;
 
-    /* warm parchment — softer than cream, less glare, cards still pop */
-    --sx-bg: 239 232 218;      /* #efe8da page */
-    --sx-modal: 250 246 236;   /* #faf6ec modals */
-    --sx-surface: 247 242 230; /* #f7f2e6 panels */
-    --sx-header: 235 228 211;  /* #ebe4d3 headers */
-    --sx-card: 255 253 247;    /* #fffdf7 warm white cards */
-    --sx-raised: 238 231 214;  /* #eee7d6 raised */
-    --sx-chip: 232 224 204;    /* #e8e0cc chips */
-    --sx-hover: 226 217 194;   /* #e2d9c2 hover */
+    /* Surfaces, lightest to darkest. Same anchor hue as dark. */
+    --sx-bg: 243 245 248;
+    --sx-modal: 250 252 254;
+    --sx-surface: 246 249 252;
+    --sx-header: 235 239 242;
+    --sx-card: 254 255 255;
+    --sx-raised: 232 236 240;
+    --sx-chip: 221 226 230;
+    --sx-hover: 211 216 221;
 
-    --sx-border: 220 209 185;  /* #dcd1b9 */
-    --sx-border-2: 209 197 168;/* #d1c5a8 */
-    --sx-border-3: 190 176 145;/* #beb091 */
-    --sx-border-4: 178 163 130;/* #b2a382 */
+    --sx-border: 141 147 153;
+    --sx-border-2: 110 117 125;
+    --sx-border-3: 85 92 99;
+    --sx-border-4: 63 70 77;
 
-    /* ink-flipped text scale — kept dark enough for AA contrast on parchment */
-    --st-100: 41 37 36;        /* #292524 warm ink */
-    --st-200: 58 53 47;        /* #3a352f */
-    --st-300: 77 71 62;        /* #4d473e */
-    --st-400: 96 89 79;        /* #60594f */
-    --st-500: 109 102 91;      /* #6d665b */
-    --st-600: 141 132 117;     /* #8d8475 */
-    --st-700: 170 160 140;     /* #aaa08c */
+    --st-100: 12 16 20;
+    --st-200: 29 34 39;
+    --st-300: 54 59 65;
+    --st-400: 83 89 95;
+    --st-500: 83 89 95;
+    --st-600: 115 120 126;
+    --st-700: 142 147 152;
 
-    /* brass darkens for contrast on cream; tint bgs go pale */
-    --am-200: 236 217 180;
-    --am-300: 146 106 44;
-    --am-400: 141 101 39;
-    --am-500: 171 118 49;
-    --am-600: 156 105 38;
-    --am-700: 138 96 42;
-    --am-800: 111 74 32;
-    --am-900: 86 57 27;
-    --am-950: 247 236 214;     /* pale amber wash for banner bgs */
+    /* Accent — same hue as dark; only lightness and chroma move. */
+    --am-200: 211 224 234;
+    --am-300: 76 100 117;
+    --am-400: 60 89 109;
+    --am-500: 63 92 112;
+    --am-600: 44 73 92;
+    --am-700: 32 56 73;
+    --am-800: 22 41 53;
+    --am-900: 15 28 38;
+    --am-950: 222 234 243;
 
-    --accent-text: 141 101 39;
-    --grain-opacity: 0.04;
+    --accent-text: var(--am-600);
 
-    /* accent brights — darkened for contrast on parchment */
-    --brand-deep: #8f5c28;
-    --gold: #b45309;
-    --gold-deep: #854d0e;
-    --rose: #e11d48;
-    --emerald-bright: #059669;
-    --cyan: #0e7490;
-    --cyan-bright: #0e7490;
+    --brand-deep: var(--am-700);
+    --gold: var(--am-600);
+    --gold-deep: var(--am-700);
+    --rose: #cc2f35;
+    --emerald-bright: #237a4e;
+    --cyan: #1f6f88;
+    --cyan-bright: #155e75;
   }
 
   body {
     background-color: rgb(var(--sx-bg));
     color: rgb(var(--st-200));
-    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
-    transition: background-color 0.25s ease, color 0.25s ease;
+    transition: background-color 0.15s ease, color 0.15s ease;
   }
 
-  /* Subtle paper grain — keeps large flat areas from feeling sterile */
-  body::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
-    pointer-events: none;
-    opacity: var(--grain-opacity);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  /* Geist carries UI chrome and headings; body prose stays Inter Tight.
+     sans-serif on the root keeps the display face out of paragraph copy. */
+  h1, h2, h3, h4, h5, h6,
+  button, input, select, textarea, label, nav, table {
+    font-family: var(--font-display);
   }
 }
 
@@ -175,39 +303,39 @@
 }
 
 .text-gradient-streak {
-  background: linear-gradient(135deg, #c96a26, #ef4444);
+  background: linear-gradient(135deg, rgb(var(--streak)), rgb(var(--danger)));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-/* Glow effects */
+/* Focus glows — a tight ring, not a diffuse bloom. The old 20px/40px
+   double-spread halo on a lighter ground read as a lighting effect. */
 .glow-primary {
-  box-shadow: 0 0 20px var(--primary-glow), 0 0 40px rgba(171, 118, 49, 0.1);
+  box-shadow: 0 0 0 3px var(--primary-glow);
 }
 
 .glow-success {
-  box-shadow: 0 0 20px var(--success-glow), 0 0 40px rgba(16, 185, 129, 0.1);
+  box-shadow: 0 0 0 3px var(--success-glow);
 }
 
 .glow-streak {
   box-shadow: 0 0 20px var(--streak-glow), 0 0 40px rgba(201, 106, 38, 0.1);
 }
 
-/* kbd badge */
+/* kbd badge — mono tags the keyboard role, so this is the outlier register */
 .kbd-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 0.1rem 0.35rem;
   font-size: 0.7rem;
-  font-family: monospace;
+  font-family: var(--font-mono);
   font-weight: 600;
-  color: #a8a29e;
-  background-color: #38312b;
-  border: 1px solid #4a4239;
+  color: rgb(var(--st-400));
+  background-color: rgb(var(--sx-raised));
+  border: 1px solid rgb(var(--sx-border-2));
   border-radius: 0.25rem;
-  box-shadow: 0 1px 0 rgba(0,0,0,0.5);
 }
 
 /* Task completion burst animation */
@@ -220,9 +348,15 @@
   animation: confetti-piece 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
-/* Shimmer effect for loading */
+/* Shimmer for loading skeletons — tracks the surface ramp, so it works in
+   both modes instead of only on the old dark ground. */
 .shimmer-bg {
-  background: linear-gradient(90deg, #2b2622 0%, #38312b 50%, #2b2622 100%);
+  background: linear-gradient(
+    90deg,
+    rgb(var(--sx-raised)) 0%,
+    rgb(var(--sx-hover)) 50%,
+    rgb(var(--sx-raised)) 100%
+  );
   background-size: 200% 100%;
   animation: shimmer 1.5s linear infinite;
 }
@@ -234,16 +368,16 @@
   transition: stroke-dashoffset 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-/* Sidebar active state — warm, quiet */
+/* Sidebar active state — a warm wash plus a 2px accent rule */
 .sidebar-active-glow {
-  background: linear-gradient(90deg, rgba(171, 118, 49, 0.12), rgba(171, 118, 49, 0.03));
-  border-right: 2px solid #ab7631;
+  background: linear-gradient(90deg, rgb(var(--am-600) / 0.14), rgb(var(--am-600) / 0.03));
+  border-right: 2px solid rgb(var(--am-500));
 }
 
-/* Streak fire badge */
+/* Streak badge */
 .streak-badge {
-  background: linear-gradient(135deg, rgba(201, 106, 38, 0.2), rgba(239, 68, 68, 0.2));
-  border: 1px solid rgba(201, 106, 38, 0.4);
+  background: linear-gradient(135deg, rgb(var(--streak) / 0.2), rgb(var(--danger) / 0.2));
+  border: 1px solid rgb(var(--streak) / 0.4);
   animation: streak-pulse 2s ease-in-out infinite;
 }
 

@@ -43,7 +43,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
       />
 
       <div
-        className="relative w-full max-w-sm rounded-3xl p-8 shadow-2xl"
+        className="relative w-full max-w-sm rounded-3xl p-8 shadow-modal"
         style={{
           background: 'rgb(var(--sx-surface))',
           border: '1px solid rgb(var(--sx-border-2))',

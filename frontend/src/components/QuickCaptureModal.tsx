@@ -81,7 +81,7 @@ export const QuickCaptureModal: React.FC<QuickCaptureModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-24 bg-black/70 backdrop-blur-md p-4">
       <div
-        className="w-full max-w-xl rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150"
+        className="w-full max-w-xl rounded-2xl shadow-modal overflow-hidden animate-in fade-in zoom-in-95 duration-150"
         style={{
           background: 'rgb(var(--sx-surface))',
           border: '1px solid rgb(var(--sx-border-2))',

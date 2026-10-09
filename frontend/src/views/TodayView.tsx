@@ -352,8 +352,8 @@ export const TodayView: React.FC<TodayViewProps> = ({
         <div
           className="p-5 rounded-2xl card-hover space-y-2"
           style={{
-            background: streak > 0 ? 'linear-gradient(135deg, rgba(201, 106, 38, 0.08), rgba(239, 68, 68, 0.06))' : 'rgb(var(--sx-surface))',
-            border: streak > 0 ? '1px solid rgba(201, 106, 38, 0.25)' : '1px solid rgb(var(--sx-border-2))',
+            background: streak > 0 ? 'linear-gradient(135deg, rgb(var(--streak) / 0.08), rgb(var(--danger) / 0.06))' : 'rgb(var(--sx-surface))',
+            border: streak > 0 ? '1px solid rgb(var(--streak) / 0.25)' : '1px solid rgb(var(--sx-border-2))',
           }}
         >
           <div className="flex items-center justify-between">
@@ -361,7 +361,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
               {streak > 0 ? 'Streak & Focus' : 'High Priority Focus'}
             </span>
             {streak > 0 ? (
-              <span className="text-lg" style={{ filter: 'drop-shadow(0 0 8px rgba(201, 106, 38, 0.7))' }}>🔥</span>
+              <span className="text-lg" style={{ filter: 'drop-shadow(0 0 6px rgb(var(--streak) / 0.55))' }}>🔥</span>
             ) : (
               <Zap size={16} style={{ color: 'rgb(var(--am-400))' }} />
             )}

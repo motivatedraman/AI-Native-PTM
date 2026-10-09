@@ -148,7 +148,7 @@ export const PlanMyDayModal: React.FC<PlanMyDayModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4 view-enter">
       <div
-        className="w-full max-w-xl rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+        className="w-full max-w-xl rounded-2xl shadow-modal overflow-hidden max-h-[90vh] flex flex-col"
         style={{ background: 'rgb(var(--sx-surface))', border: '1px solid rgb(var(--sx-border-2))' }}
       >
         {/* Header */}

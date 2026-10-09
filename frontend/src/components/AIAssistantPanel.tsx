@@ -81,7 +81,7 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:justify-end sm:p-4">
       <div className="fixed inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative w-full sm:w-96 h-[85vh] sm:h-[600px] bg-[rgb(var(--sx-modal))] border border-[rgb(var(--sx-border))] rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom sm:slide-in-from-right duration-200">
+      <div className="relative w-full sm:w-96 h-[85vh] sm:h-[600px] bg-[rgb(var(--sx-modal))] border border-[rgb(var(--sx-border))] rounded-t-2xl sm:rounded-2xl shadow-modal flex flex-col overflow-hidden animate-in slide-in-from-bottom sm:slide-in-from-right duration-200">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-[rgb(var(--sx-border))] bg-[rgb(var(--sx-header))]">
           <div className="flex items-center space-x-2">

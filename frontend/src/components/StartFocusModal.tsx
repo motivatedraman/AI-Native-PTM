@@ -40,7 +40,7 @@ export const StartFocusModal: React.FC<StartFocusModalProps> = ({ task, isOpen, 
 
   return (
     <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-      <div className="w-full max-w-md bg-[rgb(var(--sx-modal))] border border-[rgb(var(--sx-border))] rounded-xl shadow-2xl overflow-hidden">
+      <div className="w-full max-w-md bg-[rgb(var(--sx-modal))] border border-[rgb(var(--sx-border))] rounded-xl shadow-modal overflow-hidden">
         {/* Header */}
         <div className="px-6 py-4 border-b border-[rgb(var(--sx-border))] flex items-center justify-between">
           <div className="flex items-center gap-2.5">

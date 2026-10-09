@@ -62,7 +62,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 bg-black/70 backdrop-blur-sm p-4">
-      <div className="w-full max-w-lg bg-[rgb(var(--sx-modal))] border border-[rgb(var(--sx-border))] rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+      <div className="w-full max-w-lg bg-[rgb(var(--sx-modal))] border border-[rgb(var(--sx-border))] rounded-xl shadow-modal overflow-hidden animate-in fade-in zoom-in-95 duration-100">
         
         {/* Search Input Bar */}
         <div className="flex items-center px-4 py-3 border-b border-[rgb(var(--sx-border))]">

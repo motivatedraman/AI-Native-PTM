@@ -199,7 +199,7 @@ export const FocusModeOverlay: React.FC<FocusModeOverlayProps> = ({ focus }) => 
               </button>
               <button
                 onClick={focus.commitFinished}
-                className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#ab7631] hover:bg-[#cfa45f] text-white text-sm font-semibold transition-colors shadow-lg shadow-black/40"
+                className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[rgb(var(--am-600))] hover:bg-[rgb(var(--am-500))] text-white text-sm font-semibold transition-colors shadow-lift"
               >
                 Log time & close
               </button>
@@ -226,7 +226,7 @@ export const FocusModeOverlay: React.FC<FocusModeOverlayProps> = ({ focus }) => 
                   cy="160"
                   r={ringRadius}
                   fill="none"
-                  stroke={phase === 'paused' ? '#78716c' : '#ab7631'}
+                  stroke={phase === 'paused' ? 'rgb(var(--st-500))' : 'rgb(var(--am-500))'}
                   strokeWidth="5"
                   strokeLinecap="round"
                   strokeDasharray={ringCircumference}
@@ -265,7 +265,7 @@ export const FocusModeOverlay: React.FC<FocusModeOverlayProps> = ({ focus }) => 
               {phase === 'paused' ? (
                 <button
                   onClick={focus.resume}
-                  className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#ab7631] hover:bg-[#cfa45f] text-white text-sm font-semibold transition-colors"
+                  className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[rgb(var(--am-600))] hover:bg-[rgb(var(--am-500))] text-white text-sm font-semibold transition-colors"
                 >
                   <Play size={16} />
                   Resume
