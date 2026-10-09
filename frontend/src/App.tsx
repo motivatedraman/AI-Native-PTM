@@ -12,11 +12,10 @@ import { StartFocusModal } from './components/StartFocusModal';
 import { TodayView } from './views/TodayView';
 import { InboxView } from './views/InboxView';
 import { KanbanView } from './views/KanbanView';
-import { UniversityView } from './views/UniversityView';
-import { ProjectsView } from './views/ProjectsView';
 import { DailyLogView } from './views/DailyLogView';
 import { WeeklyReviewView } from './views/WeeklyReviewView';
-import { Task, Project, Tag, ActiveView, AIStatus, FocusFinishedResult, FocusSession } from './types';
+import { ManualView } from './views/ManualView';
+import { Task, Project, Tag, ActiveView, AIStatus, FocusFinishedResult, FocusSession, DailyQuote } from './types';
 import { api } from './services/api';
 import { Menu } from 'lucide-react';
 import { useStreak } from './utils/useStreak';
@@ -34,6 +33,7 @@ export const App: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
   const [aiStatus, setAiStatus] = useState<AIStatus | null>(null);
+  const [quote, setQuote] = useState<DailyQuote | null>(null);
   
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
@@ -81,7 +81,7 @@ export const App: React.FC = () => {
     },
     onFinished: handleFocusFinished,
   });
-  focusActiveRef.current = focus.isActive;
+  useEffect(() => { focusActiveRef.current = focus.isActive; }, [focus.isActive]);
 
   // Check auth session
   useEffect(() => {
@@ -106,7 +106,20 @@ export const App: React.FC = () => {
     checkAuth();
   }, []);
 
-  // Load workspace data
+  // Load workspace data. Two variants because they are not equivalent:
+  // `full` is for sign-in and the rare cases where the server may have
+  // changed something we did not. `tasksOnly` is for the common case of
+  // "the user did one thing" and skips the three requests whose data we
+  // already hold. Task mutations previously used the full path, costing
+  // 5 requests per click where 1 was needed.
+  const loadTasksOnly = async () => {
+    try {
+      setTasks(await api.getTasks());
+    } catch (err) {
+      console.error("Failed to refresh tasks:", err);
+    }
+  };
+
   const loadData = async () => {
     setIsLoading(true);
     try {
@@ -120,6 +133,8 @@ export const App: React.FC = () => {
       setProjects(projectsRes);
       setTags(tagsRes);
       if (aiStatusRes) setAiStatus(aiStatusRes);
+      // Background enhancement: a failed quote must never block the page.
+      api.getQuote().then(setQuote).catch(() => setQuote(null));
     } catch (err) {
       console.error("Failed to load workspace data:", err);
     } finally {
@@ -167,7 +182,13 @@ export const App: React.FC = () => {
 
       if (key === 'n' && !e.metaKey && !e.ctrlKey) {
         e.preventDefault();
-        setIsQuickAddOpen(true);
+        // Today has an always-present capture field; focus it instead of
+        // opening the modal. Cmd+N still opens the full modal.
+        if (activeView === 'today') {
+          window.dispatchEvent(new Event('nexus:focus-capture'));
+        } else {
+          setIsQuickAddOpen(true);
+        }
       } else if (key === 'a' && !e.metaKey && !e.ctrlKey) {
         e.preventDefault();
         setIsAIAssistantOpen(true);
@@ -183,6 +204,9 @@ export const App: React.FC = () => {
       } else if (key === 'd' && !e.metaKey && !e.ctrlKey) {
         e.preventDefault();
         setActiveView('dailylog');
+      } else if (key === 'm' && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault();
+        setActiveView(activeView === 'manual' ? 'today' : 'manual');
       } else if (key === '/' || ((e.metaKey || e.ctrlKey) && key === 'k')) {
         e.preventDefault();
         setIsCommandPaletteOpen(true);
@@ -191,12 +215,13 @@ export const App: React.FC = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentUser]);
+  }, [currentUser, activeView]);
 
   // Task Handlers
   const handleTaskCreated = (newTask: Task) => {
     setTasks(prev => [newTask, ...prev.filter(t => t.id !== newTask.id)]);
-    loadData();
+    // The POST response is the authoritative task, so no refetch is needed.
+    // Projects, tags, AI status and the quote cannot have changed.
   };
 
   const handleTaskUpdated = (updatedTask: Task) => {
@@ -244,7 +269,7 @@ export const App: React.FC = () => {
         setSelectedTask(freshTask);
         setIsDetailOpen(true);
       }
-      loadData();
+      await loadTasksOnly();
     } catch (err) {
       console.error('Failed to start task:', err);
     }
@@ -266,7 +291,6 @@ export const App: React.FC = () => {
   const taskCounts = {
     today: tasks.filter(t => t.status !== 'done' && dateStrNPT(t.due_date) === todayStr).length,
     inbox: tasks.filter(t => t.status === 'inbox').length,
-    university: tasks.filter(t => t.category?.toLowerCase() === 'university' && t.status !== 'done').length,
   };
 
   return (
@@ -279,7 +303,6 @@ export const App: React.FC = () => {
         isCollapsed={isSidebarCollapsed}
         setIsCollapsed={setIsSidebarCollapsed}
         onOpenQuickAdd={() => setIsQuickAddOpen(true)}
-        onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
         aiStatus={aiStatus}
         currentUser={currentUser}
         onLogout={handleLogout}
@@ -323,9 +346,10 @@ export const App: React.FC = () => {
               <TodayView
                 tasks={tasks}
                 projects={projects}
+                quote={quote}
                 onSelectTask={handleSelectTask}
                 onToggleComplete={handleToggleComplete}
-                onOpenQuickAdd={() => setIsQuickAddOpen(true)}
+                onTaskCreated={handleTaskCreated}
                 onOpenPlanDay={() => setIsPlanDayOpen(true)}
                 onStartFocus={setFocusTargetTask}
               />
@@ -348,28 +372,6 @@ export const App: React.FC = () => {
                 projects={projects}
                 onSelectTask={handleSelectTask}
                 onTaskUpdated={handleTaskUpdated}
-                onOpenQuickAdd={() => setIsQuickAddOpen(true)}
-                onStartFocus={setFocusTargetTask}
-              />
-            )}
-
-            {activeView === 'university' && (
-              <UniversityView
-                tasks={tasks}
-                projects={projects}
-                onSelectTask={handleSelectTask}
-                onToggleComplete={handleToggleComplete}
-                onOpenQuickAdd={() => setIsQuickAddOpen(true)}
-              />
-            )}
-
-            {activeView === 'projects' && (
-              <ProjectsView
-                projects={projects}
-                tasks={tasks}
-                onProjectCreated={(p) => setProjects(prev => [...prev, p])}
-                onProjectDeleted={(id) => setProjects(prev => prev.filter(p => p.id !== id))}
-                onSelectTask={handleSelectTask}
               />
             )}
 
@@ -381,6 +383,17 @@ export const App: React.FC = () => {
 
             {activeView === 'weeklyreview' && (
               <WeeklyReviewView />
+            )}
+
+            {activeView === 'manual' && (
+              <ManualView
+                tasks={tasks}
+                onClose={() => setActiveView('today')}
+                onOpenQuickAdd={() => setIsQuickAddOpen(true)}
+                onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+                onOpenAIAssistant={() => setIsAIAssistantOpen(true)}
+                onOpenPlanDay={() => setIsPlanDayOpen(true)}
+              />
             )}
           </>
         )}

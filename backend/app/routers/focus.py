@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from sqlalchemy import desc
 
 from backend.app.database import get_db
@@ -109,8 +109,15 @@ def list_focus_sessions(
     db: Session = Depends(get_db)
 ):
     """Recent focus sessions, newest first."""
+    # FocusSessionResponse embeds a full TaskResponse, so the task's own
+    # relationships must be eager-loaded or each session lazy-loads them.
     sessions = (
         db.query(FocusSession)
+        .options(
+            selectinload(FocusSession.task).selectinload(Task.subtasks),
+            selectinload(FocusSession.task).selectinload(Task.tags),
+            selectinload(FocusSession.task).selectinload(Task.project),
+        )
         .order_by(desc(FocusSession.started_at))
         .limit(limit)
         .all()

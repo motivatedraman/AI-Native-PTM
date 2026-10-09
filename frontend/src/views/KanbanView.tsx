@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { 
-  Plus, 
   Calendar, 
   Clock, 
   CheckSquare,
-  Timer,
   Search,
   X
 } from 'lucide-react';
@@ -17,8 +15,6 @@ interface KanbanViewProps {
   projects: Project[];
   onSelectTask: (task: Task) => void;
   onTaskUpdated: (task: Task) => void;
-  onOpenQuickAdd: () => void;
-  onStartFocus?: (task: Task) => void;
 }
 
 const COLUMN_CAP = 12;
@@ -42,8 +38,6 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
   projects,
   onSelectTask,
   onTaskUpdated,
-  onOpenQuickAdd,
-  onStartFocus,
 }) => {
   const [draggedTaskId, setDraggedTaskId] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -113,25 +107,12 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
   };
 
   return (
-    <div className="h-full flex flex-col space-y-4 animate-in fade-in duration-200">
+    <div className="h-full flex flex-col space-y-4">
       
-      {/* Header */}
-      <div className="flex items-center justify-between pb-2 border-b border-[rgb(var(--sx-border)/0.8)] flex-shrink-0">
-        <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-stone-100 tracking-tight">
-            Execution Kanban
-          </h1>
-          <p className="text-sm text-stone-400 mt-0.5">
-            Drag cards between columns to shift task state and log timeline progress.
-          </p>
-        </div>
-        <button
-          onClick={onOpenQuickAdd}
-          className="flex items-center space-x-1.5 px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-sm font-medium transition-colors"
-        >
-          <Plus size={16} />
-          <span>New Card</span>
-        </button>
+      {/* Header — capture lives in the sidebar and on N */}
+      <div className="flex items-end justify-between pb-3 border-b border-[rgb(var(--sx-border-2))] flex-shrink-0">
+        <h1 className="text-xl font-semibold text-stone-100">Kanban</h1>
+        <span className="text-sm" style={{ color: 'rgb(var(--st-500))' }}>{tasks.length} tasks</span>
       </div>
 
       {/* Filter bar */}
@@ -279,19 +260,6 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
                       ) : <span />}
 
                       <div className="flex items-center gap-2">
-                        {onStartFocus && task.status !== 'done' && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onStartFocus(task);
-                            }}
-                            className="opacity-0 group-hover:opacity-100 flex items-center gap-1 px-2 py-0.5 rounded-md bg-teal-600/20 border border-teal-500/30 text-teal-300 hover:bg-teal-600/40 transition-all"
-                            title="Start focus timer"
-                          >
-                            <Timer size={11} />
-                            <span className="text-[10px] font-medium">Focus</span>
-                          </button>
-                        )}
                         {task.estimated_minutes && (!task.spent_minutes || task.spent_minutes === 0 || task.status === 'done') && (
                           <span className="flex items-center space-x-1 font-mono">
                             <Clock size={12} />

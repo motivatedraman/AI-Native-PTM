@@ -1,4 +1,4 @@
-import { Task, Project, Tag, Subtask, ActivityLog, DailyLogGroup, AIParseResult, AIStatus, DecomposeResult, PlannerResult, WhatNowResult, NLSearchResult, WeeklyReviewResult, ProjectSummaryResult, ChatResult, AISuggestion, DailyReflection, UserSettings, TaskDependency, FocusSession } from '../types';
+import { Task, Project, Tag, DailyQuote, Subtask, ActivityLog, DailyLogGroup, AIParseResult, AIStatus, DecomposeResult, PlannerResult, WhatNowResult, NLSearchResult, WeeklyReviewResult, ProjectSummaryResult, ChatResult, AISuggestion, DailyReflection, UserSettings, TaskDependency, FocusSession } from '../types';
 
 const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
@@ -204,6 +204,13 @@ export const api = {
       body: chunks ? JSON.stringify({ chunks }) : undefined,
     });
     if (!res.ok) throw new Error('Failed to plan day');
+    return res.json();
+  },
+
+  // ─── Daily quote ────────
+  async getQuote(): Promise<DailyQuote> {
+    const res = await fetch(`${API_BASE}/quote`, { headers: getHeaders() });
+    if (!res.ok) throw new Error('Failed to get quote');
     return res.json();
   },
 

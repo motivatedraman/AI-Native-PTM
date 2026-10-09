@@ -37,6 +37,7 @@ data/
 # Node / Vite
 node_modules/
 dist/
+*.tsbuildinfo
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

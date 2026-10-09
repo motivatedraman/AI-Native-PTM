@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Search, Calendar, Inbox, Kanban, GraduationCap, FolderKanban, Clock, Plus, 
-  CheckCircle2, ChevronRight, X, BarChart3, MessageSquare, Target
+  Search, Calendar, Inbox, Kanban, Clock, Plus, 
+  CheckCircle2, ChevronRight, X, BarChart3, MessageSquare
 } from 'lucide-react';
 import { ActiveView, Task } from '../types';
 
@@ -30,10 +30,10 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 50);
-      setQuery('');
-    }
+    if (!isOpen) return;
+    setQuery('');
+    const focusTimer = setTimeout(() => inputRef.current?.focus(), 50);
+    return () => clearTimeout(focusTimer);
   }, [isOpen]);
 
   if (!isOpen) return null;
@@ -49,14 +49,11 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   const actions = [
     { label: 'Capture New Task', icon: Plus, shortcut: 'N', action: () => { onClose(); onOpenQuickAdd(); } },
     { label: 'Plan My Day', icon: Calendar, shortcut: 'P', action: () => { onClose(); onOpenPlanDay(); } },
-    { label: 'What Should I Do Now?', icon: Target, shortcut: null, action: () => { setActiveView('today'); onClose(); } },
     { label: 'AI Assistant', icon: MessageSquare, shortcut: 'A', action: () => { onClose(); onOpenAIAssistant(); } },
     { label: 'Weekly Review', icon: BarChart3, shortcut: null, action: () => { setActiveView('weeklyreview'); onClose(); } },
     { label: 'Go to Today Dashboard', icon: Calendar, shortcut: 'T', action: () => { setActiveView('today'); onClose(); } },
     { label: 'Go to Inbox', icon: Inbox, shortcut: null, action: () => { setActiveView('inbox'); onClose(); } },
     { label: 'Go to Kanban Board', icon: Kanban, shortcut: 'K', action: () => { setActiveView('kanban'); onClose(); } },
-    { label: 'Go to University Hub', icon: GraduationCap, shortcut: null, action: () => { setActiveView('university'); onClose(); } },
-    { label: 'Go to Projects', icon: FolderKanban, shortcut: null, action: () => { setActiveView('projects'); onClose(); } },
     { label: 'Go to Daily Log', icon: Clock, shortcut: 'D', action: () => { setActiveView('dailylog'); onClose(); } },
   ].filter(a => !query || a.label.toLowerCase().includes(query.toLowerCase()));
 

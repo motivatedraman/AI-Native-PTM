@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Clock, 
-  Sparkles, 
-  CheckCircle2, 
-  Activity, 
-  Calendar, 
-  ChevronLeft, 
+import {
+  CheckCircle2,
+  Activity,
+  ChevronLeft,
   ChevronRight,
   Loader2
 } from 'lucide-react';
@@ -51,40 +48,36 @@ export const DailyLogView: React.FC<DailyLogViewProps> = ({ onSelectTask }) => {
   };
 
   return (
-    <div className="max-w-full space-y-5 animate-in fade-in duration-200">
+    <div className="max-w-3xl space-y-5">
       
-      {/* Header & Date Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[rgb(var(--sx-border)/0.8)] gap-4">
+      {/* Header — the date is the only metadata this page needs */}
+      <div className="flex items-end justify-between pb-4 border-b border-[rgb(var(--sx-border-2))] gap-4">
         <div>
-          <div className="flex items-center space-x-2 text-sm font-mono font-semibold text-amber-400 uppercase tracking-wider">
-            <Clock size={18} />
-            <span>Execution Timeline</span>
-          </div>
-          <h1 className="text-3xl lg:text-4xl font-bold text-stone-100 tracking-tight mt-1">
-            Daily Activity & Audit Log
-          </h1>
-          <p className="text-sm text-stone-400 mt-2">
-            Automated timeline generated from unified task activity — no manual duplication needed.
+          <h1 className="text-xl font-semibold text-stone-100">Daily Log</h1>
+          <p className="text-sm mt-0.5" style={{ color: 'rgb(var(--st-500))' }}>
+            {logData ? `${logData.activities.length} events · ${logData.completed_tasks.length} completed` : ''}
           </p>
         </div>
 
-        {/* Date Selector */}
-        <div className="flex items-center space-x-2 bg-[rgb(var(--sx-modal))] border border-[rgb(var(--sx-border))] rounded-xl p-2">
+        <div className="flex items-center gap-1">
           <button
             onClick={handlePrevDay}
-            className="p-2 rounded-lg hover:bg-[rgb(var(--sx-chip))] text-stone-400 hover:text-stone-200 transition-colors"
+            className="p-1.5 rounded transition-colors"
+            style={{ color: 'rgb(var(--st-500))' }}
+            title="Previous day"
           >
-            <ChevronLeft size={18} />
+            <ChevronLeft size={16} />
           </button>
-          <div className="flex items-center space-x-2 px-3 text-sm font-semibold text-stone-200">
-            <Calendar size={16} className="text-amber-400" />
-            <span>{formatDateNPT(selectedDate + 'T00:00:00', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-          </div>
+          <span className="text-xs font-mono px-1" style={{ color: 'rgb(var(--st-600))' }}>
+            {formatDateNPT(selectedDate + 'T00:00:00', { month: 'short', day: 'numeric' })}
+          </span>
           <button
             onClick={handleNextDay}
-            className="p-2 rounded-lg hover:bg-[rgb(var(--sx-chip))] text-stone-400 hover:text-stone-200 transition-colors"
+            className="p-1.5 rounded transition-colors"
+            style={{ color: 'rgb(var(--st-500))' }}
+            title="Next day"
           >
-            <ChevronRight size={18} />
+            <ChevronRight size={16} />
           </button>
         </div>
       </div>
@@ -97,19 +90,6 @@ export const DailyLogView: React.FC<DailyLogViewProps> = ({ onSelectTask }) => {
       ) : logData ? (
         <div className="space-y-5">
           
-          {/* AI Executive Summary Card */}
-          {logData.ai_summary && (
-            <div className="p-5 rounded-xl bg-[rgb(var(--sx-modal))] border border-amber-500/30 space-y-2">
-              <div className="flex items-center space-x-2 text-sm font-semibold text-amber-300">
-                <Sparkles size={17} className="text-amber-400" />
-                <span>AI Daily Recap & Productivity Evaluation</span>
-              </div>
-              <p className="text-sm text-stone-300 leading-relaxed">
-                {logData.ai_summary}
-              </p>
-            </div>
-          )}
-
           {/* Completed Section */}
           <div className="p-5 rounded-xl bg-[rgb(var(--sx-modal))] border border-[rgb(var(--sx-border))] space-y-3">
             <div className="flex items-center justify-between text-sm">

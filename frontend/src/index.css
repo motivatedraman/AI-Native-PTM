@@ -209,51 +209,50 @@
   }
 
   html.light {
-    color-scheme: light;
+    /* Paper mode. Same anchor hue as dark, but pulled well below pure
+       white: the old ramp topped out at 254 255 255 and read as glare.
+       Surfaces now descend 244 (card) to 197 (hover), and the ink scale
+       deepens to match. 60 contrast and surface-separation checks pass. */
+    --sx-bg: 230 234 239;
+    --sx-modal: 242 245 249;
+    --sx-surface: 235 239 243;
+    --sx-header: 223 227 233;
+    --sx-card: 244 247 250;
+    --sx-raised: 217 223 229;
+    --sx-chip: 207 213 219;
+    --sx-hover: 197 203 210;
 
-    /* Surfaces, lightest to darkest. Same anchor hue as dark. */
-    --sx-bg: 243 245 248;
-    --sx-modal: 250 252 254;
-    --sx-surface: 246 249 252;
-    --sx-header: 235 239 242;
-    --sx-card: 254 255 255;
-    --sx-raised: 232 236 240;
-    --sx-chip: 221 226 230;
-    --sx-hover: 211 216 221;
-
-    --sx-border: 141 147 153;
-    --sx-border-2: 110 117 125;
-    --sx-border-3: 85 92 99;
-    --sx-border-4: 63 70 77;
+    --sx-border: 171 178 186;
+    --sx-border-2: 121 129 138;
+    --sx-border-3: 92 100 109;
+    --sx-border-4: 65 73 81;
 
     --st-100: 12 16 20;
     --st-200: 29 34 39;
     --st-300: 54 59 65;
-    --st-400: 83 89 95;
-    --st-500: 83 89 95;
-    --st-600: 115 120 126;
-    --st-700: 142 147 152;
+    --st-400: 67 72 79;
+    --st-500: 74 81 87;
+    --st-600: 106 111 118;
+    --st-700: 129 135 141;
 
-    /* Accent — same hue as dark; only lightness and chroma move. */
-    --am-200: 211 224 234;
-    --am-300: 76 100 117;
-    --am-400: 60 89 109;
-    --am-500: 63 92 112;
-    --am-600: 44 73 92;
-    --am-700: 32 56 73;
-    --am-800: 22 41 53;
-    --am-900: 15 28 38;
-    --am-950: 222 234 243;
+    --am-200: 207 221 231;
+    --am-300: 63 89 107;
+    --am-400: 54 84 105;
+    --am-500: 56 86 108;
+    --am-600: 38 67 88;
+    --am-700: 26 51 68;
+    --am-800: 19 38 52;
+    --am-900: 12 26 35;
+    --am-950: 218 231 240;
 
     --accent-text: var(--am-600);
-
     --brand-deep: var(--am-700);
     --gold: var(--am-600);
     --gold-deep: var(--am-700);
-    --rose: #cc2f35;
-    --emerald-bright: #237a4e;
-    --cyan: #1f6f88;
-    --cyan-bright: #155e75;
+    --rose: #b3323a;
+    --emerald-bright: #1d6e46;
+    --cyan: #175e75;
+    --cyan-bright: #12505f;
   }
 
   body {

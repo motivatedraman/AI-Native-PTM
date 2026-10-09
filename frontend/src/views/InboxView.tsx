@@ -45,31 +45,13 @@ export const InboxView: React.FC<InboxViewProps> = ({
     }
   };
 
-  const handleMoveToPlanned = async (task: Task, e: React.MouseEvent) => {
-    e.stopPropagation();
-    try {
-      const updated = await api.updateTask(task.id, { status: 'planned' });
-      onTaskCreated(updated); // triggers parent refresh
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
   return (
-    <div className="max-w-full space-y-5 animate-in fade-in duration-200">
+    <div className="max-w-3xl space-y-5">
       
       {/* Header */}
-      <div className="pb-4 border-b border-[rgb(var(--sx-border)/0.8)]">
-        <div className="flex items-center space-x-2 text-sm font-mono font-semibold text-amber-400 uppercase tracking-wider">
-          <Inbox size={17} />
-          <span>Frictionless Inbox</span>
-        </div>
-        <h1 className="text-3xl lg:text-4xl font-bold text-stone-100 tracking-tight mt-1">
-          Inbox & Raw Capture
-        </h1>
-        <p className="text-sm text-stone-400 mt-2">
-          Quickly dump ideas, homework, and tasks without filling out forms. Triage or let AI enrich them when ready.
-        </p>
+      <div className="flex items-end justify-between pb-4 border-b border-[rgb(var(--sx-border-2))]">
+        <h1 className="text-xl font-semibold text-stone-100">Inbox</h1>
+        <span className="text-sm" style={{ color: 'rgb(var(--st-500))' }}>{inboxTasks.length} untriaged</span>
       </div>
 
       {/* Inline Fast Add Bar */}
@@ -93,13 +75,6 @@ export const InboxView: React.FC<InboxViewProps> = ({
 
       {/* Inbox Task List */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between text-sm text-stone-400">
-          <span className="font-semibold uppercase tracking-wider text-stone-300">
-            Unprocessed Items ({inboxTasks.length})
-          </span>
-          <span className="hidden sm:inline">Click item for details & AI enrichment</span>
-        </div>
-
         {inboxTasks.length === 0 ? (
           <div className="p-14 text-center rounded-xl bg-[rgb(var(--sx-modal))] border border-[rgb(var(--sx-border)/0.6)] text-stone-500 space-y-2">
             <Inbox size={36} className="mx-auto text-stone-600" />
@@ -136,22 +111,12 @@ export const InboxView: React.FC<InboxViewProps> = ({
                   </div>
                 </div>
 
-                {/* Quick actions */}
-                <div className="flex items-center space-x-2 flex-shrink-0">
-                  <span className="text-xs px-2 py-0.5 rounded bg-[rgb(var(--sx-raised))] text-stone-400 font-mono">
-                    {task.category}
-                  </span>
+                {/* At most two items, and only when they say something */}
+                <div className="flex items-center gap-2 flex-shrink-0 text-xs" style={{ color: 'rgb(var(--st-600))' }}>
                   {task.estimated_minutes && (
-                    <span className="text-xs text-stone-400 font-mono hidden sm:inline">
-                      ~{task.estimated_minutes}m
-                    </span>
+                    <span className="font-mono hidden sm:inline">~{task.estimated_minutes}m</span>
                   )}
-                  <button
-                    onClick={(e) => handleMoveToPlanned(task, e)}
-                    className="px-3 py-1.5 text-xs font-medium bg-[rgb(var(--sx-raised))] hover:bg-amber-600 hover:text-white text-stone-300 rounded-md transition-colors border border-[rgb(var(--sx-border))]"
-                  >
-                    Plan →
-                  </button>
+                  <span className="font-mono">{task.category}</span>
                 </div>
               </div>
             ))}

@@ -23,12 +23,12 @@ export const QuickCaptureModal: React.FC<QuickCaptureModalProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 50);
-      setText('');
-      setPreview(null);
-      setUseAiDeepParse(false);
-    }
+    if (!isOpen) return;
+    setText('');
+    setPreview(null);
+    setUseAiDeepParse(false);
+    const focusTimer = setTimeout(() => inputRef.current?.focus(), 50);
+    return () => clearTimeout(focusTimer);
   }, [isOpen]);
 
   // Real-time zero-API heuristic preview on typing

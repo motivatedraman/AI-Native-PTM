@@ -3,10 +3,7 @@ import {
   Calendar,
   Inbox,
   Kanban,
-  GraduationCap,
-  FolderKanban,
   Clock,
-  Search,
   Sparkles,
   ChevronLeft,
   Plus,
@@ -23,14 +20,12 @@ interface SidebarProps {
   isCollapsed: boolean;
   setIsCollapsed: (collapsed: boolean) => void;
   onOpenQuickAdd: () => void;
-  onOpenCommandPalette: () => void;
   aiStatus: AIStatus | null;
   currentUser: string | null;
   onLogout: () => void;
   taskCounts: {
     today: number;
     inbox: number;
-    university: number;
   };
   streak?: number;
   isMobileOpen?: boolean;
@@ -43,7 +38,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isCollapsed,
   setIsCollapsed,
   onOpenQuickAdd,
-  onOpenCommandPalette,
   aiStatus,
   currentUser,
   onLogout,
@@ -56,8 +50,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'today', label: 'Today', icon: Calendar, badge: taskCounts.today },
     { id: 'inbox', label: 'Inbox', icon: Inbox, badge: taskCounts.inbox },
     { id: 'kanban', label: 'Kanban', icon: Kanban },
-    { id: 'university', label: 'University', icon: GraduationCap, badge: taskCounts.university },
-    { id: 'projects', label: 'Projects', icon: FolderKanban },
     { id: 'dailylog', label: 'Daily Log', icon: Clock },
     { id: 'weeklyreview', label: 'Weekly Review', icon: BarChart3 },
   ];
@@ -154,55 +146,35 @@ export const Sidebar: React.FC<SidebarProps> = ({
             )}
           </div>
 
-          {/* Action Button & Search */}
-          <div className="p-3 space-y-2">
+          {/* One primary action. Search stays on / and Cmd+K — a second
+              stacked button competed with the nav for the same attention. */}
+          <div className="p-3">
             <button
               onClick={onOpenQuickAdd}
-              className="w-full flex items-center justify-center space-x-2 py-2.5 px-3 text-white rounded-xl text-sm font-semibold transition-all group shadow-lg"
+              className={`w-full flex items-center py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
+                isCollapsed ? 'justify-center' : 'space-x-3'
+              }`}
               style={{
-                background: 'linear-gradient(135deg, rgb(var(--am-600)), rgb(var(--am-700)))',
-                boxShadow: '0 4px 15px rgba(171, 118, 49, 0.3)',
-              }}
-              onMouseEnter={e => {
-                (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 25px rgba(171, 118, 49, 0.5)';
-                (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)';
-              }}
-              onMouseLeave={e => {
-                (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 15px rgba(171, 118, 49, 0.3)';
-                (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
-              }}
-            >
-              <Plus size={16} className="group-hover:rotate-90 transition-transform duration-200" />
-              {!isCollapsed && (
-                <div className="flex items-center justify-between flex-1">
-                  <span>Capture Task</span>
-                  <span className="kbd-badge text-[10px] bg-amber-700/50 text-amber-200 border-amber-500/40">N</span>
-                </div>
-              )}
-            </button>
-
-            <button
-              onClick={onOpenCommandPalette}
-              className="w-full flex items-center space-x-2 py-2 px-3 rounded-xl text-sm text-stone-400 hover:text-stone-200 transition-all"
-              style={{
-                background: 'rgb(var(--sx-surface))',
+                background: 'rgb(var(--sx-card))',
                 border: '1px solid rgb(var(--sx-border-2))',
+                color: 'rgb(var(--st-300))',
               }}
               onMouseEnter={e => {
                 (e.currentTarget as HTMLElement).style.borderColor = 'rgb(var(--sx-border-3))';
-                (e.currentTarget as HTMLElement).style.background = 'rgb(var(--sx-card))';
+                (e.currentTarget as HTMLElement).style.color = 'rgb(var(--st-100))';
               }}
               onMouseLeave={e => {
                 (e.currentTarget as HTMLElement).style.borderColor = 'rgb(var(--sx-border-2))';
-                (e.currentTarget as HTMLElement).style.background = 'rgb(var(--sx-surface))';
+                (e.currentTarget as HTMLElement).style.color = 'rgb(var(--st-300))';
               }}
+              title="Capture task (N)"
             >
-              <Search size={15} className="text-stone-500" />
+              <Plus size={16} className="text-stone-500 flex-shrink-0" />
               {!isCollapsed && (
-                <div className="flex items-center justify-between flex-1">
-                  <span>Search / Cmds</span>
-                  <span className="kbd-badge text-[10px]">/</span>
-                </div>
+                <>
+                  <span className="flex-1 text-left">Capture</span>
+                  <span className="kbd-badge text-[10px]">N</span>
+                </>
               )}
             </button>
           </div>

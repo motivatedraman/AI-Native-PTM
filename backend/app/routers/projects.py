@@ -1,7 +1,7 @@
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, case
 
 from backend.app.database import get_db
 from backend.app.models import Project, Task
@@ -20,10 +20,24 @@ def get_projects(
         query = query.filter(Project.category.ilike(category))
 
     projects = query.all()
+
+    # Both counts in one grouped aggregate instead of two COUNT queries
+    # per project (which was 1 + 2N round-trips for N projects).
+    rows = (
+        db.query(
+            Task.project_id,
+            func.count(Task.id),
+            func.sum(case((Task.status == "done", 1), else_=0)),
+        )
+        .filter(Task.project_id.in_([p.id for p in projects]))
+        .group_by(Task.project_id)
+        .all()
+    ) if projects else []
+    counts = {pid: (total, done or 0) for pid, total, done in rows}
+
     res = []
     for p in projects:
-        total = db.query(func.count(Task.id)).filter(Task.project_id == p.id).scalar() or 0
-        done = db.query(func.count(Task.id)).filter(Task.project_id == p.id, Task.status == "done").scalar() or 0
+        total, done = counts.get(p.id, (0, 0))
         res.append(ProjectResponse(
             id=p.id,
             name=p.name,

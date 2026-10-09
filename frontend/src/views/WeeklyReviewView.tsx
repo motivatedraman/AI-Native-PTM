@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart3, CheckCircle2, AlertCircle, TrendingUp, Loader2, Sparkles } from 'lucide-react';
+import { AlertCircle, Loader2 } from 'lucide-react';
 import { WeeklyReviewResult } from '../types';
 import { api } from '../services/api';
 
@@ -26,29 +26,15 @@ export const WeeklyReviewView: React.FC = () => {
   };
 
   return (
-    <div className="max-w-full space-y-5 animate-in fade-in duration-200">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[rgb(var(--sx-border)/0.8)] gap-4">
-        <div>
-          <div className="flex items-center space-x-2 text-sm font-mono font-semibold text-amber-400 uppercase tracking-wider">
-            <BarChart3 size={18} />
-            <span>Weekly Analytics</span>
-          </div>
-          <h1 className="text-3xl lg:text-4xl font-bold text-stone-100 tracking-tight mt-1">
-            Weekly Review
-          </h1>
-          <p className="text-sm text-stone-400 mt-2">
-            AI-analyzed patterns, completion metrics, and actionable suggestions.
+    <div className="max-w-3xl space-y-5">
+      {/* Header — no Refresh button; the review fetches on mount */}
+      <div className="pb-4 border-b border-[rgb(var(--sx-border-2))]">
+        <h1 className="text-xl font-semibold text-stone-100">Weekly Review</h1>
+        {review && (
+          <p className="text-sm mt-0.5" style={{ color: 'rgb(var(--st-500))' }}>
+            {review.completion_rate}% complete
           </p>
-        </div>
-        <button
-          onClick={fetchReview}
-          disabled={loading}
-          className="flex items-center space-x-1.5 px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-sm font-medium transition-colors"
-        >
-          {loading ? <Loader2 size={16} className="animate-spin" /> : <TrendingUp size={16} />}
-          <span>Refresh</span>
-        </button>
+        )}
       </div>
 
       {loading ? (
@@ -63,79 +49,62 @@ export const WeeklyReviewView: React.FC = () => {
           <button onClick={fetchReview} className="mt-3 text-sm text-amber-400 hover:text-amber-300">Try Again</button>
         </div>
       ) : review ? (
-        <div className="space-y-5">
-          {/* Summary Card */}
-          <div className="p-6 rounded-xl bg-[rgb(var(--sx-modal))] border border-[rgb(var(--sx-border))] space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-base font-semibold text-stone-200">Summary</h2>
-              <div className="flex items-center space-x-2">
-                <span className="text-xs text-stone-400">Completion Rate</span>
-                <span className="text-lg font-bold text-emerald-400">{review.completion_rate}%</span>
-              </div>
-            </div>
-            {/* Progress bar */}
-            <div className="w-full bg-[rgb(var(--sx-raised))] rounded-full h-3 overflow-hidden">
-              <div
-                className="bg-emerald-500 h-full rounded-full transition-all duration-500"
-                style={{ width: `${review.completion_rate}%` }}
-              />
-            </div>
-            <p className="text-sm text-stone-300 leading-relaxed">{review.summary}</p>
+        <div className="space-y-6">
+          <p className="text-sm leading-relaxed" style={{ color: 'rgb(var(--st-300))' }}>
+            {review.summary}
+          </p>
+
+          {/* One list. Three stacked cards of AI bullets said the same
+              thing in three different accent colours. */}
+          <div className="space-y-4">
+            {review.highlights.length > 0 && (
+              <section>
+                <h2 className="text-xs uppercase tracking-wider mb-2" style={{ color: 'rgb(var(--st-600))' }}>
+                  Highlights
+                </h2>
+                <ul className="space-y-1.5">
+                  {review.highlights.map((h, i) => (
+                    <li key={i} className="flex gap-2 text-sm" style={{ color: 'rgb(var(--st-300))' }}>
+                      <span style={{ color: 'rgb(var(--st-600))' }}>—</span>
+                      <span>{h}</span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            {review.patterns.length > 0 && (
+              <section>
+                <h2 className="text-xs uppercase tracking-wider mb-2" style={{ color: 'rgb(var(--st-600))' }}>
+                  Patterns
+                </h2>
+                <ul className="space-y-1.5">
+                  {review.patterns.map((p, i) => (
+                    <li key={i} className="flex gap-2 text-sm" style={{ color: 'rgb(var(--st-300))' }}>
+                      <span style={{ color: 'rgb(var(--st-600))' }}>—</span>
+                      <span>{p}</span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            {review.suggestions.length > 0 && (
+              <section>
+                <h2 className="text-xs uppercase tracking-wider mb-2" style={{ color: 'rgb(var(--st-600))' }}>
+                  Next week
+                </h2>
+                <ul className="space-y-1.5">
+                  {review.suggestions.map((sg, i) => (
+                    <li key={i} className="flex gap-2 text-sm" style={{ color: 'rgb(var(--st-300))' }}>
+                      <span style={{ color: 'rgb(var(--st-600))' }}>—</span>
+                      <span>{sg}</span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
           </div>
-
-          {/* Highlights */}
-          {review.highlights.length > 0 && (
-            <div className="p-5 rounded-xl bg-[rgb(var(--sx-modal))] border border-emerald-500/20 space-y-3">
-              <div className="flex items-center space-x-2 text-sm font-semibold text-emerald-300">
-                <CheckCircle2 size={16} />
-                <span>Highlights</span>
-              </div>
-              <div className="space-y-2">
-                {review.highlights.map((h, i) => (
-                  <div key={i} className="flex items-start space-x-2 text-sm text-stone-300">
-                    <span className="text-emerald-400 mt-0.5">•</span>
-                    <span>{h}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Patterns */}
-          {review.patterns.length > 0 && (
-            <div className="p-5 rounded-xl bg-[rgb(var(--sx-modal))] border border-amber-500/20 space-y-3">
-              <div className="flex items-center space-x-2 text-sm font-semibold text-amber-300">
-                <Sparkles size={16} />
-                <span>AI-Observed Patterns</span>
-              </div>
-              <div className="space-y-2">
-                {review.patterns.map((p, i) => (
-                  <div key={i} className="flex items-start space-x-2 text-sm text-stone-300">
-                    <span className="text-amber-400 mt-0.5">↻</span>
-                    <span>{p}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Suggestions */}
-          {review.suggestions.length > 0 && (
-            <div className="p-5 rounded-xl bg-[rgb(var(--sx-modal))] border border-amber-500/20 space-y-3">
-              <div className="flex items-center space-x-2 text-sm font-semibold text-amber-300">
-                <TrendingUp size={16} />
-                <span>Suggestions for Next Week</span>
-              </div>
-              <div className="space-y-2">
-                {review.suggestions.map((s, i) => (
-                  <div key={i} className="flex items-start space-x-2 text-sm text-stone-300">
-                    <span className="text-amber-400 mt-0.5">→</span>
-                    <span>{s}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       ) : null}
     </div>

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Send, Sparkles, Loader2, Play } from 'lucide-react';
-import { ChatMessage, ChatAction } from '../types';
+import { X, Send, Sparkles, Loader2, Play, Target, RefreshCw } from 'lucide-react';
+import { ChatMessage, ChatAction, WhatNowResult, AISuggestion } from '../types';
 import { api } from '../services/api';
 
 interface AIAssistantPanelProps {
@@ -17,6 +17,12 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  // The Today page's two AI widgets now live here, behind A. Fetched on
+  // demand rather than on mount, so opening Today never waits on the API.
+  const [whatNow, setWhatNow] = useState<WhatNowResult | null>(null);
+  const [whatNowBusy, setWhatNowBusy] = useState(false);
+  const [suggestions, setSuggestions] = useState<AISuggestion[]>([]);
+  const [suggestionsBusy, setSuggestionsBusy] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -29,7 +35,8 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
       }]);
     }
     if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 100);
+      const t = setTimeout(() => inputRef.current?.focus(), 100);
+      return () => clearTimeout(t);
     }
   }, [isOpen, messages.length]);
 
@@ -63,6 +70,28 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
     }
   };
 
+  const loadWhatNow = async () => {
+    setWhatNowBusy(true);
+    try {
+      setWhatNow(await api.whatShouldIDo());
+    } catch {
+      setWhatNow(null);
+    } finally {
+      setWhatNowBusy(false);
+    }
+  };
+
+  const loadSuggestions = async () => {
+    setSuggestionsBusy(true);
+    try {
+      setSuggestions(await api.getAISuggestions());
+    } catch {
+      setSuggestions([]);
+    } finally {
+      setSuggestionsBusy(false);
+    }
+  };
+
   const handleAction = (action: ChatAction) => {
     if (action.type === 'start_task' && action.task_id) {
       onStartTask(action.task_id);
@@ -73,7 +102,6 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
     "What should I do today?",
     "What's overdue?",
     "What did I complete this week?",
-    "What university work is due?",
   ];
 
   if (!isOpen) return null;
@@ -129,6 +157,78 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
             </div>
           )}
           <div ref={messagesEndRef} />
+        </div>
+
+        {/* What Should I Do Now — was a large card on Today */}
+        <div className="px-4 pb-3">
+          <button
+            onClick={loadWhatNow}
+            disabled={whatNowBusy}
+            className="flex items-center gap-2 text-xs font-medium transition-colors disabled:opacity-50"
+            style={{ color: 'rgb(var(--am-400))' }}
+          >
+            {whatNowBusy ? <Loader2 size={12} className="animate-spin" /> : <Target size={12} />}
+            <span>{whatNow ? 'Refresh recommendation' : 'What should I do now?'}</span>
+          </button>
+
+          {whatNow && (
+            <div className="mt-2 p-3 rounded-lg text-xs leading-relaxed" style={{ background: 'rgb(var(--sx-raised))' }}>
+              <p style={{ color: 'rgb(var(--st-300))' }}>{whatNow.message}</p>
+              {whatNow.recommendations.map((rec, i) => (
+                <div key={i} className="mt-2 flex items-start gap-2">
+                  <span className="font-mono flex-shrink-0" style={{ color: 'rgb(var(--st-600))' }}>{i + 1}.</span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-baseline gap-2">
+                      <span className="font-medium truncate" style={{ color: 'rgb(var(--st-200))' }}>
+                        {rec.task_title}
+                      </span>
+                      <span className="font-mono flex-shrink-0" style={{ color: 'rgb(var(--st-600))' }}>
+                        ~{rec.duration_minutes}m
+                      </span>
+                    </div>
+                    <p className="mt-0.5" style={{ color: 'rgb(var(--st-500))' }}>{rec.reason}</p>
+                  </div>
+                  {rec.task_id && (
+                    <button
+                      onClick={() => onStartTask(rec.task_id!)}
+                      className="flex-shrink-0 p-1 transition-opacity hover:opacity-100"
+                      style={{ color: 'rgb(var(--am-400))' }}
+                      title="Start this task"
+                    >
+                      <Play size={11} />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* AI suggestions — was a card on Today */}
+        <div className="px-4 pb-3">
+          <button
+            onClick={loadSuggestions}
+            disabled={suggestionsBusy}
+            className="flex items-center gap-2 text-xs font-medium transition-colors disabled:opacity-50"
+            style={{ color: 'rgb(var(--am-400))' }}
+          >
+            {suggestionsBusy ? <Loader2 size={12} className="animate-spin" /> : <RefreshCw size={12} />}
+            <span>{suggestions.length ? 'Refresh suggestions' : 'Load suggestions'}</span>
+          </button>
+
+          {suggestions.length > 0 && (
+            <ul className="mt-2 space-y-1">
+              {suggestions.slice(0, 4).map((sg, i) => (
+                <li key={i} className="leading-relaxed" style={{ color: 'rgb(var(--st-400))' }}>
+                  <span style={{ color: 'rgb(var(--st-600))' }}>{sg.type}</span>{' '}
+                  {sg.title}
+                  {sg.description && (
+                    <span style={{ color: 'rgb(var(--st-600))' }}> — {sg.description}</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         {/* Quick Prompts */}

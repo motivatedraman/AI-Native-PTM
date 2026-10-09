@@ -91,7 +91,7 @@ export interface AIStatus {
   message: string;
 }
 
-export type ActiveView = 'today' | 'inbox' | 'kanban' | 'university' | 'projects' | 'dailylog' | 'weeklyreview' | 'aiassistant';
+export type ActiveView = 'today' | 'inbox' | 'kanban' | 'dailylog' | 'weeklyreview' | 'manual';
 
 // ─── V2 Types ───────────────────────────────
 
@@ -242,4 +242,10 @@ export interface FocusFinishedResult {
   actualMinutes: number;
   status: 'completed' | 'abandoned';
   breakTaken: boolean;
+}
+
+export interface DailyQuote {
+  text: string;
+  author?: string | null;
+  date: string;
 }
