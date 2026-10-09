@@ -82,11 +82,12 @@ def seed():
                 print(f"[Seed] Created tag: {tag_name}")
 
         # 3. Default Projects
+        # Course-specific seeds (DBMS, Computer Networks, Operating Systems)
+        # were left over from the University view that has since been removed.
         default_projects = [
-            ("DBMS", "Database Management Systems coursework and labs", "#3b82f6", "University"),
-            ("Computer Networks", "Networking protocols and socket programming", "#06b6d4", "University"),
-            ("Operating Systems", "OS concepts, processes, memory management", "#8b5cf6", "University"),
-            ("Personal Task Engine", "AI-Native Personal Task Management application", "#10b981", "Project"),
+            ("University", "Coursework, lectures, exams", "#5b7c99", "University"),
+            ("Personal", "Life admin, errands, health", "#4a9d8f", "Personal"),
+            ("Bookwriting", "Manuscript, drafts, research", "#b08050", "Project"),
         ]
         for proj_name, desc, color, cat in default_projects:
             proj = db.query(Project).filter(Project.name.ilike(proj_name)).first()

@@ -133,12 +133,33 @@ export const App: React.FC = () => {
       setProjects(projectsRes);
       setTags(tagsRes);
       if (aiStatusRes) setAiStatus(aiStatusRes);
+      // Projects and tags can be created outside the app (directly in the
+      // Neon console, or by another session), so they are re-fetched when
+      // this tab regains focus rather than being frozen at login.
+      refreshReferenceData();
       // Background enhancement: a failed quote must never block the page.
       api.getQuote().then(setQuote).catch(() => setQuote(null));
     } catch (err) {
       console.error("Failed to load workspace data:", err);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Projects and tags are reference data: small, rarely edited, but a
+  // project created in the database console is invisible until the client
+  // refetches. Re-fetch on tab focus so that gap is one blur away, not one
+  // redeploy away.
+  const refreshReferenceData = async () => {
+    try {
+      const [projectsRes, tagsRes] = await Promise.all([
+        api.getProjects(),
+        api.getTags(),
+      ]);
+      setProjects(projectsRes);
+      setTags(tagsRes);
+    } catch (err) {
+      console.error("Failed to refresh projects/tags:", err);
     }
   };
 
@@ -244,6 +265,18 @@ export const App: React.FC = () => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [currentUser, activeView]);
+
+  // Refetch reference data whenever the tab regains focus.
+  useEffect(() => {
+    if (!currentUser) return;
+    const onFocus = () => { refreshReferenceData(); };
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onFocus);
+    return () => {
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onFocus);
+    };
+  }, [currentUser]);
 
   // Task Handlers
   const handleTaskCreated = (newTask: Task) => {
