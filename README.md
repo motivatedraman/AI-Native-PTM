@@ -223,6 +223,7 @@ Press `M` for the in-app manual. It is deliberately unreachable from the UI, no 
 | `N` | Capture. Focuses the inline field on Today, opens the full modal elsewhere. |
 | `Cmd/Ctrl+N` | Full capture, from anywhere |
 | `A` | AI assistant |
+| `J` | Create or manage projects |
 | `P` | Plan my day |
 | `/` | Command palette and search |
 | `T` `I` `K` `C` `D` `W` | Today / Inbox / Kanban / Calendar / Daily Log / Weekly Review |

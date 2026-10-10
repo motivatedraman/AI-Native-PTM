@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Search, Calendar, Inbox, Kanban, Clock, Plus, 
+  Search, Calendar, Inbox, Kanban, Clock, Plus, Folder, 
   CheckCircle2, ChevronRight, X, BarChart3, MessageSquare, CalendarDays
 } from 'lucide-react';
 import { ActiveView, Task } from '../types';
@@ -12,6 +12,7 @@ interface CommandPaletteProps {
   onOpenQuickAdd: () => void;
   onOpenPlanDay: () => void;
   onOpenAIAssistant: () => void;
+  onOpenProjects: () => void;
   tasks: Task[];
   onSelectTask: (task: Task) => void;
 }
@@ -23,6 +24,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   onOpenQuickAdd,
   onOpenPlanDay,
   onOpenAIAssistant,
+  onOpenProjects,
   tasks,
   onSelectTask,
 }) => {
@@ -48,6 +50,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 
   const actions = [
     { label: 'Capture New Task', icon: Plus, shortcut: 'N', action: () => { onClose(); onOpenQuickAdd(); } },
+    { label: 'New Project', icon: Folder, shortcut: 'J', action: () => { onClose(); onOpenProjects(); } },
     { label: 'Plan My Day', icon: Calendar, shortcut: 'P', action: () => { onClose(); onOpenPlanDay(); } },
     { label: 'AI Assistant', icon: MessageSquare, shortcut: 'A', action: () => { onClose(); onOpenAIAssistant(); } },
     { label: 'Weekly Review', icon: BarChart3, shortcut: null, action: () => { setActiveView('weeklyreview'); onClose(); } },
@@ -135,7 +138,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         </div>
 
         <div className="px-4 py-2 border-t border-[rgb(var(--sx-border)/0.6)] text-[10px] text-stone-400 flex items-center justify-between">
-          <span>N = New · P = Plan · A = AI · T = Today · K = Kanban · C = Calendar · D = Log</span>
+          <span>N = New · J = Project · P = Plan · A = AI · T = Today · C = Calendar · D = Log</span>
           <span><kbd className="kbd-badge">Esc</kbd> to close</span>
         </div>
       </div>

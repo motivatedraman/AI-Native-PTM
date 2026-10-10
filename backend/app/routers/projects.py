@@ -53,12 +53,20 @@ def get_projects(
 
 @router.post("", response_model=ProjectResponse, status_code=status.HTTP_201_CREATED)
 def create_project(project_in: ProjectCreate, db: Session = Depends(get_db)):
-    existing = db.query(Project).filter(Project.name.ilike(project_in.name)).first()
+    # Trim before the duplicate check, not after. Otherwise " Books" and
+    # "Books" are different keys in the DB and both get created, while the
+    # user sees them as the same name in a list and cannot tell which is
+    # which. The UI trims too; this is the guarantee, not a convenience.
+    name = project_in.name.strip()
+    if not name:
+        raise HTTPException(status_code=400, detail="Project name cannot be empty")
+
+    existing = db.query(Project).filter(Project.name.ilike(name)).first()
     if existing:
         raise HTTPException(status_code=400, detail="Project with this name already exists")
 
     project = Project(
-        name=project_in.name,
+        name=name,
         description=project_in.description,
         color=project_in.color or "#6366f1",
         category=project_in.category or "General"

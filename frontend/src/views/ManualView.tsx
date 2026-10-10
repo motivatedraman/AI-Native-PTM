@@ -22,6 +22,7 @@ const SHORTCUTS: Array<{ keys: string[]; label: string }> = [
   { keys: ['I'], label: 'Go to Inbox' },
   { keys: ['K'], label: 'Go to Kanban' },
   { keys: ['C'], label: 'Go to Calendar' },
+  { keys: ['J'], label: 'Create or manage projects' },
   { keys: ['D'], label: 'Go to Daily Log' },
   { keys: ['W'], label: 'Go to Weekly Review' },
   { keys: ['M'], label: 'Open or close this manual' },

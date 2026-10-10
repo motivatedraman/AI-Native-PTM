@@ -9,6 +9,7 @@ import { PlanMyDayModal } from './components/PlanMyDayModal';
 import { AIAssistantPanel } from './components/AIAssistantPanel';
 import { FocusModeOverlay } from './components/FocusModeOverlay';
 import { StartFocusModal } from './components/StartFocusModal';
+import { ProjectsModal } from './components/ProjectsModal';
 import { TodayView } from './views/TodayView';
 import { InboxView } from './views/InboxView';
 import { KanbanView } from './views/KanbanView';
@@ -44,6 +45,7 @@ export const App: React.FC = () => {
   const [isAIAssistantOpen, setIsAIAssistantOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isProjectsOpen, setIsProjectsOpen] = useState(false);
 
   // Focus Timer
   const [focusTargetTask, setFocusTargetTask] = useState<Task | null>(null);
@@ -250,6 +252,13 @@ export const App: React.FC = () => {
         return;
       }
 
+      // 'J' opens project management, which is a modal rather than a view.
+      if (key === 'j') {
+        e.preventDefault();
+        setIsProjectsOpen(true);
+        return;
+      }
+
       const NAV_KEYS: Record<string, ActiveView> = {
         t: 'today',
         i: 'inbox',
@@ -292,6 +301,18 @@ export const App: React.FC = () => {
     if (selectedTask?.id === updatedTask.id) {
       setSelectedTask(updatedTask);
     }
+  };
+
+  const handleProjectCreated = (project: Project) => {
+    setProjects(prev => [project, ...prev.filter(p => p.id !== project.id)]);
+  };
+
+  const handleProjectDeleted = (projectId: number) => {
+    setProjects(prev => prev.filter(p => p.id !== projectId));
+    // A deleted project's tasks survive with project_id nulled server
+    // side, so the local task objects are now describing a project that
+    // no longer exists. Refresh rather than patch them one by one.
+    loadTasksOnly();
   };
 
   const handleTaskDeleted = (taskId: number) => {
@@ -516,8 +537,17 @@ export const App: React.FC = () => {
         onOpenQuickAdd={() => setIsQuickAddOpen(true)}
         onOpenPlanDay={() => setIsPlanDayOpen(true)}
         onOpenAIAssistant={() => setIsAIAssistantOpen(true)}
+        onOpenProjects={() => setIsProjectsOpen(true)}
         tasks={tasks}
         onSelectTask={handleSelectTask}
+      />
+
+      <ProjectsModal
+        isOpen={isProjectsOpen}
+        onClose={() => setIsProjectsOpen(false)}
+        projects={projects}
+        onProjectCreated={handleProjectCreated}
+        onProjectDeleted={handleProjectDeleted}
       />
 
       {/* V2: Plan My Day Modal ('P' shortcut) */}
