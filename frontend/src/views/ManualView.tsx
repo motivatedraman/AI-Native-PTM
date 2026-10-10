@@ -125,6 +125,12 @@ export const ManualView: React.FC<ManualViewProps> = ({
             that, because "today" is already the intent.
           </li>
           <li className="text-sm" style={{ color: 'rgb(var(--st-400))' }}>
+            <span style={{ color: 'rgb(var(--st-600))' }}>Projects are made with J</span> - a name, a colour and
+            an optional description. Any characters are fine, so{' '}
+            <span className="font-mono">#reading</span> and <span className="font-mono">!urgent</span> are
+            ordinary names. Three come seeded; deleting one only unlinks its tasks, it never deletes them.
+          </li>
+          <li className="text-sm" style={{ color: 'rgb(var(--st-400))' }}>
             <span style={{ color: 'rgb(var(--st-600))' }}>AI needs a working model</span> - if a call fails the
             app falls back to heuristics rather than erroring.
           </li>

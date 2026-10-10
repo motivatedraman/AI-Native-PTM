@@ -26,7 +26,14 @@ def upgrade() -> None:
             sa.Column('planned_minutes', sa.Integer(), nullable=False),
             sa.Column('actual_minutes', sa.Integer(), nullable=True),
             sa.Column('status', sa.String(length=20), nullable=False, server_default='active'),
-            sa.Column('break_taken', sa.Boolean(), nullable=False, server_default=sa.text('0')),
+            # sa.text('0') is an integer literal. SQLite coerces that to a
+            # boolean; Postgres rejects it:
+            #   column "break_taken" is of type boolean but default
+            #   expression is of type integer
+            # Postgres 18 is strict about this where older versions were
+            # not, so the cast has to be explicit. Using 'false' instead
+            # keeps the DDL portable across both dialects.
+            sa.Column('break_taken', sa.Boolean(), nullable=False, server_default=sa.text('false')),
             sa.Column('started_at', sa.DateTime(), nullable=True),
             sa.Column('ended_at', sa.DateTime(), nullable=True),
         )
@@ -35,7 +42,21 @@ def upgrade() -> None:
         op.create_index('ix_focus_sessions_status', 'focus_sessions', ['status'])
         op.create_index('ix_focus_sessions_started_at', 'focus_sessions', ['started_at'])
     except Exception:
-        pass
+        # Do NOT swallow this. A blanket except here meant a failed
+        # create_table was invisible and alembic stamped the revision as
+        # applied regardless, leaving a schema that disagrees with the
+        # migration history. That is how a boolean/integer default
+        # mismatch on Postgres went unnoticed: the exception was raised,
+        # discarded, and the version bumped anyway.
+        #
+        # The only legitimate reason this is called twice is a table that
+        # already exists from an earlier run, so tolerate exactly that.
+        if op.get_bind().dialect.name == "postgresql":
+            exists = op.get_bind().execute(
+                sa.text("select to_regclass('public.focus_sessions')")
+            ).scalar()
+            if exists is None:
+                raise
 
 
 def downgrade() -> None:
