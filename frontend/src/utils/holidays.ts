@@ -1,10 +1,10 @@
-import holidayData from '../data/nepalHolidays.json';
+import holidayData from '../config/nepalHolidays.json';
 
 /**
  * Nepali public holidays.
  *
- * Data lives in data/nepalHolidays.json and is maintained by hand once a
- * year, because no holiday API carries Nepal. Checked in order to be
+ * Data lives in src/config/nepalHolidays.json and is maintained by hand
+ * once a year, because no holiday API carries Nepal. Checked in order to be
  * found: Nager.Date -- the usual free option -- omits NP from its country
  * list entirely, and the alternatives either require an API key or return
  * 403 to scripted requests. A network call here would add a dependency and

@@ -25,7 +25,8 @@ wheels/
 *.egg
 
 # Database & local data
-data/
+# Leading slash: this must only match the root-level runtime data dir.
+/data/
 *.db
 *.sqlite
 *.sqlite3

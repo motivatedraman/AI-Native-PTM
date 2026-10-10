@@ -176,7 +176,7 @@ WHERE table_name = 'tasks' AND column_name IN ('due_date', 'created_at');
 
 ## Holidays
 
-Nepali public holidays are a checked-in JSON file, `frontend/src/data/nepalHolidays.json`, updated by hand each year.
+Nepali public holidays are a checked-in JSON file, `frontend/src/config/nepalHolidays.json`, updated by hand each year.
 
 There is no API for this, which was checked rather than assumed. **Nager.Date** is the usual free option and does not carry Nepal at all — `NP` is absent from `/api/v3/AvailableCountries`, and a direct query for 2026 returns `204`. **Calendarific** and **AbstractAPI** both require a key, so Nepal coverage could not be verified. **timeanddate.com** has correct 2026 data but answers scripted requests with `403`. **Google Calendar's** holiday feed needs a registered API key. The closest match, `casualsnek/npEventsAPI`, publishes usable JSON on GitHub, but its current-year file (BS 2083) has one populated day out of 365.
 
