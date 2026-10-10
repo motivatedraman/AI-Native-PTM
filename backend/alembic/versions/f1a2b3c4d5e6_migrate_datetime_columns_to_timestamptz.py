@@ -100,13 +100,16 @@ def upgrade() -> None:
     bind = op.get_bind()
     if bind.dialect.name != "postgresql":
         return
-    with op.get_context().autocommit_block():
-        _convert(bind, "TIMESTAMPTZ")
+    # Plain transaction, not autocommit_block: ALTER COLUMN ... TYPE is
+    # transactional in Postgres, and a single transaction means either
+    # every column converts or the whole migration rolls back. A partial
+    # conversion would leave some columns naive and some not, which is a
+    # far worse state to debug than a clean failure.
+    _convert(bind, "TIMESTAMPTZ")
 
 
 def downgrade() -> None:
     bind = op.get_bind()
     if bind.dialect.name != "postgresql":
         return
-    with op.get_context().autocommit_block():
-        _convert(bind, "TIMESTAMP WITHOUT TIME ZONE")
+    _convert(bind, "TIMESTAMP WITHOUT TIME ZONE")

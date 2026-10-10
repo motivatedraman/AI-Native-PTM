@@ -90,40 +90,59 @@ Tokens are RGB channel triplets rather than `oklch()` for one reason: ~40 call s
 
 ---
 
-## Migrations, and this database specifically
-
-**The Neon database was not built by alembic.** It was created by the app's
-`create_all` boot hook (`main.py`), which issues `CREATE TABLE` and nothing
-else. So `alembic_version` is empty, and `alembic upgrade head` tries to run
-`78c267805219` (initial_schema) against tables that already exist. That
-revision has no `try/except`, so it aborts on the first conflicting
-`create_table` and every revision after it never runs.
-
-This was invisible because `build.sh` piped alembic to `|| true`. A migration
-that had never executed looked exactly like one that had. That is now a hard
-failure: if alembic cannot apply cleanly, the deploy stops rather than
-starting an app whose models disagree with its schema.
-
-**So a fresh deploy will fail at the migration step, by design.** On an
-already-migrated database, stamp the revision the schema actually reflects
-and let the real migration run:
+## Setup against a database
 
 ```bash
-# Once, locally, against the Neon DATABASE_URL:
-PYTHONPATH=. alembic stamp e5f6a7b8c9d0   # the schema as it stands today
-PYTHONPATH=. alembic upgrade head          # now only f1a2b3c4d5e6 runs
+./setup.sh
 ```
 
-`e5f6a7b8c9d0` is the correct stamp because the existing schema already
-matches everything up to and including the dead-table drop. Verify before
-stamping rather than trusting it:
+It asks for the Neon connection string, checks it connects, reconciles
+alembic's history with whatever schema it finds, applies every migration,
+seeds, and verifies. Then put the same URL in Render under `DATABASE_URL`
+and deploy.
+
+### Why the reconcile step exists
+
+**A database created by this app has no alembic history.** `main.py` runs
+`Base.metadata.create_all()` on boot, which issues `CREATE TABLE` and
+nothing else — it can never add a column or change a type on a table that
+already exists. So on such a database `alembic_version` is empty, and
+`alembic upgrade head` tries to run `78c267805219` (initial_schema) against
+tables that are already there. That revision wraps none of its six
+`create_table` calls in `try/except`, so it aborts, and every revision
+after it never runs.
+
+This was invisible for a long time because `build.sh` piped alembic into
+`|| true`: a migration that had never executed produced exactly the same
+build output as one that had. `build.sh` now lets that failure stop the
+deploy, so the mismatch cannot stay hidden again.
+
+`setup.sh` handles both cases by inspecting the database rather than
+assuming: empty means run the chain from the start; existing tables with no
+alembic history get stamped at the revision matching the current schema
+(`e5f6a7b8c9d0`), after which only genuinely-new migrations run. Override
+with `REVISION=<id>` if your schema is at a different point.
+
+The final verification is the part worth trusting: it queries
+`information_schema` and reports any column still reading
+`timestamp without time zone`, rather than assuming the migration worked.
+
+### Doing it by hand
 
 ```sql
+-- Check where the schema stands.
 SELECT version_num FROM alembic_version;   -- empty: never stamped
 SELECT to_regclass('daily_reflections');   -- null: e5f6a7b8c9d0 already applied
 ```
 
-Alternatively skip alembic and run the DDL directly in the Neon console:
+Then either stamp and upgrade:
+
+```bash
+PYTHONPATH=. alembic stamp e5f6a7b8c9d0
+PYTHONPATH=. alembic upgrade head
+```
+
+or run the DDL directly:
 
 ```sql
 BEGIN;
@@ -144,13 +163,12 @@ ALTER TABLE focus_sessions ALTER COLUMN ended_at   TYPE TIMESTAMPTZ USING ended_
 COMMIT;
 ```
 
-`AT TIME ZONE 'UTC'` reinterprets the stored naive value as UTC rather than
-shifting it, so existing timestamps keep the meaning they had. Confirm
-afterwards with:
+`AT TIME ZONE 'UTC'` reinterprets a stored naive value as UTC rather than
+shifting it, so existing timestamps keep the meaning they had. Confirm with:
 
 ```sql
 SELECT column_name, data_type FROM information_schema.columns
-WHERE table_name = 'tasks' AND column_name IN ('due_date','created_at');
+WHERE table_name = 'tasks' AND column_name IN ('due_date', 'created_at');
 -- both should read 'timestamp with time zone'
 ```
 
@@ -172,12 +190,11 @@ So the trade is explicit: ~5 minutes of maintenance once a year when the gazette
 # Backend
 cd backend && python3 -m venv .venv && .venv/bin/pip install -r requirements.txt && cd ..
 cp .env.example .env      # then edit it, see below
-PYTHONPATH=. backend/.venv/bin/alembic upgrade head
-PYTHONPATH=. backend/.venv/bin/python backend/seed.py
 
 # Frontend
 cd frontend && npm install && cd ..
 
+./setup.sh                # migrations + seed, for local sqlite or a Neon URL
 ./start.sh                # backend :8000, frontend :5173
 ```
 
@@ -256,11 +273,14 @@ The fix is an external Postgres database. Your code already supports it; only `D
 **Neon** is the best fit for free tier: no expiry, 1 GB per project, and it scales to zero after 5 minutes idle then wakes in a few hundred milliseconds. Supabase's free tier also works but pauses projects after a week of low activity, which needs a manual restore.
 
 1. Create a project at [neon.tech](https://neon.tech), take the **pooled** connection string.
-2. Copy your existing tasks across (see below). Do this before changing anything in Render.
-3. In Render, set `DATABASE_URL` to that string under Environment. It is declared `sync: false` in `render.yaml` so the blueprint never overwrites it.
+2. Run `./setup.sh` and paste that string. It creates the schema and checks it, so Render never has to guess.
+3. In Render, set `DATABASE_URL` to the same string under Environment. It is declared `sync: false` in `render.yaml` so the blueprint never overwrites it.
 4. Deploy.
 
 ### Migrating your existing tasks
+
+Only if you want to bring tasks over from an older database. Skip it for a
+fresh project.
 
 ```bash
 # Preview first. Writes nothing.
@@ -272,7 +292,9 @@ backend/.venv/bin/python backend/scripts/migrate_sqlite_to_postgres.py \
   --target "postgresql://user:pass@host/db?sslmode=require" --apply
 ```
 
-The script opens your local SQLite file read-only, skips rows whose primary key already exists so it is safe to re-run, and copies parents before children so foreign keys resolve.
+The script opens your source database read-only, skips rows whose primary key
+already exists so it is safe to re-run, and copies parents before children so
+foreign keys resolve.
 
 After switching, the boot log tells you which database you are on:
 
