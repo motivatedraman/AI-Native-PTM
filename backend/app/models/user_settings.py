@@ -1,6 +1,6 @@
-from datetime import datetime
 from sqlalchemy import Column, Integer, DateTime, String, JSON
 from backend.app.database import Base
+from backend.app.services.npt import utcnow
 
 
 class UserSettings(Base):
@@ -12,5 +12,5 @@ class UserSettings(Base):
     available_end_hour = Column(Integer, default=22)
     daily_chunks = Column(JSON, nullable=True)
     timezone = Column(String(50), default="Asia/Kathmandu")
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=utcnow)
+    updated_at = Column(DateTime(timezone=True), default=utcnow, onupdate=utcnow)

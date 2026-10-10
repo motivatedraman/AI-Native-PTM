@@ -47,6 +47,13 @@ export const api = {
   },
 
   // ─── Tasks ───────────────────────────────
+  /** One page of tasks. Use getAllTasks() unless you specifically want a slice. */
+  async getTasksPage(offset: number, limit: number): Promise<Task[]> {
+    const res = await fetch(`${API_BASE}/tasks?offset=${offset}&limit=${limit}`, { headers: getHeaders() });
+    if (!res.ok) throw new Error('Failed to fetch tasks');
+    return res.json();
+  },
+
   async getTasks(params?: { status?: string; category?: string; project_id?: number; search?: string; tag?: string }): Promise<Task[]> {
     const query = new URLSearchParams();
     if (params?.status) query.append('status', params.status);
@@ -57,6 +64,25 @@ export const api = {
     const res = await fetch(`${API_BASE}/tasks?${query.toString()}`, { headers: getHeaders() });
     if (!res.ok) throw new Error('Failed to fetch tasks');
     return res.json();
+  },
+
+  /**
+   * Fetch every task, paging until the server stops returning full pages.
+   *
+   * GET /api/tasks is capped, and its ordering puts tasks with no due date
+   * last, so inbox captures were the first to fall off a truncated
+   * response. Paging makes truncation impossible rather than merely less
+   * likely.
+   */
+  async getAllTasks(): Promise<Task[]> {
+    const PAGE = 200;
+    const collected: Task[] = [];
+    for (let offset = 0; offset < 5000; offset += PAGE) {
+      const page = await this.getTasksPage(offset, PAGE);
+      collected.push(...page);
+      if (page.length < PAGE) break;
+    }
+    return collected;
   },
 
   async createTask(data: Partial<Task> & { tag_ids?: number[]; initial_subtasks?: string[] }): Promise<Task> {

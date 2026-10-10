@@ -3,11 +3,13 @@ const TZ = 'Asia/Kathmandu';
 const NPT_OFFSET_MINUTES = 5 * 60 + 45;
 
 /**
- * Parse a datetime string as UTC.
- * Backend stores naive UTC datetimes like "2026-08-18T10:30:00" without a
- * timezone suffix. JavaScript's new Date() treats those as *local* time,
- * which causes double-conversion when we then format to NPT.
- * Appending "Z" forces UTC interpretation.
+ * Parse a backend datetime string as an instant.
+ *
+ * Timestamps are stored as TIMESTAMPTZ, so the backend sends an explicit
+ * offset ("2026-08-18T10:30:00+00:00") and new Date() reads that directly.
+ * Values predating the timestamptz migration are bare wall clock with no
+ * suffix; those were written as UTC, so 'Z' is appended to keep them
+ * meaning the same instant rather than being re-read as browser-local time.
  */
 function asUTC(iso: string): Date {
   // Already has a timezone suffix, leave it alone
@@ -72,6 +74,59 @@ export function formatDateLabel(dateStr: string): string {
   return new Date(dateStr + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
+/* ── Calendar arithmetic ───────────────────────────────────────────
+   Pure 'YYYY-MM-DD' string maths on a day-granular value. Deliberately
+   independent of Date's timezone behaviour: these strings name a day in
+   Nepal, so constructing them with `new Date('2026-10-09')` would parse
+   as UTC midnight and then render as the previous day for anyone west of
+   Greenwich. A UTC-backed Date used only as a day counter sidesteps that
+   entirely, and offsetDateNPT above has the same caveat in reverse. */
+
+/** Add days to a YYYY-MM-DD string. Negative values go backwards. */
+export function addDaysToDate(dateStr: string, days: number): string {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const next = new Date(Date.UTC(y, m - 1, d + days));
+  return `${next.getUTCFullYear()}-${String(next.getUTCMonth() + 1).padStart(2, '0')}-${String(
+    next.getUTCDate()
+  ).padStart(2, '0')}`;
+}
+
+/** 0 = Sunday … 6 = Saturday, for a YYYY-MM-DD string. */
+export function dayOfWeek(dateStr: string): number {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  return new Date(Date.UTC(y, m - 1, d)).getUTCDay();
+}
+
+/** First day of the month containing dateStr, as YYYY-MM-DD. */
+export function startOfMonth(dateStr: string): string {
+  return dateStr.slice(0, 8) + '01';
+}
+
+export function addMonthsToDate(dateStr: string, months: number): string {
+  const [y, m] = dateStr.split('-').map(Number);
+  const total = y * 12 + (m - 1) + months;
+  const ny = Math.floor(total / 12);
+  const nm = total % 12;
+  // Clamp to the last valid day so 31 Jan plus one month is 28/29 Feb
+  // rather than rolling into March.
+  const lastDay = new Date(Date.UTC(ny, nm + 1, 0)).getUTCDate();
+  return `${ny}-${String(nm + 1).padStart(2, '0')}-${String(Math.min(Number(dateStr.slice(8, 10)), lastDay)).padStart(2, '0')}`;
+}
+
+/**
+ * A 6x7 grid of YYYY-MM-DD covering the month that contains dateStr.
+ *
+ * Always 42 cells, leading and trailing days included, so the grid never
+ * reflows between months. Nepal's week starts on Saturday, which is why
+ * the padding is computed against Saturday rather than Monday.
+ */
+export function monthGrid(dateStr: string): string[] {
+  const first = startOfMonth(dateStr);
+  const lead = (dayOfWeek(first) + 1) % 7; // Saturday = 0
+  const gridStart = addDaysToDate(first, -lead);
+  return Array.from({ length: 42 }, (_, i) => addDaysToDate(gridStart, i));
+}
+
 /**
  * Convert a stored UTC ISO datetime to a value for <input type="datetime-local">
  * showing NPT wall-clock time (YYYY-MM-DDTHH:mm). Independent of browser timezone.
@@ -91,18 +146,43 @@ export function utcToNPTInput(iso: string): string {
 
 /**
  * Convert a datetime-local input value (interpreted as NPT wall clock)
- * to a naive UTC ISO string for the backend (YYYY-MM-DDTHH:MM:SS).
+ * to an ISO instant for the backend (YYYY-MM-DDTHH:MM:SS.sssZ).
+ *
+ * The offset is explicit rather than sliced off. A bare wall-clock string
+ * carries no zone, so the server would have to guess one from its own
+ * session -- which is how a Kathmandu-set database ended up storing
+ * browser-written due dates 05:45 out.
  * Returns null for empty/invalid input.
  */
 export function nptInputToUTC(value: string): string | null {
   const m = value.match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/);
   if (!m) return null;
+  return nptWallClockToUTCISO(m[1], m[2], m[3], m[4], m[5]);
+}
+
+/**
+ * Build an ISO instant from an NPT wall-clock date and time.
+ *
+ * Independent of the browser's own timezone, which is the entire point:
+ * a capture typed as "09:00" must mean 09:00 in Nepal regardless of
+ * whether the laptop is set to Kathmandu, UTC or anything else.
+ */
+export function nptWallClockToUTCISO(
+  dateStr: string,
+  hour = '00',
+  minute = '00',
+  second = '00',
+  ms = '000'
+): string {
+  const [y, mo, d] = dateStr.split('-');
   const utcMs = Date.UTC(
-    Number(m[1]),
-    Number(m[2]) - 1,
-    Number(m[3]),
-    Number(m[4]),
-    Number(m[5])
+    Number(y),
+    Number(mo) - 1,
+    Number(d),
+    Number(hour),
+    Number(minute),
+    Number(second),
+    Number(ms)
   ) - NPT_OFFSET_MINUTES * 60000;
-  return new Date(utcMs).toISOString().slice(0, 19);
+  return new Date(utcMs).toISOString();
 }

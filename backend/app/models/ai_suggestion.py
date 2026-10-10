@@ -1,6 +1,6 @@
-from datetime import datetime
 from sqlalchemy import Column, Integer, String, Text, DateTime, JSON, Boolean
 from backend.app.database import Base
+from backend.app.services.npt import utcnow
 
 
 class AISuggestion(Base):
@@ -15,5 +15,5 @@ class AISuggestion(Base):
     project_id = Column(Integer, nullable=True)
     is_dismissed = Column(Boolean, default=False)
     is_applied = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.utcnow, index=True)
-    expires_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime(timezone=True), default=utcnow, index=True)
+    expires_at = Column(DateTime(timezone=True), nullable=True)

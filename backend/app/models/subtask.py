@@ -1,7 +1,7 @@
-from datetime import datetime
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from backend.app.database import Base
+from backend.app.services.npt import utcnow
 
 class Subtask(Base):
     __tablename__ = "subtasks"
@@ -11,6 +11,6 @@ class Subtask(Base):
     title = Column(String(255), nullable=False)
     is_completed = Column(Boolean, default=False)
     order = Column(Integer, default=0)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=utcnow)
 
     task = relationship("Task", back_populates="subtasks")

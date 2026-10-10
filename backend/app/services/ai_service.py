@@ -8,6 +8,7 @@ from datetime import datetime, timedelta, date, timezone
 from typing import Optional, List, Dict, Any
 from collections import deque
 from backend.app.config import settings
+from backend.app.services.npt import NPT, utcnow
 from backend.app.schemas.ai import (
     AITaskParseResult, AITaskEnrichResponse, AISubtaskSuggestResponse,
     AIStatusResponse, AIDecomposeResponse, AIPlannerResponse, AIPlannerItem,
@@ -21,7 +22,6 @@ try:
 except ImportError:
     _genai = None
 
-NPT = timezone(timedelta(hours=5, minutes=45))
 
 
 class RateLimiter:
@@ -405,13 +405,13 @@ class AIService:
             # on the requested day regardless of the current hour.
             if due_date_npt < now_npt and parsed_hour is not None:
                 due_date_npt = due_date_npt + timedelta(days=1)
-            due_date = due_date_npt.astimezone(timezone.utc).replace(tzinfo=None)
+            due_date = due_date_npt.astimezone(timezone.utc)
         elif parsed_hour is not None:
             # Time specified without explicit date -> assume today if in future, else tomorrow
             candidate = now_npt.replace(hour=parsed_hour, minute=parsed_minute or 0, second=0, microsecond=0)
             if candidate < now_npt:
                 candidate = candidate + timedelta(days=1)
-            due_date = candidate.astimezone(timezone.utc).replace(tzinfo=None)
+            due_date = candidate.astimezone(timezone.utc)
 
         # 6. Category & Project inference
         academic_kw = [
@@ -553,7 +553,7 @@ Return ONLY valid JSON matching this schema:
                     else:
                         due_dt = self._parse_ai_iso(result.get("due_date_iso"))
                         if due_dt:
-                            due_utc = due_dt.astimezone(timezone.utc).replace(tzinfo=None)
+                            due_utc = due_dt.astimezone(timezone.utc)
                             due_iso = due_utc.isoformat()
                             due_str = due_dt.astimezone(NPT).strftime("%Y-%m-%d %H:%M")
                         else:
@@ -824,7 +824,7 @@ Rules:
                     "est_minutes": t.get("estimated_minutes") or rem,
                     "spent_minutes": t.get("spent_minutes") or 0,
                     "priority": t.get("priority", "medium"),
-                    "is_overdue": bool(t.get("due_date") and t["due_date"] < datetime.utcnow().isoformat())
+                    "is_overdue": bool(t.get("due_date") and t["due_date"] < utcnow().isoformat())
                 })
 
         # Sort: Overdue first, then Urgent/High, then remaining
@@ -973,7 +973,7 @@ Rules:
         # Sort: overdue first, then by priority, then by due date
         priority_order = {"urgent": 0, "high": 1, "medium": 2, "low": 3}
         sorted_candidates = sorted(candidates, key=lambda t: (
-            0 if t.get("due_date") and t["due_date"] < datetime.utcnow().isoformat() else 1,
+            0 if t.get("due_date") and t["due_date"] < utcnow().isoformat() else 1,
             priority_order.get(t.get("priority", "medium"), 2)
         ))
 
@@ -983,7 +983,7 @@ Rules:
             dur = t.get("estimated_minutes") or 30
             if remaining <= 0:
                 break
-            overdue = t.get("due_date") and t["due_date"] < datetime.utcnow().isoformat()
+            overdue = t.get("due_date") and t["due_date"] < utcnow().isoformat()
             recommendations.append({
                 "task_id": t.get("id"),
                 "task_title": t.get("title"),
@@ -1013,8 +1013,8 @@ Rules:
         """Fast heuristic filter converter for common search queries (0 API calls)."""
         lower = query.strip().lower()
         now_npt = datetime.now(NPT)
-        today_start_utc = now_npt.replace(hour=0, minute=0, second=0, microsecond=0).astimezone(timezone.utc).replace(tzinfo=None)
-        today_end_utc = now_npt.replace(hour=23, minute=59, second=59, microsecond=0).astimezone(timezone.utc).replace(tzinfo=None)
+        today_start_utc = now_npt.replace(hour=0, minute=0, second=0, microsecond=0).astimezone(timezone.utc)
+        today_end_utc = now_npt.replace(hour=23, minute=59, second=59, microsecond=0).astimezone(timezone.utc)
 
         # 1. Status shortcuts
         if lower in ["inbox", "status:inbox"]:
@@ -1034,11 +1034,11 @@ Rules:
 
         # 3. Overdue & Due dates
         if lower in ["overdue", "late", "past due"]:
-            return AINLSearchResponse(filters={"due_before": datetime.utcnow().isoformat(), "completed": False}, explanation="Showing overdue tasks")
+            return AINLSearchResponse(filters={"due_before": utcnow().isoformat(), "completed": False}, explanation="Showing overdue tasks")
         if lower in ["due today", "today", "today's tasks"]:
             return AINLSearchResponse(filters={"due_before": today_end_utc.isoformat(), "completed": False}, explanation="Showing tasks due today")
         if lower in ["due tomorrow", "tomorrow"]:
-            tmrw_end = (now_npt + timedelta(days=1)).replace(hour=23, minute=59, second=59, microsecond=0).astimezone(timezone.utc).replace(tzinfo=None)
+            tmrw_end = (now_npt + timedelta(days=1)).replace(hour=23, minute=59, second=59, microsecond=0).astimezone(timezone.utc)
             return AINLSearchResponse(filters={"due_before": tmrw_end.isoformat(), "completed": False}, explanation="Showing tasks due tomorrow")
 
         # 4. Project matches

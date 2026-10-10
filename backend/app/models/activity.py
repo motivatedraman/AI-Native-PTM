@@ -1,7 +1,7 @@
-from datetime import datetime
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, JSON
 from sqlalchemy.orm import relationship
 from backend.app.database import Base
+from backend.app.services.npt import utcnow
 
 class ActivityLog(Base):
     __tablename__ = "activity_logs"
@@ -11,6 +11,6 @@ class ActivityLog(Base):
     action_type = Column(String(50), nullable=False)  # task_created, task_completed, task_moved, task_edited, etc.
     description = Column(String(255), nullable=False)
     details = Column(JSON, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    created_at = Column(DateTime(timezone=True), default=utcnow, index=True)
 
     task = relationship("Task", back_populates="activities")

@@ -8,6 +8,7 @@ from backend.app.database import get_db
 from backend.app.models import Task, FocusSession
 from backend.app.schemas import FocusSessionCreate, FocusSessionUpdate, FocusSessionResponse
 from backend.app.services import log_activity
+from backend.app.services.npt import utcnow
 
 router = APIRouter(prefix="/api/focus", tags=["Focus"])
 
@@ -25,7 +26,7 @@ def start_focus_session(payload: FocusSessionCreate, db: Session = Depends(get_d
         task_id=payload.task_id,
         planned_minutes=payload.planned_minutes,
         status="active",
-        started_at=datetime.utcnow()
+        started_at=utcnow()
     )
     db.add(session)
     db.commit()
@@ -35,7 +36,7 @@ def start_focus_session(payload: FocusSessionCreate, db: Session = Depends(get_d
         # Nudge the task into the doing state when a focus session begins on it
         if task.status not in ("done", "doing"):
             task.status = "doing"
-            task.updated_at = datetime.utcnow()
+            task.updated_at = utcnow()
             db.commit()
             db.refresh(session)
 
@@ -72,7 +73,7 @@ def end_focus_session(session_id: int, payload: FocusSessionUpdate, db: Session 
     session.actual_minutes = actual_minutes if actual_minutes is not None else 0
     session.status = final_status
     session.break_taken = bool(data.get("break_taken", False))
-    session.ended_at = datetime.utcnow()
+    session.ended_at = utcnow()
 
     logged_task: Optional[Task] = None
     if session.task_id:
@@ -81,7 +82,7 @@ def end_focus_session(session_id: int, payload: FocusSessionUpdate, db: Session 
             logged_task = task
             if session.actual_minutes > 0:
                 task.spent_minutes = (task.spent_minutes or 0) + session.actual_minutes
-                task.updated_at = datetime.utcnow()
+                task.updated_at = utcnow()
 
     db.commit()
 

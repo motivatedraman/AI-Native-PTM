@@ -15,6 +15,7 @@ import { KanbanView } from './views/KanbanView';
 import { DailyLogView } from './views/DailyLogView';
 import { WeeklyReviewView } from './views/WeeklyReviewView';
 import { ManualView } from './views/ManualView';
+import { CalendarView } from './views/CalendarView';
 import { Task, Project, Tag, ActiveView, AIStatus, FocusFinishedResult, FocusSession, DailyQuote } from './types';
 import { api } from './services/api';
 import { Menu } from 'lucide-react';
@@ -114,7 +115,7 @@ export const App: React.FC = () => {
   // 5 requests per click where 1 was needed.
   const loadTasksOnly = async () => {
     try {
-      setTasks(await api.getTasks());
+      setTasks(await api.getAllTasks());
     } catch (err) {
       console.error("Failed to refresh tasks:", err);
     }
@@ -124,7 +125,7 @@ export const App: React.FC = () => {
     setIsLoading(true);
     try {
       const [tasksRes, projectsRes, tagsRes, aiStatusRes] = await Promise.all([
-        api.getTasks(),
+        api.getAllTasks(),
         api.getProjects(),
         api.getTags(),
         api.getAIStatus().catch(() => null),
@@ -253,6 +254,7 @@ export const App: React.FC = () => {
         t: 'today',
         i: 'inbox',
         k: 'kanban',
+        c: 'calendar',
         d: 'dailylog',
         w: 'weeklyreview',
       };
@@ -433,6 +435,15 @@ export const App: React.FC = () => {
                 projects={projects}
                 onSelectTask={handleSelectTask}
                 onTaskUpdated={handleTaskUpdated}
+              />
+            )}
+
+            {activeView === 'calendar' && (
+              <CalendarView
+                tasks={tasks}
+                onSelectTask={handleSelectTask}
+                onToggleComplete={handleToggleComplete}
+                onTaskCreated={handleTaskCreated}
               />
             )}
 

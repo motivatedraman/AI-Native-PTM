@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Search, Calendar, Inbox, Kanban, Clock, Plus, 
-  CheckCircle2, ChevronRight, X, BarChart3, MessageSquare
+  CheckCircle2, ChevronRight, X, BarChart3, MessageSquare, CalendarDays
 } from 'lucide-react';
 import { ActiveView, Task } from '../types';
 
@@ -54,6 +54,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     { label: 'Go to Today Dashboard', icon: Calendar, shortcut: 'T', action: () => { setActiveView('today'); onClose(); } },
     { label: 'Go to Inbox', icon: Inbox, shortcut: null, action: () => { setActiveView('inbox'); onClose(); } },
     { label: 'Go to Kanban Board', icon: Kanban, shortcut: 'K', action: () => { setActiveView('kanban'); onClose(); } },
+    { label: 'Go to Calendar', icon: CalendarDays, shortcut: 'C', action: () => { setActiveView('calendar'); onClose(); } },
     { label: 'Go to Daily Log', icon: Clock, shortcut: 'D', action: () => { setActiveView('dailylog'); onClose(); } },
   ].filter(a => !query || a.label.toLowerCase().includes(query.toLowerCase()));
 
@@ -134,7 +135,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         </div>
 
         <div className="px-4 py-2 border-t border-[rgb(var(--sx-border)/0.6)] text-[10px] text-stone-400 flex items-center justify-between">
-          <span>N = New · P = Plan · A = AI · T = Today · K = Kanban · D = Log</span>
+          <span>N = New · P = Plan · A = AI · T = Today · K = Kanban · C = Calendar · D = Log</span>
           <span><kbd className="kbd-badge">Esc</kbd> to close</span>
         </div>
       </div>

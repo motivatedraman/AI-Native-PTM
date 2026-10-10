@@ -16,7 +16,22 @@ BASE = "http://127.0.0.1:8001"
 USERNAME = "raman"
 PASSWORD = "admin123"
 
+# Nepali timezone, for computing the expected instant in assertions.
 NPT = timezone(timedelta(hours=5, minutes=45))
+
+
+def _as_utc(s: str) -> datetime:
+    """Parse a server timestamp into an aware UTC datetime for comparison.
+
+    SQLite has no timestamptz, so it hands back a naive string; that value
+    is already UTC and must be labelled as such. Without the explicit
+    replace, astimezone() would read it as *local* time and shift it by
+    this machine's offset, failing the assertion for the wrong reason.
+    """
+    dt = datetime.fromisoformat(s.replace("Z", "+00:00"))
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc)
 
 client = httpx.Client(base_url=BASE, timeout=30)
 anon = httpx.Client(base_url=BASE, timeout=30)
@@ -80,7 +95,7 @@ pid = proj.get("id")
 r = client.get("/api/projects")
 names = [p["name"] for p in r.json()]
 check("project list contains created project", "E2E Project" in names, str(names))
-check("seeded projects present", "DBMS" in names, str(names))
+check("seeded projects present", "University" in names, str(names))
 
 r = client.get(f"/api/projects/{pid}")
 check("get project by id", r.status_code == 200 and r.json()["name"] == "E2E Project", r.text[:200])
@@ -293,11 +308,14 @@ check("quick-add category University", qa.get("category") == "University", str(q
 check("quick-add duration ~2h -> 120m", qa.get("estimated_minutes") == 120, str(qa.get("estimated_minutes")))
 check("quick-add tag Homework linked", any(t["name"].lower() == "homework" for t in qa.get("tags", [])),
       str(qa.get("tags")))
-expected_due = f"{tomorrow_npt:%Y-%m-%d}T11:15:00"  # 17:00 NPT == 11:15 UTC
+# 17:00 NPT == 11:15 UTC. Compared as instants: the server returns an
+# offset-aware value now, so string equality against a naive expectation
+# would fail for reasons that have nothing to do with correctness.
+expected_due = tomorrow_npt.replace(hour=17, minute=0, second=0, microsecond=0).astimezone(timezone.utc)
 check(
     "quick-add 'tomorrow 5pm' stored as 17:00 NPT == 11:15 UTC",
-    qa.get("due_date") == expected_due,
-    f"expected {expected_due}, got {qa.get('due_date')}",
+    bool(qa.get("due_date")) and _as_utc(qa["due_date"]) == expected_due,
+    f"expected {expected_due.isoformat()}, got {qa.get('due_date')}",
 )
 check("quick-add title cleaned of date words",
       "tomorrow" not in qa.get("title", "").lower() and "5pm" not in qa.get("title", "").lower(),
@@ -309,12 +327,12 @@ check("quick-add empty text -> 400", r.status_code == 400, f"got {r.status_code}
 # parse-task endpoint with explicit time
 r = client.post("/api/ai/parse-task", json={"text": "Pay electricity bill tomorrow 6pm"})
 pt = r.json() if r.status_code == 200 else {}
-expected_iso = f"{tomorrow_npt:%Y-%m-%d}T12:15:00"  # 18:00 NPT == 12:15 UTC
+expected_iso = tomorrow_npt.replace(hour=18, minute=0, second=0, microsecond=0).astimezone(timezone.utc)
 check("parse-task -> 200", r.status_code == 200, f"got {r.status_code}: {r.text[:200]}")
 check(
     "parse-task 'tomorrow 6pm' due_date_iso is NPT-correct UTC",
-    pt.get("due_date_iso", "").startswith(f"{tomorrow_npt:%Y-%m-%d}T12:15"),
-    f"expected {expected_iso}, got {pt.get('due_date_iso')}",
+    bool(pt.get("due_date_iso")) and _as_utc(pt["due_date_iso"]) == expected_iso,
+    f"expected {expected_iso.isoformat()}, got {pt.get('due_date_iso')}",
 )
 
 # ---------------------------------------------------------------- Activity & daily log

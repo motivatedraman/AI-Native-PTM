@@ -22,8 +22,8 @@ Both problems had the same root cause, nothing was ever subtracted. Features acc
 
 | | Before | After |
 |---|---|---|
-| Navigation items | 7 | 5 |
-| Views | 8 | 6 |
+| Navigation items | 7 | 6 |
+| Views | 8 | 7 |
 | Buttons in the app | 100 | 88 |
 | Lines in the view layer | ~1,340 | 1,162 |
 | Regions on the Today page | 11 | 4 |
@@ -86,7 +86,83 @@ Tokens are RGB channel triplets rather than `oklch()` for one reason: ~40 call s
 
 **AI never blocks the app.** If a model call fails, the service falls back to heuristics. Task creation cannot fail because a provider is down. API keys stay on the backend.
 
-**Inline capture deliberately bypasses the AI parser.** The Today capture field posts to `/api/tasks` with today's due date rather than `/api/tasks/quick-add`. Quick-add routes through the AI to *guess* a due date, correct for an untriaged inbox dump, wrong here, where "today" is the stated intent and a guessed date would silently misfile the task.
+**Inline capture deliberately bypasses the AI parser.** The Today capture field posts to `/api/tasks` with today's due date rather than `/api/tasks/quick-add`. Quick-add routes through the AI to *guess* a due date, correct for an untriaged inbox dump, wrong here, where "today" is the stated intent and a guessed date would silently misfile the calendar's target day.
+
+---
+
+## Migrations, and this database specifically
+
+**The Neon database was not built by alembic.** It was created by the app's
+`create_all` boot hook (`main.py`), which issues `CREATE TABLE` and nothing
+else. So `alembic_version` is empty, and `alembic upgrade head` tries to run
+`78c267805219` (initial_schema) against tables that already exist. That
+revision has no `try/except`, so it aborts on the first conflicting
+`create_table` and every revision after it never runs.
+
+This was invisible because `build.sh` piped alembic to `|| true`. A migration
+that had never executed looked exactly like one that had. That is now a hard
+failure: if alembic cannot apply cleanly, the deploy stops rather than
+starting an app whose models disagree with its schema.
+
+**So a fresh deploy will fail at the migration step, by design.** On an
+already-migrated database, stamp the revision the schema actually reflects
+and let the real migration run:
+
+```bash
+# Once, locally, against the Neon DATABASE_URL:
+PYTHONPATH=. alembic stamp e5f6a7b8c9d0   # the schema as it stands today
+PYTHONPATH=. alembic upgrade head          # now only f1a2b3c4d5e6 runs
+```
+
+`e5f6a7b8c9d0` is the correct stamp because the existing schema already
+matches everything up to and including the dead-table drop. Verify before
+stamping rather than trusting it:
+
+```sql
+SELECT version_num FROM alembic_version;   -- empty: never stamped
+SELECT to_regclass('daily_reflections');   -- null: e5f6a7b8c9d0 already applied
+```
+
+Alternatively skip alembic and run the DDL directly in the Neon console:
+
+```sql
+BEGIN;
+ALTER TABLE tasks ALTER COLUMN due_date      TYPE TIMESTAMPTZ USING due_date      AT TIME ZONE 'UTC';
+ALTER TABLE tasks ALTER COLUMN created_at    TYPE TIMESTAMPTZ USING created_at    AT TIME ZONE 'UTC';
+ALTER TABLE tasks ALTER COLUMN updated_at    TYPE TIMESTAMPTZ USING updated_at    AT TIME ZONE 'UTC';
+ALTER TABLE tasks ALTER COLUMN completed_at  TYPE TIMESTAMPTZ USING completed_at  AT TIME ZONE 'UTC';
+ALTER TABLE activity_logs ALTER COLUMN created_at      TYPE TIMESTAMPTZ USING created_at      AT TIME ZONE 'UTC';
+ALTER TABLE projects ALTER COLUMN created_at  TYPE TIMESTAMPTZ USING created_at  AT TIME ZONE 'UTC';
+ALTER TABLE projects ALTER COLUMN updated_at  TYPE TIMESTAMPTZ USING updated_at  AT TIME ZONE 'UTC';
+ALTER TABLE tags ALTER COLUMN created_at      TYPE TIMESTAMPTZ USING created_at      AT TIME ZONE 'UTC';
+ALTER TABLE subtasks ALTER COLUMN created_at  TYPE TIMESTAMPTZ USING created_at  AT TIME ZONE 'UTC';
+ALTER TABLE task_dependencies ALTER COLUMN created_at TYPE TIMESTAMPTZ USING created_at AT TIME ZONE 'UTC';
+ALTER TABLE user_settings ALTER COLUMN created_at TYPE TIMESTAMPTZ USING created_at AT TIME ZONE 'UTC';
+ALTER TABLE user_settings ALTER COLUMN updated_at TYPE TIMESTAMPTZ USING updated_at AT TIME ZONE 'UTC';
+ALTER TABLE focus_sessions ALTER COLUMN started_at TYPE TIMESTAMPTZ USING started_at AT TIME ZONE 'UTC';
+ALTER TABLE focus_sessions ALTER COLUMN ended_at   TYPE TIMESTAMPTZ USING ended_at   AT TIME ZONE 'UTC';
+COMMIT;
+```
+
+`AT TIME ZONE 'UTC'` reinterprets the stored naive value as UTC rather than
+shifting it, so existing timestamps keep the meaning they had. Confirm
+afterwards with:
+
+```sql
+SELECT column_name, data_type FROM information_schema.columns
+WHERE table_name = 'tasks' AND column_name IN ('due_date','created_at');
+-- both should read 'timestamp with time zone'
+```
+
+---
+
+## Holidays
+
+Nepali public holidays are a checked-in JSON file, `frontend/src/data/nepalHolidays.json`, updated by hand each year.
+
+There is no API for this, which was checked rather than assumed. **Nager.Date** is the usual free option and does not carry Nepal at all — `NP` is absent from `/api/v3/AvailableCountries`, and a direct query for 2026 returns `204`. **Calendarific** and **AbstractAPI** both require a key, so Nepal coverage could not be verified. **timeanddate.com** has correct 2026 data but answers scripted requests with `403`. **Google Calendar's** holiday feed needs a registered API key. The closest match, `casualsnek/npEventsAPI`, publishes usable JSON on GitHub, but its current-year file (BS 2083) has one populated day out of 365.
+
+So the trade is explicit: ~5 minutes of maintenance once a year when the gazette publishes, in exchange for no network call, no key, no rate limit, and no new way for the app to fail. Entries carry a `type` (`public` / `optional` / `local`) because a nationwide day off and a regional festival are not the same thing for planning. Dates carried forward ahead of the gazette are marked `provisional` rather than presented as confirmed — lunar-calendar dates in an unpublished year genuinely cannot be known.
 
 ---
 
@@ -132,7 +208,7 @@ Press `M` for the in-app manual. It is deliberately unreachable from the UI, no 
 | `A` | AI assistant |
 | `P` | Plan my day |
 | `/` | Command palette and search |
-| `T` `I` `K` `D` `W` | Today / Inbox / Kanban / Daily Log / Weekly Review |
+| `T` `I` `K` `C` `D` `W` | Today / Inbox / Kanban / Calendar / Daily Log / Weekly Review |
 | `M` | Manual (toggles) |
 | `Esc` | Close anything |
 

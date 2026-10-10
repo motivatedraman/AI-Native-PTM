@@ -91,7 +91,7 @@ export interface AIStatus {
   message: string;
 }
 
-export type ActiveView = 'today' | 'inbox' | 'kanban' | 'dailylog' | 'weeklyreview' | 'manual';
+export type ActiveView = 'today' | 'inbox' | 'kanban' | 'calendar' | 'dailylog' | 'weeklyreview' | 'manual';
 
 // ─── V2 Types ───────────────────────────────
 

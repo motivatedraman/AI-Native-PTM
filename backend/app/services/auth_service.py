@@ -5,19 +5,20 @@ import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from backend.app.config import settings
+from backend.app.services.npt import utcnow
 
 security = HTTPBearer(auto_error=False)
 
 def create_access_token(username: str, expires_delta: Optional[timedelta] = None) -> str:
     if expires_delta:
-        expire = datetime.utcnow() + expires_delta
+        expire = utcnow() + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(days=settings.JWT_EXPIRE_DAYS)
+        expire = utcnow() + timedelta(days=settings.JWT_EXPIRE_DAYS)
 
     payload = {
         "sub": username,
         "exp": expire,
-        "iat": datetime.utcnow(),
+        "iat": utcnow(),
     }
     encoded_jwt = jwt.encode(payload, settings.get_jwt_secret(), algorithm=settings.JWT_ALGORITHM)
     return encoded_jwt

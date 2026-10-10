@@ -21,6 +21,7 @@ const SHORTCUTS: Array<{ keys: string[]; label: string }> = [
   { keys: ['T'], label: 'Go to Today' },
   { keys: ['I'], label: 'Go to Inbox' },
   { keys: ['K'], label: 'Go to Kanban' },
+  { keys: ['C'], label: 'Go to Calendar' },
   { keys: ['D'], label: 'Go to Daily Log' },
   { keys: ['W'], label: 'Go to Weekly Review' },
   { keys: ['M'], label: 'Open or close this manual' },
@@ -31,6 +32,7 @@ const PAGES: Array<{ name: string; blurb: string }> = [
   { name: 'Today', blurb: "This day's tasks, newest and most urgent first. Capture inline at the top." },
   { name: 'Inbox', blurb: 'Untriaged captures. Dump text, let the parser fill in the details, then plan them.' },
   { name: 'Kanban', blurb: 'Drag cards between Inbox, Planned, Doing and Done to change state.' },
+  { name: 'Calendar', blurb: 'Month grid with Nepali public holidays marked. Click a day to see and add its tasks.' },
   { name: 'Daily Log', blurb: 'What happened on a given day, generated from task activity.' },
   { name: 'Weekly Review', blurb: 'Completion rate, highlights, patterns and suggestions for the week.' },
 ];

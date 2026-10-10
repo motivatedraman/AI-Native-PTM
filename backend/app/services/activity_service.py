@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Optional, Dict, Any
 from sqlalchemy.orm import Session
 from backend.app.models.activity import ActivityLog
+from backend.app.services.npt import utcnow
 
 def log_activity(
     db: Session,
@@ -16,7 +17,7 @@ def log_activity(
         action_type=action_type,
         description=description,
         details=details or {},
-        created_at=datetime.utcnow()
+        created_at=utcnow()
     )
     db.add(activity)
     db.commit()

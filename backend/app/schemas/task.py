@@ -30,6 +30,9 @@ class TaskUpdate(BaseModel):
     description: Optional[str] = None
     status: Optional[str] = None
     priority: Optional[str] = None
+    # Normalized to aware UTC by the router. Columns are timestamptz, so a
+    # naive value here would be cast using the server's timezone instead of
+    # the intended one.
     due_date: Optional[datetime] = None
     estimated_minutes: Optional[int] = None
     spent_minutes: Optional[int] = None

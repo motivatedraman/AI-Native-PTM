@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Timer, ChevronLeft, ChevronRight, Flame } from 'lucide-react';
 import { Task, Project } from '../types';
-import { currentHourNPT, todayNPT, dateStrNPT, formatDateLabel, formatDateNPT } from '../utils/time';
+import { currentHourNPT, todayNPT, dateStrNPT, formatDateLabel, formatDateNPT, nptWallClockToUTCISO } from '../utils/time';
 import { AnimatedCheck, TaskCompletionBurst } from '../components/TaskCompletionBurst';
 import { useStreak } from '../utils/useStreak';
 import { api } from '../services/api';
@@ -62,7 +62,7 @@ export const TodayView: React.FC<TodayViewProps> = ({
       const created = await api.createTask({
         title,
         status: 'planned',
-        due_date: new Date(`${selectedDate}T09:00:00`).toISOString(),
+        due_date: nptWallClockToUTCISO(selectedDate, '09', '00'),
       });
       onTaskCreated(created);
       setCapture('');

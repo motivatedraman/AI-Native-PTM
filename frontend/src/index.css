@@ -67,6 +67,7 @@
   --font-sans: 'Inter Tight', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
 
+
   /* Radius scale, tightened. Tailwind's defaults ramp to 16px at 2xl and
      24px at 3xl, which reads soft on a dense tool. This is a real hierarchy:
      controls 4-5px, cards 6px, panels 8px, modals 10px. Set here rather

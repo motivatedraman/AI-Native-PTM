@@ -5,6 +5,8 @@ import httpx
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
+from backend.app.services.npt import today_npt
+
 router = APIRouter(prefix="/api/quote", tags=["Quote"])
 
 # Deterministic per-day pick so the same quote survives a page reload and
@@ -63,7 +65,7 @@ async def _fetch_remote() -> Optional[QuoteResponse]:
 
 @router.get("", response_model=QuoteResponse)
 async def get_quote():
-    today = date.today()
+    today = today_npt()
     key = today.isoformat()
 
     if key not in _cache:

@@ -10,6 +10,7 @@ import {
   LogOut,
   X,
   BarChart3,
+  CalendarDays,
 } from 'lucide-react';
 import { ActiveView, AIStatus } from '../types';
 import { StreakBadge } from './TaskCompletionBurst';
@@ -50,6 +51,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'today', label: 'Today', icon: Calendar, badge: taskCounts.today },
     { id: 'inbox', label: 'Inbox', icon: Inbox, badge: taskCounts.inbox },
     { id: 'kanban', label: 'Kanban', icon: Kanban },
+    { id: 'calendar', label: 'Calendar', icon: CalendarDays },
     { id: 'dailylog', label: 'Daily Log', icon: Clock },
     { id: 'weeklyreview', label: 'Weekly Review', icon: BarChart3 },
   ];

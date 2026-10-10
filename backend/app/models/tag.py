@@ -1,7 +1,7 @@
-from datetime import datetime
 from sqlalchemy import Column, Integer, String, DateTime, Table, ForeignKey
 from sqlalchemy.orm import relationship
 from backend.app.database import Base
+from backend.app.services.npt import utcnow
 
 task_tags = Table(
     "task_tags",
@@ -16,6 +16,6 @@ class Tag(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(50), nullable=False, unique=True)
     color = Column(String(20), default="#64748b")
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=utcnow)
 
     tasks = relationship("Task", secondary=task_tags, back_populates="tags")

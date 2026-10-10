@@ -22,6 +22,14 @@ else:
         pool_size=5,           # free Postgres caps connections aggressively
         max_overflow=5,
         pool_timeout=30,
+        # Force the session timezone to UTC regardless of what the hosted
+        # database is configured with. The Neon branch timezone is
+        # Asia/Kathmandu, and a naive datetime assigned into a timestamptz
+        # column is interpreted in the *session* timezone -- so without this
+        # any naive value (from a legacy caller or a raw query) would be
+        # stored 05:45 out. Every value this app writes is aware UTC; this
+        # makes sure nothing else can be misread on the way in or out.
+        connect_args={"options": "-c timezone=UTC"},
     )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

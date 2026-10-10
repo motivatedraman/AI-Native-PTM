@@ -11,6 +11,7 @@ from backend.app.schemas import (
     SubtaskCreate, SubtaskUpdate, SubtaskResponse
 )
 from backend.app.services import log_activity, ai_service
+from backend.app.services.npt import utcnow, as_utc
 
 router = APIRouter(prefix="/api/tasks", tags=["Tasks"])
 
@@ -22,7 +23,7 @@ def get_tasks(
     priority: Optional[str] = Query(None, description="Filter by priority"),
     tag: Optional[str] = Query(None, description="Filter by tag name"),
     search: Optional[str] = Query(None, description="Search keyword in title/description"),
-    limit: int = Query(100, ge=1, le=500),
+    limit: int = Query(500, ge=1, le=5000),
     offset: int = Query(0, ge=0),
     db: Session = Depends(get_db)
 ):
@@ -51,9 +52,46 @@ def get_tasks(
         selectinload(Task.project),
     )
 
-    # Order: Priority/Due date hierarchy
-    tasks = query.order_by(Task.due_date.asc().nullslast(), desc(Task.created_at)).offset(offset).limit(limit).all()
+    # Order: Priority/Due date hierarchy.
+    #
+    # `nullslast()` puts tasks with no due date at the END. Combined with a
+    # hard limit that silently truncated the list: with the old default of
+    # 100, anything past 100 tasks dropped off the response, and inbox
+    # captures (which never have a due date) were the first to go. The task
+    # still existed, still appeared in activity_logs, and simply was not in
+    # the response after a refresh.
+    #
+    # The client pages through this with LIMIT/OFFSET, so the sort has to be
+    # a *total* order: without a unique tiebreaker, rows sharing a sort key
+    # can come back in a different order on each query and OFFSET then skips
+    # rows outright. `id` is unique and monotonic, so descending on it makes
+    # the ordering deterministic and keeps a freshly created task adjacent
+    # to others from the same moment.
+    #
+    # Expose the true total so a client can detect truncation instead of
+    # assuming it has everything.
+    tasks = query.order_by(
+        Task.due_date.asc().nullslast(),
+        desc(Task.created_at),
+        desc(Task.id),
+    ).offset(offset).limit(limit).all()
     return tasks
+
+
+@router.get("/count")
+def count_tasks(
+    status: Optional[str] = Query(None),
+    db: Session = Depends(get_db),
+):
+    """Total matching the same filters as GET /api/tasks, ignoring limit.
+
+    Lets the client notice that a response was truncated instead of
+    quietly rendering an incomplete list.
+    """
+    query = db.query(Task)
+    if status:
+        query = query.filter(Task.status == status)
+    return {"total": query.count()}
 
 @router.post("", response_model=TaskResponse, status_code=status.HTTP_201_CREATED)
 def create_task(task_in: TaskCreate, db: Session = Depends(get_db)):
@@ -67,7 +105,7 @@ def create_task(task_in: TaskCreate, db: Session = Depends(get_db)):
         category=task_in.category or "Personal",
         project_id=task_in.project_id,
         parent_task_id=task_in.parent_task_id,
-        created_at=datetime.utcnow()
+        created_at=utcnow()
     )
 
     # Attach tags if any
@@ -114,6 +152,13 @@ async def quick_add_task(payload: TaskQuickAdd, db: Session = Depends(get_db)):
             due_dt = datetime.fromisoformat(parsed.due_date_iso)
         except Exception:
             pass
+        # Normalize to aware UTC. A naive value would be read as server-local
+        # time when Postgres casts it into timestamptz, and this server runs
+        # in UTC while the user is in Nepal -- so the naive case is the one
+        # that silently lands 05:45 out. ai_service already emits offset-aware
+        # values; this covers anything that slips through without one.
+        if due_dt is not None:
+            due_dt = as_utc(due_dt)
 
     task = Task(
         title=parsed.title,
@@ -123,7 +168,7 @@ async def quick_add_task(payload: TaskQuickAdd, db: Session = Depends(get_db)):
         estimated_minutes=parsed.estimated_minutes,
         category=parsed.category or "Personal",
         project_id=project_id,
-        created_at=datetime.utcnow(),
+        created_at=utcnow(),
         ai_metadata={
             "raw_input": raw_text,
             "confidence": parsed.confidence,
@@ -178,10 +223,15 @@ def update_task(task_id: int, task_update: TaskUpdate, db: Session = Depends(get
     for field, value in update_data.items():
         setattr(task, field, value)
 
+    # Same normalization as create: an aware due_date must not be cast into
+    # timestamptz using the server's timezone.
+    if update_data.get("due_date") is not None:
+        task.due_date = as_utc(task.due_date)
+
     # If status changed
     if task.status != old_status:
         if task.status == "done":
-            task.completed_at = datetime.utcnow()
+            task.completed_at = utcnow()
             log_activity(
                 db, action_type="task_completed",
                 description=f"Completed task '{task.title}'",
@@ -199,7 +249,7 @@ def update_task(task_id: int, task_update: TaskUpdate, db: Session = Depends(get
     else:
         log_activity(db, action_type="task_edited", description=f"Updated details for '{task.title}'", task_id=task.id)
 
-    task.updated_at = datetime.utcnow()
+    task.updated_at = utcnow()
     db.commit()
     db.refresh(task)
     return task
@@ -212,8 +262,8 @@ def complete_task(task_id: int, db: Session = Depends(get_db)):
 
     old_status = task.status
     task.status = "done"
-    task.completed_at = datetime.utcnow()
-    task.updated_at = datetime.utcnow()
+    task.completed_at = utcnow()
+    task.updated_at = utcnow()
     db.commit()
     db.refresh(task)
 
@@ -233,7 +283,7 @@ def reopen_task(task_id: int, db: Session = Depends(get_db)):
 
     task.status = "planned"
     task.completed_at = None
-    task.updated_at = datetime.utcnow()
+    task.updated_at = utcnow()
     db.commit()
     db.refresh(task)
 
@@ -247,7 +297,7 @@ def log_task_time(task_id: int, minutes: int = Query(..., ge=1, le=1440), db: Se
         raise HTTPException(status_code=404, detail="Task not found")
 
     task.spent_minutes = (task.spent_minutes or 0) + minutes
-    task.updated_at = datetime.utcnow()
+    task.updated_at = utcnow()
 
     log_activity(
         db, action_type="time_logged",

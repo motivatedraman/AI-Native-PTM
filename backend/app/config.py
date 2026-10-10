@@ -19,6 +19,13 @@ class Settings(BaseSettings):
     AI_MODEL: str = "gemini-3.5-flash-lite"
     AVAILABLE_START_HOUR: int = 6
     AVAILABLE_END_HOUR: int = 22
+
+    # The timezone whose calendar days the app treats as "today". Read once
+    # by services/npt.py instead of being re-spelled as a +05:45 offset in
+    # several modules. Storage is always UTC; this only decides which
+    # calendar day a timestamp belongs to.
+    APP_TIMEZONE: str = "Asia/Kathmandu"
+
     SECRET_KEY: str = "dev-secret-key-replace-in-production-nexus-os-32chars"
     CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173"
 

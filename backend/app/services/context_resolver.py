@@ -13,10 +13,14 @@ from sqlalchemy import and_, or_, desc
 from backend.app.models import Task, Project, Tag, ActivityLog, Subtask
 from backend.app.models.task_dependency import TaskDependency
 from backend.app.models.user_settings import UserSettings
-from backend.app.services.npt import NPT, now_npt as _now_npt, today_npt as _today_npt, day_bounds_utc as _day_bounds_utc
+from backend.app.services.npt import (
+    NPT,
+    utcnow,
+    now_npt as _now_npt,
+    today_npt as _today_npt,
+    day_bounds_utc as _day_bounds_utc,
+)
 
-def _utc_now() -> datetime:
-    return datetime.utcnow()
 
 
 def _get_user_settings(db: Session) -> UserSettings:
@@ -37,7 +41,7 @@ class ContextResolver:
         self.user_settings = _get_user_settings(db)
         self.today = _today_npt()
         self.now_npt = _now_npt()
-        self.utc_now = _utc_now()
+        self.utc_now = utcnow()
 
     def get_today_context(self, custom_chunks: Optional[List[Dict[str, Any]]] = None) -> Dict[str, Any]:
         """Context for 'What should I do today / now?' and 'Plan My Day' queries with dynamic time chunks."""

@@ -1,8 +1,8 @@
-from datetime import datetime
 from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, JSON
 from sqlalchemy.orm import relationship
 from backend.app.database import Base
 from backend.app.models.tag import task_tags
+from backend.app.services.npt import utcnow
 
 class Task(Base):
     __tablename__ = "tasks"
@@ -12,7 +12,7 @@ class Task(Base):
     description = Column(Text, nullable=True)
     status = Column(String(30), default="inbox", index=True)  # inbox, planned, doing, done
     priority = Column(String(20), default="medium", index=True)  # low, medium, high, urgent
-    due_date = Column(DateTime, nullable=True, index=True)
+    due_date = Column(DateTime(timezone=True), nullable=True, index=True)
     estimated_minutes = Column(Integer, nullable=True)
     spent_minutes = Column(Integer, default=0, nullable=False)
     category = Column(String(50), default="Personal", index=True)  # Personal, University, Work, Project, Other
@@ -20,9 +20,11 @@ class Task(Base):
     project_id = Column(Integer, ForeignKey("projects.id", ondelete="SET NULL"), nullable=True)
     parent_task_id = Column(Integer, ForeignKey("tasks.id", ondelete="CASCADE"), nullable=True)
     
-    created_at = Column(DateTime, default=datetime.utcnow, index=True)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    completed_at = Column(DateTime, nullable=True)
+    # timezone=True: these hold instants, not wall-clock readings. Keeps the
+    # stored value independent of the database's own timezone setting.
+    created_at = Column(DateTime(timezone=True), default=utcnow, index=True)
+    updated_at = Column(DateTime(timezone=True), default=utcnow, onupdate=utcnow)
+    completed_at = Column(DateTime(timezone=True), nullable=True)
     
     ai_metadata = Column(JSON, nullable=True)  # suggestions, parsed_entities, confidence, reasoning
 

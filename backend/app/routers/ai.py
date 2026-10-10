@@ -18,7 +18,7 @@ from backend.app.schemas import (
 )
 from backend.app.services import ai_service
 from backend.app.services.context_resolver import ContextResolver
-from backend.app.services.npt import day_bounds_utc
+from backend.app.services.npt import day_bounds_utc, utcnow
 
 router = APIRouter(prefix="/api/ai", tags=["AI Integration"])
 
@@ -251,7 +251,7 @@ async def enhanced_daily_summary(date_str: str, db: Session = Depends(get_db)):
     ).all()
 
     overdue_tasks = db.query(Task).filter(
-        Task.due_date < datetime.utcnow(),
+        Task.due_date < utcnow(),
         Task.due_date.isnot(None),
         Task.status != "done"
     ).order_by(Task.due_date.asc()).limit(5).all()
