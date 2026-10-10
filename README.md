@@ -4,6 +4,8 @@ A personal task and execution manager. FastAPI + SQLAlchemy + React + Vite + Tai
 
 The app does one thing: show you today's tasks, and let you add new ones without thinking about it. Everything else is deliberately secondary.
 
+> **Open issue:** Nepali (Devanagari) text does not render. Bikram Sambat dates fall back to Latin. See [KNOWN_ISSUES.md](KNOWN_ISSUES.md).
+
 ---
 
 ## Why this README reads differently
@@ -181,6 +183,8 @@ Nepali public holidays are a checked-in JSON file, `frontend/src/config/nepalHol
 There is no API for this, which was checked rather than assumed. **Nager.Date** is the usual free option and does not carry Nepal at all — `NP` is absent from `/api/v3/AvailableCountries`, and a direct query for 2026 returns `204`. **Calendarific** and **AbstractAPI** both require a key, so Nepal coverage could not be verified. **timeanddate.com** has correct 2026 data but answers scripted requests with `403`. **Google Calendar's** holiday feed needs a registered API key. The closest match, `casualsnek/npEventsAPI`, publishes usable JSON on GitHub, but its current-year file (BS 2083) has one populated day out of 365.
 
 So the trade is explicit: ~5 minutes of maintenance once a year when the gazette publishes, in exchange for no network call, no key, no rate limit, and no new way for the app to fail. Entries carry a `type` (`public` / `optional` / `local`) because a nationwide day off and a regional festival are not the same thing for planning. Dates carried forward ahead of the gazette are marked `provisional` rather than presented as confirmed — lunar-calendar dates in an unpublished year genuinely cannot be known.
+
+**Nepali text does not render. See [KNOWN_ISSUES.md](KNOWN_ISSUES.md).** Bikram Sambat dates are shown in Latin (`Kartik 1`) as a workaround, and the Devanagari holiday names in `nepalHolidays.json` are kept as data but not rendered. The fonts this app loads carry no Devanagari glyphs, so there is nothing to draw.
 
 ---
 
